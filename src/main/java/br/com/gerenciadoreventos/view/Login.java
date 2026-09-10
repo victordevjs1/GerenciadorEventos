@@ -9,39 +9,60 @@ import java.awt.*;
 
 public class Login extends JFrame {
 
-    private UsuarioService usuarioService = new UsuarioService();
+    private final UsuarioService usuarioService = new UsuarioService();
 
-    private JTextField campoUsuario;
+    private JTextField campoEmail;
     private JPasswordField campoSenha;
     private JButton botaoEntrar;
     private JLabel mensagemErro;
 
-    // Cores
+    // =====================================================
+    // CORES
+    // =====================================================
+
     private final Color FUNDO = new Color(248, 249, 251);
     private final Color AZUL = new Color(65, 105, 225);
     private final Color TEXTO = new Color(35, 38, 45);
     private final Color CINZA = new Color(120, 125, 135);
+    private final Color VERMELHO = new Color(220, 60, 60);
+
+
+    // =====================================================
+    // CONSTRUTOR
+    // =====================================================
 
     public Login() {
 
         setTitle("Login - Gerenciador de Eventos");
+
         setSize(850, 500);
+
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
         setLocationRelativeTo(null);
+
+        setResizable(false);
 
         criarInterface();
     }
 
+
+    // =====================================================
+    // CRIAR INTERFACE
+    // =====================================================
+
     private void criarInterface() {
 
-        JPanel principal = new JPanel(new GridLayout(1, 2));
+        JPanel principal = new JPanel(
+                new GridLayout(1, 2)
+        );
 
         principal.setBackground(FUNDO);
 
 
-        // =====================================
+        // =================================================
         // PAINEL DE APRESENTAÇÃO
-        // =====================================
+        // =================================================
 
         JPanel painelApresentacao = new JPanel();
 
@@ -56,16 +77,18 @@ public class Login extends JFrame {
 
         painelApresentacao.setBorder(
                 new EmptyBorder(
-                        80, 50, 80, 50
+                        80,
+                        50,
+                        80,
+                        50
                 )
         );
 
 
-        JLabel tituloSistema =
-                new JLabel(
-                        "<html>Gerencie seus eventos escolares <br>" +
-                                "de forma simples e organizada."
-                );
+        JLabel tituloSistema = new JLabel(
+                "<html>Gerencie seus eventos escolares<br>" +
+                        "de forma simples e organizada.</html>"
+        );
 
         tituloSistema.setFont(
                 new Font(
@@ -82,12 +105,11 @@ public class Login extends JFrame {
         );
 
 
-        JLabel descricao =
-                new JLabel(
-                        "<html>Crie eventos, acompanhe<br>" +
-                                "atividades e distribua<br>" +
-                                "responsabilidades.</html>"
-                );
+        JLabel descricao = new JLabel(
+                "<html>Crie eventos, acompanhe<br>" +
+                        "atividades e distribua<br>" +
+                        "responsabilidades.</html>"
+        );
 
         descricao.setFont(
                 new Font(
@@ -109,19 +131,15 @@ public class Login extends JFrame {
         painelApresentacao.add(tituloSistema);
 
         painelApresentacao.add(
-                Box.createVerticalStrut(5)
-        );
-
-        painelApresentacao.add(
                 Box.createVerticalStrut(35)
         );
 
         painelApresentacao.add(descricao);
 
 
-        // =====================================
+        // =================================================
         // PAINEL DE LOGIN
-        // =====================================
+        // =================================================
 
         JPanel painelLogin = new JPanel();
 
@@ -136,13 +154,21 @@ public class Login extends JFrame {
 
         painelLogin.setBorder(
                 new EmptyBorder(
-                        70, 65, 70, 65
+                        70,
+                        65,
+                        70,
+                        65
                 )
         );
 
 
-        JLabel titulo =
-                new JLabel("Bem-vindo!");
+        // =================================================
+        // TÍTULO
+        // =================================================
+
+        JLabel titulo = new JLabel(
+                "Bem-vindo!"
+        );
 
         titulo.setFont(
                 new Font(
@@ -159,10 +185,9 @@ public class Login extends JFrame {
         );
 
 
-        JLabel descricaoLogin =
-                new JLabel(
-                        "Entre para acessar o sistema"
-                );
+        JLabel descricaoLogin = new JLabel(
+                "Entre para acessar o sistema"
+        );
 
         descricaoLogin.setFont(
                 new Font(
@@ -192,15 +217,15 @@ public class Login extends JFrame {
         );
 
 
-        // =====================================
-        // USUÁRIO
-        // =====================================
+        // =================================================
+        // E-MAIL
+        // =================================================
 
-        JLabel labelUsuario =
-                new JLabel("E-mail");
+        JLabel labelEmail = new JLabel(
+                "E-mail"
+        );
 
-
-        labelUsuario.setFont(
+        labelEmail.setFont(
                 new Font(
                         "Arial",
                         Font.BOLD,
@@ -208,42 +233,42 @@ public class Login extends JFrame {
                 )
         );
 
-        labelUsuario.setForeground(TEXTO);
+        labelEmail.setForeground(TEXTO);
 
-        labelUsuario.setAlignmentX(
+        labelEmail.setAlignmentX(
                 Component.LEFT_ALIGNMENT
         );
 
 
-        campoUsuario =
-                new JTextField();
+        campoEmail = new JTextField();
 
-        estilizarCampo(campoUsuario);
+        estilizarCampo(campoEmail);
 
-        campoUsuario.setAlignmentX(
+        campoEmail.setAlignmentX(
                 Component.LEFT_ALIGNMENT
         );
 
 
-        painelLogin.add(labelUsuario);
+        painelLogin.add(labelEmail);
 
         painelLogin.add(
                 Box.createVerticalStrut(8)
         );
 
-        painelLogin.add(campoUsuario);
+        painelLogin.add(campoEmail);
 
         painelLogin.add(
                 Box.createVerticalStrut(20)
         );
 
 
-        // =====================================
+        // =================================================
         // SENHA
-        // =====================================
+        // =================================================
 
-        JLabel labelSenha =
-                new JLabel("Senha");
+        JLabel labelSenha = new JLabel(
+                "Senha"
+        );
 
         labelSenha.setFont(
                 new Font(
@@ -260,8 +285,7 @@ public class Login extends JFrame {
         );
 
 
-        campoSenha =
-                new JPasswordField();
+        campoSenha = new JPasswordField();
 
         estilizarCampo(campoSenha);
 
@@ -283,12 +307,13 @@ public class Login extends JFrame {
         );
 
 
-        // =====================================
+        // =================================================
         // BOTÃO ENTRAR
-        // =====================================
+        // =================================================
 
-        botaoEntrar =
-                new JButton("Entrar");
+        botaoEntrar = new JButton(
+                "Entrar"
+        );
 
         botaoEntrar.setFont(
                 new Font(
@@ -302,11 +327,11 @@ public class Login extends JFrame {
 
         botaoEntrar.setBackground(AZUL);
 
-        botaoEntrar.setBorder(
-                new EmptyBorder(
-                        13, 20, 13, 20
-                )
-        );
+        botaoEntrar.setOpaque(true);
+
+        botaoEntrar.setContentAreaFilled(true);
+
+        botaoEntrar.setBorderPainted(false);
 
         botaoEntrar.setFocusPainted(false);
 
@@ -314,13 +339,31 @@ public class Login extends JFrame {
                 new Cursor(Cursor.HAND_CURSOR)
         );
 
+        botaoEntrar.setBorder(
+                new EmptyBorder(
+                        13, 20, 13, 20
+                )
+        );
 
-        // =====================================
+
+        botaoEntrar.setFocusPainted(false);
+
+        botaoEntrar.setCursor(
+                new Cursor(
+                        Cursor.HAND_CURSOR
+                )
+        );
+
+        botaoEntrar.setAlignmentX(
+                Component.CENTER_ALIGNMENT
+        );
+
+
+        // =================================================
         // MENSAGEM DE ERRO
-        // =====================================
+        // =================================================
 
-        mensagemErro =
-                new JLabel(" ");
+        mensagemErro = new JLabel(" ");
 
         mensagemErro.setFont(
                 new Font(
@@ -330,19 +373,20 @@ public class Login extends JFrame {
                 )
         );
 
-        mensagemErro.setForeground(
-                new Color(220, 60, 60)
+        mensagemErro.setForeground(VERMELHO);
+
+        mensagemErro.setAlignmentX(
+                Component.CENTER_ALIGNMENT
         );
 
 
-        // =====================================
-        // LINK ESQUECI A SENHA
-        // =====================================
+        // =================================================
+        // ESQUECEU A SENHA
+        // =================================================
 
-        JLabel esqueceuSenha =
-                new JLabel(
-                        "<html><u>Esqueceu sua senha?</u></html>"
-                );
+        JLabel esqueceuSenha = new JLabel(
+                "<html><u>Esqueceu sua senha?</u></html>"
+        );
 
         esqueceuSenha.setFont(
                 new Font(
@@ -355,16 +399,21 @@ public class Login extends JFrame {
         esqueceuSenha.setForeground(AZUL);
 
         esqueceuSenha.setCursor(
-                new Cursor(Cursor.HAND_CURSOR)
+                new Cursor(
+                        Cursor.HAND_CURSOR
+                )
+        );
+
+        esqueceuSenha.setAlignmentX(
+                Component.CENTER_ALIGNMENT
         );
 
 
-        // =====================================
-        // PAINEL DAS AÇÕES
-        // =====================================
+        // =================================================
+        // PAINEL DE AÇÕES
+        // =================================================
 
-        JPanel painelAcoes =
-                new JPanel();
+        JPanel painelAcoes = new JPanel();
 
         painelAcoes.setLayout(
                 new BoxLayout(
@@ -377,19 +426,6 @@ public class Login extends JFrame {
 
         painelAcoes.setAlignmentX(
                 Component.LEFT_ALIGNMENT
-        );
-
-
-        botaoEntrar.setAlignmentX(
-                Component.CENTER_ALIGNMENT
-        );
-
-        mensagemErro.setAlignmentX(
-                Component.CENTER_ALIGNMENT
-        );
-
-        esqueceuSenha.setAlignmentX(
-                Component.CENTER_ALIGNMENT
         );
 
 
@@ -411,41 +447,45 @@ public class Login extends JFrame {
         painelLogin.add(painelAcoes);
 
 
-        // =====================================
-        // EVENTO DO LOGIN
-        // =====================================
+        // =================================================
+        // EVENTO DO BOTÃO
+        // =================================================
 
         botaoEntrar.addActionListener(
                 e -> realizarLogin()
         );
 
 
-        // =====================================
-        // ENTER PARA LOGAR
-        // =====================================
+        // =================================================
+        // ENTER PARA LOGIN
+        // =================================================
 
         campoSenha.addActionListener(
                 e -> realizarLogin()
         );
 
+        campoEmail.addActionListener(
+                e -> campoSenha.requestFocus()
+        );
 
-        // =====================================
-        // JUNTAR OS DOIS PAINÉIS
-        // =====================================
 
-        // Login fica à esquerda
+        // =================================================
+        // ADICIONAR OS PAINÉIS
+        // =================================================
+
+        // Login à esquerda
         principal.add(painelLogin);
 
-        // Apresentação azul fica à direita
+        // Apresentação à direita
         principal.add(painelApresentacao);
 
         add(principal);
     }
 
 
-    // =====================================
+    // =====================================================
     // ESTILIZAR CAMPOS
-    // =====================================
+    // =====================================================
 
     private void estilizarCampo(
             JTextField campo
@@ -465,6 +505,13 @@ public class Login extends JFrame {
                 )
         );
 
+        campo.setMinimumSize(
+                new Dimension(
+                        300,
+                        45
+                )
+        );
+
         campo.setFont(
                 new Font(
                         "Arial",
@@ -477,34 +524,57 @@ public class Login extends JFrame {
                 BorderFactory.createCompoundBorder(
 
                         BorderFactory.createLineBorder(
-                                new Color(220, 222, 226)
+                                new Color(
+                                        220,
+                                        222,
+                                        226
+                                )
                         ),
 
                         new EmptyBorder(
-                                10, 12, 10, 12
+                                10,
+                                12,
+                                10,
+                                12
                         )
                 )
         );
 
         campo.setBackground(
-                new Color(250, 250, 251)
+                new Color(
+                        250,
+                        250,
+                        251
+                )
         );
     }
 
 
-    // =====================================
-    // LOGIN
-    // =====================================
+    // =====================================================
+    // REALIZAR LOGIN
+    // =====================================================
 
     private void realizarLogin() {
 
-        String email =
-                campoUsuario.getText().trim();
+        String email = campoEmail.getText().trim();
 
-        String senha =
-                new String(
-                        campoSenha.getPassword()
-                );
+        String senha = new String(
+                campoSenha.getPassword()
+        );
+
+        if (email.isBlank()) {
+            mensagemErro.setForeground(VERMELHO);
+            mensagemErro.setText("Informe o e-mail.");
+            campoEmail.requestFocus();
+            return;
+        }
+
+        if (senha.isBlank()) {
+            mensagemErro.setForeground(VERMELHO);
+            mensagemErro.setText("Informe a senha.");
+            campoSenha.requestFocus();
+            return;
+        }
 
         Usuario usuarioEncontrado =
                 usuarioService.autenticar(
@@ -515,7 +585,7 @@ public class Login extends JFrame {
         if (usuarioEncontrado != null) {
 
             Dashboard dashboard =
-                    new Dashboard();
+                    new Dashboard(usuarioEncontrado);
 
             dashboard.setVisible(true);
 
@@ -523,27 +593,41 @@ public class Login extends JFrame {
 
         } else {
 
+            mensagemErro.setForeground(VERMELHO);
             mensagemErro.setText(
                     "E-mail ou senha incorretos!"
             );
+
+            campoSenha.setText("");
+            campoSenha.requestFocus();
         }
     }
 
 
 
-    // =====================================
+    // =====================================================
     // MAIN
-    // =====================================
+    // =====================================================
 
     public static void main(String[] args) {
 
         SwingUtilities.invokeLater(() -> {
 
-            Login login =
-                    new Login();
+            try {
+
+                UIManager.setLookAndFeel(
+                        UIManager.getSystemLookAndFeelClassName()
+                );
+
+            } catch (Exception e) {
+
+                e.printStackTrace();
+            }
+
+
+            Login login = new Login();
 
             login.setVisible(true);
-
         });
     }
 }

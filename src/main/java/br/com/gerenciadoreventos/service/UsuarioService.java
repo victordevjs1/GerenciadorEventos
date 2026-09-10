@@ -18,23 +18,27 @@ public class UsuarioService {
             return null;
         }
 
-        Usuario usuario = usuarioDAO.buscarPorEmail(
-                email.trim()
-        );
+        Usuario usuario = usuarioDAO.buscarPorEmail(email);
 
         if (usuario == null) {
             return null;
         }
 
-        boolean senhaCorreta = BCrypt.checkpw(
-                senha,
-                usuario.getSenha()
-        );
+        try {
 
-        if (!senhaCorreta) {
-            return null;
+            if (BCrypt.checkpw(
+                    senha,
+                    usuario.getSenha()
+            )) {
+
+                return usuario;
+            }
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
         }
 
-        return usuario;
+        return null;
     }
 }
