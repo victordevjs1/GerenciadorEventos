@@ -12,7 +12,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.Map;
+import br.com.gerenciadoreventos.database.Conexao;
+import br.com.gerenciadoreventos.model.Evento;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 public class DashboardDAO {
 
     // =========================================================
@@ -150,5 +157,66 @@ public class DashboardDAO {
         }
 
         return resultado;
+    }
+
+    // Proximos eventos
+    public List<Evento> buscarProximosEventos(int limite) {
+
+        String sql = """
+        SELECT
+            id_evento,
+            nome,
+            descricao,
+            data_inicio,
+            data_fim,
+            local,
+            capacidade,
+            status
+        FROM evento
+        WHERE data_inicio >= NOW()
+        AND status NOT IN ('CANCELADO', 'ENCERRADO')
+        ORDER BY data_inicio ASC
+        LIMIT ?
+        """;
+
+        List<Evento> eventos = new ArrayList<>();
+
+        try (
+                Connection conn = Conexao.conectar();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+
+            stmt.setInt(1, limite);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+
+                while (rs.next()) {
+
+                    Evento evento = new Evento();
+
+                    evento.setId(rs.getLong("id_evento"));
+                    evento.setNome(rs.getString("nome"));
+                    evento.setDescricao(rs.getString("descricao"));
+                    evento.setDataInicio(
+                            rs.getTimestamp("data_inicio").toLocalDateTime()
+                    );
+                    evento.setDataFim(
+                            rs.getTimestamp("data_fim") != null
+                                    ? rs.getTimestamp("data_fim").toLocalDateTime()
+                                    : null
+                    );
+                    evento.setLocal(rs.getString("local"));
+                    evento.setCapacidade(rs.getInt("capacidade"));
+                    evento.setStatus(rs.getString("status"));
+
+                    eventos.add(evento);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return eventos;
     }
 }

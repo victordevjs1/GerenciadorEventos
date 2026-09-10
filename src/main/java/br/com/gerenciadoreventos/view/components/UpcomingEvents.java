@@ -1,193 +1,349 @@
 package br.com.gerenciadoreventos.view.components;
 
+import br.com.gerenciadoreventos.model.Evento;
+import br.com.gerenciadoreventos.service.DashboardService;
+
+import org.kordamp.ikonli.swing.FontIcon;
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public class UpcomingEvents extends JPanel {
 
-    private static final Color BRANCO =
-            Color.WHITE;
+    private final DashboardService service = new DashboardService();
 
-    private static final Color TEXTO =
-            new Color(15, 23, 42);
+    private final Color FUNDO = new Color(255, 255, 255);
+    private final Color AZUL = new Color(122, 162, 247);
+    private final Color TEXTO = new Color(35, 35, 45);
+    private final Color CINZA = new Color(110, 110, 120);
+    private final Color BORDA = new Color(235, 236, 240);
 
-    private static final Color SECUNDARIO =
-            new Color(100, 116, 139);
-
-    private static final Color BORDA =
-            new Color(226, 232, 240);
+    private final DateTimeFormatter formatoData =
+            DateTimeFormatter.ofPattern("dd 'de' MMMM", new java.util.Locale("pt", "BR"));
 
     public UpcomingEvents() {
 
-        setLayout(
-                new BorderLayout()
-        );
+        setLayout(new BorderLayout());
+        setBackground(FUNDO);
 
-        setBackground(BRANCO);
+        setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        setBorder(
-                new RoundedBorder(
-                        14,
-                        BORDA
-                )
-        );
+        // =====================================================
+        // CABEÇALHO
+        // =====================================================
 
-        add(
-                criarTitulo(),
-                BorderLayout.NORTH
-        );
+        JPanel cabecalho = new JPanel(new BorderLayout());
+        cabecalho.setBackground(FUNDO);
 
-        add(
-                criarLista(),
-                BorderLayout.CENTER
-        );
-    }
+        JLabel titulo = new JLabel("Próximos eventos");
 
-    private JLabel criarTitulo() {
-
-        JLabel titulo =
-                new JLabel(
-                        "Próximos Eventos"
-                );
-
-        titulo.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        14
-                )
-        );
-
+        titulo.setFont(new Font("Arial", Font.BOLD, 17));
         titulo.setForeground(TEXTO);
 
-        titulo.setBorder(
-                new EmptyBorder(
-                        15,
-                        18,
-                        10,
-                        18
-                )
-        );
+        JLabel subtitulo = new JLabel("Eventos agendados");
 
-        return titulo;
-    }
+        subtitulo.setFont(new Font("Arial", Font.PLAIN, 12));
+        subtitulo.setForeground(CINZA);
 
-    private JPanel criarLista() {
+        JPanel textos = new JPanel();
+        textos.setLayout(new BoxLayout(textos, BoxLayout.Y_AXIS));
+        textos.setBackground(FUNDO);
+
+        textos.add(titulo);
+        textos.add(Box.createVerticalStrut(4));
+        textos.add(subtitulo);
+
+        cabecalho.add(textos, BorderLayout.WEST);
+
+        add(cabecalho, BorderLayout.NORTH);
+
+        // =====================================================
+        // LISTA
+        // =====================================================
 
         JPanel lista = new JPanel();
 
         lista.setLayout(
-                new BoxLayout(
-                        lista,
-                        BoxLayout.Y_AXIS
-                )
+                new BoxLayout(lista, BoxLayout.Y_AXIS)
         );
 
-        lista.setBackground(BRANCO);
+        lista.setBackground(FUNDO);
 
-        lista.setBorder(
-                new EmptyBorder(
-                        0,
-                        15,
-                        15,
-                        15
-                )
-        );
+        List<Evento> eventos =
+                service.obterProximosEventos(4);
 
-        lista.add(
-                criarEvento(
-                        "Olimpíadas",
-                        "15/09",
-                        "7:00 - 14:00"
-                )
-        );
+        if (eventos.isEmpty()) {
 
-        lista.add(
-                Box.createVerticalStrut(12)
-        );
+            JLabel vazio = new JLabel(
+                    "Nenhum evento próximo."
+            );
 
-        lista.add(
-                criarEvento(
-                        "Semana de TI",
-                        "26/09",
-                        "7:30 - 18:20"
-                )
-        );
+            vazio.setFont(
+                    new Font("Arial", Font.PLAIN, 13)
+            );
 
-        return lista;
-    }
+            vazio.setForeground(CINZA);
 
-    private JPanel criarEvento(
-            String nome,
-            String data,
-            String horario
-    ) {
+            vazio.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JPanel painel = new JPanel();
+            lista.add(Box.createVerticalStrut(25));
+            lista.add(vazio);
 
-        painel.setLayout(
-                new BoxLayout(
-                        painel,
-                        BoxLayout.Y_AXIS
-                )
-        );
+        } else {
 
-        painel.setBackground(BRANCO);
+            lista.add(Box.createVerticalStrut(15));
 
-        JLabel titulo =
-                new JLabel(nome);
+            for (Evento evento : eventos) {
 
-        titulo.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        14
-                )
-        );
+                JPanel card = criarCard(evento);
 
-        titulo.setForeground(TEXTO);
-
-        JLabel info =
-                new JLabel(
-                        data
-                                + "  •  "
-                                + horario
+                card.setAlignmentX(
+                        Component.LEFT_ALIGNMENT
                 );
 
-        info.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        13
+                lista.add(card);
+                lista.add(Box.createVerticalStrut(10));
+            }
+        }
+
+        add(lista, BorderLayout.CENTER);
+    }
+
+    // =========================================================
+    // CARD DO EVENTO
+    // =========================================================
+
+    private JPanel criarCard(Evento evento) {
+
+        JPanel card = new JPanel(
+                new BorderLayout(14, 0)
+        );
+
+        card.setBackground(Color.WHITE);
+
+        card.setBorder(
+                BorderFactory.createCompoundBorder(
+                        new RoundedBorder(10, BORDA),
+                        new EmptyBorder(12, 12, 12, 12)
                 )
         );
 
-        info.setForeground(SECUNDARIO);
+        // =====================================================
+        // DATA
+        // =====================================================
 
-        painel.add(titulo);
+        JPanel painelData = new JPanel();
 
-        painel.add(
+        painelData.setLayout(
+                new BoxLayout(
+                        painelData,
+                        BoxLayout.Y_AXIS
+                )
+        );
+
+        painelData.setBackground(
+                new Color(242, 246, 255)
+        );
+
+        painelData.setPreferredSize(
+                new Dimension(62, 58)
+        );
+
+        painelData.setBorder(
+                new EmptyBorder(7, 5, 7, 5)
+        );
+
+        String dia = String.valueOf(
+                evento.getDataInicio().getDayOfMonth()
+        );
+
+        String mes = evento.getDataInicio()
+                .format(
+                        DateTimeFormatter.ofPattern(
+                                "MMM",
+                                new java.util.Locale("pt", "BR")
+                        )
+                )
+                .replace(".", "")
+                .toUpperCase();
+
+        JLabel labelDia = new JLabel(dia);
+
+        labelDia.setFont(
+                new Font("Arial", Font.BOLD, 20)
+        );
+
+        labelDia.setForeground(AZUL);
+
+        labelDia.setAlignmentX(
+                Component.CENTER_ALIGNMENT
+        );
+
+        JLabel labelMes = new JLabel(mes);
+
+        labelMes.setFont(
+                new Font("Arial", Font.BOLD, 10)
+        );
+
+        labelMes.setForeground(AZUL);
+
+        labelMes.setAlignmentX(
+                Component.CENTER_ALIGNMENT
+        );
+
+        painelData.add(labelDia);
+        painelData.add(Box.createVerticalStrut(1));
+        painelData.add(labelMes);
+
+        card.add(
+                painelData,
+                BorderLayout.WEST
+        );
+
+        // =====================================================
+        // INFORMAÇÕES
+        // =====================================================
+
+        JPanel informacoes = new JPanel();
+
+        informacoes.setLayout(
+                new BoxLayout(
+                        informacoes,
+                        BoxLayout.Y_AXIS
+                )
+        );
+
+        informacoes.setBackground(Color.WHITE);
+
+        JLabel nome = new JLabel(
+                evento.getNome()
+        );
+
+        nome.setFont(
+                new Font("Arial", Font.BOLD, 14)
+        );
+
+        nome.setForeground(TEXTO);
+
+        nome.setAlignmentX(
+                Component.LEFT_ALIGNMENT
+        );
+
+        informacoes.add(nome);
+
+        informacoes.add(
+                Box.createVerticalStrut(7)
+        );
+
+        // Horário
+
+        JLabel horario = new JLabel(
+                evento.getDataInicio()
+                        .format(
+                                DateTimeFormatter.ofPattern("HH:mm")
+                        )
+        );
+
+        horario.setIcon(
+                FontIcon.of(
+                        FontAwesomeSolid.CLOCK,
+                        12,
+                        CINZA
+                )
+        );
+
+        horario.setIconTextGap(6);
+
+        horario.setFont(
+                new Font("Arial", Font.PLAIN, 12)
+        );
+
+        horario.setForeground(CINZA);
+
+        horario.setAlignmentX(
+                Component.LEFT_ALIGNMENT
+        );
+
+        informacoes.add(horario);
+
+        informacoes.add(
                 Box.createVerticalStrut(4)
         );
 
-        painel.add(info);
+        // Local
 
-        return painel;
+        String local = evento.getLocal();
+
+        if (local == null || local.isBlank()) {
+            local = "Local não informado";
+        }
+
+        JLabel labelLocal = new JLabel(
+                local
+        );
+
+        labelLocal.setIcon(
+                FontIcon.of(
+                        FontAwesomeSolid.MAP_MARKER_ALT,
+                        12,
+                        CINZA
+                )
+        );
+
+        labelLocal.setIconTextGap(6);
+
+        labelLocal.setForeground(CINZA);
+
+        labelLocal.setAlignmentX(
+                Component.LEFT_ALIGNMENT
+        );
+
+        informacoes.add(labelLocal);
+
+        card.add(
+                informacoes,
+                BorderLayout.CENTER
+        );
+
+        return card;
     }
 
-    private static class RoundedBorder
-            extends javax.swing.border.AbstractBorder {
+    // =========================================================
+    // BORDA ARREDONDADA
+    // =========================================================
 
-        private final int raio;
+    private static class RoundedBorder
+            implements javax.swing.border.Border {
+
+        private final int radius;
         private final Color cor;
 
-        RoundedBorder(
-                int raio,
+        public RoundedBorder(
+                int radius,
                 Color cor
         ) {
-            this.raio = raio;
+            this.radius = radius;
             this.cor = cor;
+        }
+
+        @Override
+        public Insets getBorderInsets(Component c) {
+
+            return new Insets(
+                    radius,
+                    radius,
+                    radius,
+                    radius
+            );
+        }
+
+        @Override
+        public boolean isBorderOpaque() {
+            return false;
         }
 
         @Override
@@ -215,8 +371,8 @@ public class UpcomingEvents extends JPanel {
                     y,
                     width - 1,
                     height - 1,
-                    raio,
-                    raio
+                    radius,
+                    radius
             );
 
             g2.dispose();
