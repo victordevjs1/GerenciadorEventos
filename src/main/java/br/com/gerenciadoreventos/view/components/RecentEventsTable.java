@@ -1,8 +1,13 @@
 package br.com.gerenciadoreventos.view.components;
 
+import br.com.gerenciadoreventos.model.Evento;
+import br.com.gerenciadoreventos.service.DashboardService;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public class RecentEventsTable extends JPanel {
 
@@ -20,6 +25,12 @@ public class RecentEventsTable extends JPanel {
 
     private static final Color AZUL_CLARO =
             new Color(239, 246, 255);
+
+    private final DashboardService service =
+            new DashboardService();
+
+    private final DateTimeFormatter formatoData =
+            DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public RecentEventsTable() {
 
@@ -46,6 +57,11 @@ public class RecentEventsTable extends JPanel {
                 BorderLayout.CENTER
         );
     }
+
+
+    // =========================================================
+    // TÍTULO
+    // =========================================================
 
     private JLabel criarTitulo() {
 
@@ -76,6 +92,11 @@ public class RecentEventsTable extends JPanel {
         return titulo;
     }
 
+
+    // =========================================================
+    // TABELA
+    // =========================================================
+
     private JScrollPane criarTabela() {
 
         String[] colunas = {
@@ -85,32 +106,63 @@ public class RecentEventsTable extends JPanel {
                 "Status"
         };
 
-        Object[][] dados = {
-                {
-                        "Interclasse",
-                        "15/09",
-                        "125",
-                        "Aberto"
-                },
-                {
-                        "Semana de TI",
-                        "26/09",
-                        "80",
-                        "Aberto"
-                },
-                {
-                        "Feira de Projetos",
-                        "20/06",
-                        "300",
-                        "Fechado"
-                }
-        };
+
+        // =====================================================
+        // BUSCAR EVENTOS DO BANCO
+        // =====================================================
+
+        List<Evento> eventos =
+                service.obterEventosRecentes(5);
+
+
+        Object[][] dados =
+                new Object[eventos.size()][4];
+
+
+        for (int i = 0; i < eventos.size(); i++) {
+
+            Evento evento = eventos.get(i);
+
+            // Evento
+            dados[i][0] =
+                    evento.getNome();
+
+
+            // Data
+            if (evento.getDataInicio() != null) {
+
+                dados[i][1] =
+                        evento.getDataInicio()
+                                .format(formatoData);
+
+            } else {
+
+                dados[i][1] =
+                        "-";
+            }
+
+
+            // Inscritos
+            dados[i][2] =
+                    service.contarInscritosPorEvento(
+                            evento.getId()
+                    );
+
+
+            // Status
+            dados[i][3] =
+                    formatarStatus(
+                            evento.getStatus()
+                    );
+        }
+
 
         JTable tabela =
                 new JTable(
                         dados,
                         colunas
                 );
+
 
         tabela.setRowHeight(30);
 
@@ -123,14 +175,19 @@ public class RecentEventsTable extends JPanel {
         );
 
         tabela.setForeground(TEXTO);
+
         tabela.setBackground(BRANCO);
+
         tabela.setGridColor(BORDA);
 
         tabela.setSelectionBackground(
                 AZUL_CLARO
         );
 
-        tabela.setSelectionForeground(TEXTO);
+        tabela.setSelectionForeground(
+                TEXTO
+        );
+
 
         tabela.getTableHeader()
                 .setFont(
@@ -141,28 +198,77 @@ public class RecentEventsTable extends JPanel {
                         )
                 );
 
-        tabela.getTableHeader()
-                .setForeground(SECUNDARIO);
 
         tabela.getTableHeader()
-                .setBackground(BRANCO);
+                .setForeground(
+                        SECUNDARIO
+                );
+
+
+        tabela.getTableHeader()
+                .setBackground(
+                        BRANCO
+                );
+
 
         return new JScrollPane(tabela);
     }
+
+
+    // =========================================================
+    // FORMATA STATUS
+    // =========================================================
+
+    private String formatarStatus(String status) {
+
+        if (status == null) {
+            return "-";
+        }
+
+        return switch (status) {
+
+            case "PLANEJADO" ->
+                    "Planejado";
+
+            case "ABERTO" ->
+                    "Aberto";
+
+            case "EM_ANDAMENTO" ->
+                    "Em andamento";
+
+            case "ENCERRADO" ->
+                    "Encerrado";
+
+            case "CANCELADO" ->
+                    "Cancelado";
+
+            default ->
+                    status;
+        };
+    }
+
+
+    // =========================================================
+    // BORDA
+    // =========================================================
 
     private static class RoundedBorder
             extends javax.swing.border.AbstractBorder {
 
         private final int raio;
+
         private final Color cor;
+
 
         RoundedBorder(
                 int raio,
                 Color cor
         ) {
+
             this.raio = raio;
             this.cor = cor;
         }
+
 
         @Override
         public void paintBorder(
@@ -177,12 +283,15 @@ public class RecentEventsTable extends JPanel {
             Graphics2D g2 =
                     (Graphics2D) g.create();
 
+
             g2.setRenderingHint(
                     RenderingHints.KEY_ANTIALIASING,
                     RenderingHints.VALUE_ANTIALIAS_ON
             );
 
+
             g2.setColor(cor);
+
 
             g2.drawRoundRect(
                     x,
@@ -192,6 +301,7 @@ public class RecentEventsTable extends JPanel {
                     raio,
                     raio
             );
+
 
             g2.dispose();
         }
