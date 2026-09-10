@@ -1,6 +1,7 @@
 package br.com.gerenciadoreventos.service;
 
 import br.com.gerenciadoreventos.dao.DashboardDAO;
+import java.util.Map;
 
 public class DashboardService {
 
@@ -29,5 +30,9 @@ public class DashboardService {
     public int contarEventosHoje() {
 
         return dashboardDAO.contarEventosHoje();
+    }
+    public Map<Integer, Integer> obterEventosPorMes() {
+
+        return dashboardDAO.contarEventosPorMes();
     }
 }

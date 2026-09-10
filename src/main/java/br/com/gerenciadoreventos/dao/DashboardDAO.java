@@ -7,6 +7,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.HashMap;
+import java.util.Map;
+
 public class DashboardDAO {
 
     // =========================================================
@@ -110,5 +116,39 @@ public class DashboardDAO {
         }
 
         return 0;
+    }
+    public Map<Integer, Integer> contarEventosPorMes() {
+
+        String sql = """
+        SELECT
+            MONTH(data_inicio) AS mes,
+            COUNT(*) AS quantidade
+        FROM evento
+        WHERE YEAR(data_inicio) = YEAR(CURDATE())
+        GROUP BY MONTH(data_inicio)
+        ORDER BY MONTH(data_inicio)
+        """;
+
+        Map<Integer, Integer> resultado = new HashMap<>();
+
+        try (
+                Connection conn = Conexao.conectar();
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()
+        ) {
+
+            while (rs.next()) {
+
+                int mes = rs.getInt("mes");
+                int quantidade = rs.getInt("quantidade");
+
+                resultado.put(mes, quantidade);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return resultado;
     }
 }
