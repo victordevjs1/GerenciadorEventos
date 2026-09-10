@@ -1,6 +1,7 @@
 package br.com.gerenciadoreventos.view;
 
 import br.com.gerenciadoreventos.model.Usuario;
+import br.com.gerenciadoreventos.service.DashboardService;
 import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.swing.FontIcon;
@@ -17,7 +18,8 @@ public class Dashboard extends JFrame {
 
     private Usuario usuarioLogado;
 
-
+    private final DashboardService dashboardService =
+            new DashboardService();
     // =========================================================
     // CORES
     // =========================================================
@@ -1030,9 +1032,7 @@ public class Dashboard extends JFrame {
                         )
                 );
 
-
         cards.setBackground(FUNDO);
-
 
         cards.setMaximumSize(
                 new Dimension(
@@ -1042,10 +1042,31 @@ public class Dashboard extends JFrame {
         );
 
 
+        // =========================================================
+        // BUSCAR DADOS DO BANCO
+        // =========================================================
+
+        int totalEventos =
+                dashboardService.contarEventos();
+
+        int totalInscritos =
+                dashboardService.contarInscritos();
+
+        int totalAbertos =
+                dashboardService.contarEventosAbertos();
+
+        int totalHoje =
+                dashboardService.contarEventosHoje();
+
+
+        // =========================================================
+        // EVENTOS
+        // =========================================================
+
         cards.add(
                 card(
                         "Eventos",
-                        "12",
+                        String.valueOf(totalEventos),
                         FontAwesomeSolid.CALENDAR_ALT,
                         AZUL_CLARO,
                         AZUL
@@ -1053,10 +1074,14 @@ public class Dashboard extends JFrame {
         );
 
 
+        // =========================================================
+        // INSCRITOS
+        // =========================================================
+
         cards.add(
                 card(
                         "Inscritos",
-                        "438",
+                        String.valueOf(totalInscritos),
                         FontAwesomeSolid.USER_GRADUATE,
                         new Color(
                                 240,
@@ -1072,10 +1097,14 @@ public class Dashboard extends JFrame {
         );
 
 
+        // =========================================================
+        // ABERTOS
+        // =========================================================
+
         cards.add(
                 card(
                         "Abertos",
-                        "03",
+                        String.valueOf(totalAbertos),
                         FontAwesomeSolid.CHECK_CIRCLE,
                         new Color(
                                 245,
@@ -1091,10 +1120,14 @@ public class Dashboard extends JFrame {
         );
 
 
+        // =========================================================
+        // HOJE
+        // =========================================================
+
         cards.add(
                 card(
                         "Hoje",
-                        "01",
+                        String.valueOf(totalHoje),
                         FontAwesomeSolid.CALENDAR_CHECK,
                         new Color(
                                 255,
