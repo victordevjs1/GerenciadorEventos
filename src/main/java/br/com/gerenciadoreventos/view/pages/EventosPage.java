@@ -234,14 +234,10 @@ public class EventosPage extends JPanel {
 
         painelEventos.removeAll();
 
-        System.out.println("Carregando eventos...");
-
         List<Evento> eventos =
                 eventoService.listarEventos();
 
-        System.out.println(
-                "Eventos encontrados: " + eventos.size()
-        );
+
 
         for (Evento evento : eventos) {
 
@@ -260,7 +256,6 @@ public class EventosPage extends JPanel {
 
     private JPanel criarCardEvento(Evento evento) {
 
-        System.out.println("Criando card: " + evento.getNome());
 
         JPanel card =
                 new JPanel(
