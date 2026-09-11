@@ -4,6 +4,11 @@ import br.com.gerenciadoreventos.view.Login;
 import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.swing.FontIcon;
+import br.com.gerenciadoreventos.model.Usuario;
+import br.com.gerenciadoreventos.model.Usuario;
+import br.com.gerenciadoreventos.view.Dashboard;
+import br.com.gerenciadoreventos.view.Eventos;
+import br.com.gerenciadoreventos.view.Login;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -30,7 +35,7 @@ public class Sidebar extends JPanel {
                     13
             );
 
-    public Sidebar(JFrame dashboard) {
+    public Sidebar(JFrame janelaAtual,Usuario usuarioLogado,String paginaAtiva) {
 
         setPreferredSize(
                 new Dimension(240, 0)
@@ -48,12 +53,16 @@ public class Sidebar extends JPanel {
         );
 
         add(
-                criarMenu(),
+                criarMenu(
+                        janelaAtual,
+                        usuarioLogado,
+                        paginaAtiva
+                ),
                 BorderLayout.CENTER
         );
 
         add(
-                criarSair(dashboard),
+                criarSair(janelaAtual),
                 BorderLayout.SOUTH
         );
     }
@@ -120,7 +129,7 @@ public class Sidebar extends JPanel {
         return painel;
     }
 
-    private JPanel criarMenu() {
+    private JPanel criarMenu(JFrame janelaAtual,Usuario usuarioLogado,String paginaAtiva) {
 
         JPanel menu = new JPanel();
 
@@ -142,47 +151,77 @@ public class Sidebar extends JPanel {
                 )
         );
 
+        JButton dashboard = item(
+                FontAwesomeSolid.TH_LARGE,
+                "Dashboard",
+                paginaAtiva.equals("dashboard")
+        );
+
+        dashboard.addActionListener(e -> {
+
+            if (!paginaAtiva.equals("dashboard")) {
+
+                new Dashboard(
+                        usuarioLogado
+                ).setVisible(true);
+
+                janelaAtual.dispose();
+            }
+        });
+
         adicionarSecao(
                 menu,
                 "PRINCIPAL",
-                item(
-                        FontAwesomeSolid.TH_LARGE,
-                        "Dashboard",
-                        true
-                )
+                dashboard
         );
 
         menu.add(
                 Box.createVerticalStrut(18)
         );
 
+        JButton eventos = item(
+                FontAwesomeSolid.CALENDAR_ALT,
+                "Eventos",
+                paginaAtiva.equals("eventos")
+        );
+
+        eventos.addActionListener(e -> {
+
+            if (!paginaAtiva.equals("eventos")) {
+
+                new Eventos(
+                        usuarioLogado
+                ).setVisible(true);
+
+                janelaAtual.dispose();
+            }
+        });
+
+        JButton alunos = item(
+                FontAwesomeSolid.USER_GRADUATE,
+                "Alunos",
+                paginaAtiva.equals("alunos")
+        );
+
+        JButton inscricoes = item(
+                FontAwesomeSolid.CHECK,
+                "Inscrições",
+                paginaAtiva.equals("inscricoes")
+        );
+
+        JButton atividades = item(
+                FontAwesomeSolid.TASKS,
+                "Atividades",
+                paginaAtiva.equals("atividades")
+        );
+
         adicionarSecao(
                 menu,
                 "GESTÃO",
-
-                item(
-                        FontAwesomeSolid.CALENDAR_ALT,
-                        "Eventos",
-                        false
-                ),
-
-                item(
-                        FontAwesomeSolid.USER_GRADUATE,
-                        "Alunos",
-                        false
-                ),
-
-                item(
-                        FontAwesomeSolid.CHECK,
-                        "Inscrições",
-                        false
-                ),
-
-                item(
-                        FontAwesomeSolid.TASKS,
-                        "Atividades",
-                        false
-                )
+                eventos,
+                alunos,
+                inscricoes,
+                atividades
         );
 
         menu.add(

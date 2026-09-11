@@ -50,7 +50,11 @@ public class Dashboard extends JFrame {
         principal.setBackground(FUNDO);
 
         principal.add(
-                new Sidebar(this),
+                new Sidebar(
+                        this,
+                        usuarioLogado,
+                        "dashboard"
+                ),
                 BorderLayout.WEST
         );
 
