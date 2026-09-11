@@ -10,6 +10,8 @@ import org.kordamp.ikonli.swing.FontIcon;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class Sidebar extends JPanel {
 
@@ -25,12 +27,34 @@ public class Sidebar extends JPanel {
     private static final Color BRANCO =
             Color.WHITE;
 
+    private static final Color TEXTO =
+            new Color(226, 232, 240);
+
+    private static final Color ICONE =
+            new Color(148, 163, 184);
+
     private static final Font NORMAL =
             new Font(
                     "Segoe UI",
                     Font.PLAIN,
                     13
             );
+
+    // =====================================================
+    // BOTÕES
+    // =====================================================
+
+    private JButton botaoDashboard;
+    private JButton botaoEventos;
+    private JButton botaoAlunos;
+    private JButton botaoInscricoes;
+    private JButton botaoAtividades;
+    private JButton botaoRelatorios;
+    private JButton botaoConfiguracoes;
+
+    // =====================================================
+    // CONSTRUTOR
+    // =====================================================
 
     public Sidebar(
             Dashboard dashboard,
@@ -164,22 +188,20 @@ public class Sidebar extends JPanel {
                 )
         );
 
-        // -------------------------------------------------
+        // =================================================
         // DASHBOARD
-        // -------------------------------------------------
+        // =================================================
 
-        JButton botaoDashboard =
+        botaoDashboard =
                 item(
                         FontAwesomeSolid.TH_LARGE,
                         "Dashboard",
                         paginaAtiva.equals("dashboard")
                 );
 
-        botaoDashboard.addActionListener(e -> {
-
-            dashboard.mostrarPagina("dashboard");
-
-        });
+        botaoDashboard.addActionListener(e ->
+                dashboard.mostrarPagina("dashboard")
+        );
 
         adicionarSecao(
                 menu,
@@ -191,135 +213,123 @@ public class Sidebar extends JPanel {
                 Box.createVerticalStrut(18)
         );
 
-        // -------------------------------------------------
+        // =================================================
         // EVENTOS
-        // -------------------------------------------------
+        // =================================================
 
-        JButton eventos =
+        botaoEventos =
                 item(
                         FontAwesomeSolid.CALENDAR_ALT,
                         "Eventos",
                         paginaAtiva.equals("eventos")
                 );
 
-        eventos.addActionListener(e -> {
+        botaoEventos.addActionListener(e ->
+                dashboard.mostrarPagina("eventos")
+        );
 
-            dashboard.mostrarPagina("eventos");
-
-        });
-
-        // -------------------------------------------------
+        // =================================================
         // ALUNOS
-        // -------------------------------------------------
+        // =================================================
 
-        JButton alunos =
+        botaoAlunos =
                 item(
                         FontAwesomeSolid.USER_GRADUATE,
                         "Alunos",
                         paginaAtiva.equals("alunos")
                 );
 
-        alunos.addActionListener(e -> {
+        botaoAlunos.addActionListener(e ->
+                dashboard.mostrarPagina("alunos")
+        );
 
-            dashboard.mostrarPagina("alunos");
-
-        });
-
-        // -------------------------------------------------
+        // =================================================
         // INSCRIÇÕES
-        // -------------------------------------------------
+        // =================================================
 
-        JButton inscricoes =
+        botaoInscricoes =
                 item(
                         FontAwesomeSolid.CHECK,
                         "Inscrições",
                         paginaAtiva.equals("inscricoes")
                 );
 
-        inscricoes.addActionListener(e -> {
+        botaoInscricoes.addActionListener(e ->
+                dashboard.mostrarPagina("inscricoes")
+        );
 
-            dashboard.mostrarPagina("inscricoes");
-
-        });
-
-        // -------------------------------------------------
+        // =================================================
         // ATIVIDADES
-        // -------------------------------------------------
+        // =================================================
 
-        JButton atividades =
+        botaoAtividades =
                 item(
                         FontAwesomeSolid.TASKS,
                         "Atividades",
                         paginaAtiva.equals("atividades")
                 );
 
-        atividades.addActionListener(e -> {
-
-            dashboard.mostrarPagina("atividades");
-
-        });
+        botaoAtividades.addActionListener(e ->
+                dashboard.mostrarPagina("atividades")
+        );
 
         adicionarSecao(
                 menu,
                 "GESTÃO",
-                eventos,
-                alunos,
-                inscricoes,
-                atividades
+                botaoEventos,
+                botaoAlunos,
+                botaoInscricoes,
+                botaoAtividades
         );
 
         menu.add(
                 Box.createVerticalStrut(18)
         );
 
-        // -------------------------------------------------
+        // =================================================
         // RELATÓRIOS
-        // -------------------------------------------------
+        // =================================================
 
-        JButton relatorios =
+        botaoRelatorios =
                 item(
                         FontAwesomeSolid.CHART_BAR,
                         "Relatórios",
                         paginaAtiva.equals("relatorios")
                 );
 
-        relatorios.addActionListener(e -> {
-
-            dashboard.mostrarPagina("relatorios");
-
-        });
+        botaoRelatorios.addActionListener(e ->
+                dashboard.mostrarPagina("relatorios")
+        );
 
         adicionarSecao(
                 menu,
                 "RELATÓRIOS",
-                relatorios
+                botaoRelatorios
         );
 
         menu.add(
                 Box.createVerticalStrut(18)
         );
 
-        // -------------------------------------------------
+        // =================================================
         // CONFIGURAÇÕES
-        // -------------------------------------------------
+        // =================================================
 
-        JButton configuracoes =
+        botaoConfiguracoes =
                 item(
                         FontAwesomeSolid.COG,
                         "Configurações",
                         paginaAtiva.equals("configuracoes")
                 );
 
-        configuracoes.addActionListener(e -> {
-
-            dashboard.mostrarPagina("configuracoes");
-
-        });
+        botaoConfiguracoes.addActionListener(e ->
+                dashboard.mostrarPagina("configuracoes")
+        );
 
         adicionarSecao(
                 menu,
                 "CONFIGURAÇÃO",
-                configuracoes
+                botaoConfiguracoes
         );
 
         return menu;
@@ -408,15 +418,29 @@ public class Sidebar extends JPanel {
                 )
         );
 
+        // Guarda se está ativo
+        botao.putClientProperty(
+                "ativo",
+                ativo
+        );
+
+        // =================================================
+        // CORES
+        // =================================================
+
         Color corTexto =
                 ativo
                         ? BRANCO
-                        : new Color(226, 232, 240);
+                        : TEXTO;
 
         Color corIcone =
                 ativo
                         ? BRANCO
-                        : new Color(148, 163, 184);
+                        : ICONE;
+
+        // =================================================
+        // LABEL
+        // =================================================
 
         JLabel label =
                 labelIcone(
@@ -428,16 +452,31 @@ public class Sidebar extends JPanel {
 
         label.setIconTextGap(10);
 
+        // Cria o ícone que será usado no JLabel
         FontIcon icon =
                 FontIcon.of(icone);
 
         icon.setIconSize(17);
-
         icon.setIconColor(corIcone);
 
         label.setIcon(icon);
 
+        // Guarda referências para podermos atualizar depois
+        botao.putClientProperty(
+                "label",
+                label
+        );
+
+        botao.putClientProperty(
+                "icone",
+                icon
+        );
+
         botao.add(label);
+
+        // =================================================
+        // FUNDO
+        // =================================================
 
         botao.setBackground(
                 ativo
@@ -445,35 +484,118 @@ public class Sidebar extends JPanel {
                         : SIDEBAR
         );
 
-        if (!ativo) {
+        // =================================================
+        // HOVER
+        // =================================================
 
-            botao.addMouseListener(
-                    new java.awt.event.MouseAdapter() {
+        botao.setBackground(
+                ativo
+                        ? AZUL
+                        : SIDEBAR
+        );
 
-                        @Override
-                        public void mouseEntered(
-                                java.awt.event.MouseEvent e
-                        ) {
+        return botao;
 
-                            botao.setBackground(
-                                    SIDEBAR_HOVER
-                            );
-                        }
+    }
 
-                        @Override
-                        public void mouseExited(
-                                java.awt.event.MouseEvent e
-                        ) {
+    // =====================================================
+    // ATUALIZAR PÁGINA ATIVA
+    // =====================================================
 
-                            botao.setBackground(
-                                    SIDEBAR
-                            );
-                        }
-                    }
+    public void atualizarPaginaAtiva(
+            String pagina
+    ) {
+
+        atualizarBotao(
+                botaoDashboard,
+                pagina.equals("dashboard")
+        );
+
+        atualizarBotao(
+                botaoEventos,
+                pagina.equals("eventos")
+        );
+
+        atualizarBotao(
+                botaoAlunos,
+                pagina.equals("alunos")
+        );
+
+        atualizarBotao(
+                botaoInscricoes,
+                pagina.equals("inscricoes")
+        );
+
+        atualizarBotao(
+                botaoAtividades,
+                pagina.equals("atividades")
+        );
+
+        atualizarBotao(
+                botaoRelatorios,
+                pagina.equals("relatorios")
+        );
+
+        atualizarBotao(
+                botaoConfiguracoes,
+                pagina.equals("configuracoes")
+        );
+    }
+
+    // =====================================================
+    // ATUALIZAR UM BOTÃO
+    // =====================================================
+
+    private void atualizarBotao(
+            JButton botao,
+            boolean ativo
+    ) {
+
+        if (botao == null) {
+            return;
+        }
+
+        botao.putClientProperty(
+                "ativo",
+                ativo
+        );
+
+        // Fundo
+        botao.setBackground(
+                ativo
+                        ? AZUL
+                        : SIDEBAR
+        );
+
+        // Texto
+        JLabel label =
+                (JLabel) botao.getClientProperty(
+                        "label"
+                );
+
+        if (label != null) {
+
+            label.setForeground(
+                    ativo
+                            ? BRANCO
+                            : TEXTO
             );
         }
 
-        return botao;
+        // Ícone
+        FontIcon icon =
+                (FontIcon) botao.getClientProperty(
+                        "icone"
+                );
+
+        if (icon != null) {
+
+            icon.setIconColor(
+                    ativo
+                            ? BRANCO
+                            : ICONE
+            );
+        }
     }
 
     // =====================================================

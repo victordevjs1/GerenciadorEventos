@@ -6,9 +6,7 @@ import br.com.gerenciadoreventos.view.components.DashboardCenter;
 import br.com.gerenciadoreventos.view.components.DashboardHeader;
 import br.com.gerenciadoreventos.view.components.RecentEventsTable;
 import br.com.gerenciadoreventos.view.components.Sidebar;
-
 import br.com.gerenciadoreventos.view.pages.EventosPage;
-
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,26 +18,45 @@ public class Dashboard extends JFrame {
 
     private final Usuario usuarioLogado;
 
+    private Sidebar sidebar;
+
     private CardLayout cardLayout;
+
     private JPanel painelPaginas;
+
+
+    // =====================================================
+    // CONSTRUTOR
+    // =====================================================
 
     public Dashboard(Usuario usuarioLogado) {
 
         this.usuarioLogado = usuarioLogado;
 
         configurarJanela();
+
         inicializarInterface();
     }
 
-    private void configurarJanela() {
 
+    // =====================================================
+    // CONFIGURAÇÃO DA JANELA
+    // =====================================================
+
+    private void configurarJanela() {
 
         setTitle("Gerenciamento de eventos");
 
-        setSize(1200, 750);
+        setSize(
+                1200,
+                750
+        );
 
         setMinimumSize(
-                new Dimension(1000, 650)
+                new Dimension(
+                        1000,
+                        650
+                )
         );
 
         setDefaultCloseOperation(
@@ -49,55 +66,76 @@ public class Dashboard extends JFrame {
         setLocationRelativeTo(null);
     }
 
+
+    // =====================================================
+    // INTERFACE
+    // =====================================================
+
     private void inicializarInterface() {
 
         JPanel principal =
-                new JPanel(new BorderLayout());
+                new JPanel(
+                        new BorderLayout()
+                );
 
         principal.setBackground(FUNDO);
 
 
-        // =========================
+        // =================================================
         // SIDEBAR
-        // =========================
+        // =================================================
 
-        principal.add(
+        sidebar =
                 new Sidebar(
                         this,
                         usuarioLogado,
                         "dashboard"
-                ),
+                );
+
+        principal.add(
+                sidebar,
                 BorderLayout.WEST
         );
 
 
-        // =========================
-        // PÁGINAS
-        // =========================
+        // =================================================
+        // CARD LAYOUT
+        // =================================================
 
-        cardLayout = new CardLayout();
+        cardLayout =
+                new CardLayout();
 
         painelPaginas =
-                new JPanel(cardLayout);
+                new JPanel(
+                        cardLayout
+                );
 
         painelPaginas.setBackground(FUNDO);
 
 
-        // Dashboard
+        // =================================================
+        // PÁGINA: DASHBOARD
+        // =================================================
+
         painelPaginas.add(
                 criarConteudo(),
                 "dashboard"
         );
 
 
-        // Eventos
+        // =================================================
+        // PÁGINA: EVENTOS
+        // =================================================
+
         painelPaginas.add(
-                new JPanel(),
+                new EventosPage(usuarioLogado),
                 "eventos"
         );
 
 
-
+        // =================================================
+        // ADICIONAR PÁGINAS AO PRINCIPAL
+        // =================================================
 
         principal.add(
                 painelPaginas,
@@ -116,7 +154,9 @@ public class Dashboard extends JFrame {
     private JPanel criarConteudo() {
 
         JPanel painel =
-                new JPanel(new BorderLayout());
+                new JPanel(
+                        new BorderLayout()
+                );
 
         painel.setBackground(FUNDO);
 
@@ -130,11 +170,17 @@ public class Dashboard extends JFrame {
         );
 
 
+        // Cabeçalho
+
         painel.add(
-                new DashboardHeader(usuarioLogado),
+                new DashboardHeader(
+                        usuarioLogado
+                ),
                 BorderLayout.NORTH
         );
 
+
+        // Conteúdo
 
         painel.add(
                 criarDashboard(),
@@ -145,6 +191,10 @@ public class Dashboard extends JFrame {
         return painel;
     }
 
+
+    // =====================================================
+    // COMPONENTES DO DASHBOARD
+    // =====================================================
 
     private JPanel criarDashboard() {
 
@@ -161,6 +211,8 @@ public class Dashboard extends JFrame {
         painel.setBackground(FUNDO);
 
 
+        // Cards
+
         painel.add(
                 new DashboardCards()
         );
@@ -171,6 +223,8 @@ public class Dashboard extends JFrame {
         );
 
 
+        // Gráfico / informações
+
         painel.add(
                 new DashboardCenter()
         );
@@ -180,6 +234,8 @@ public class Dashboard extends JFrame {
                 Box.createVerticalStrut(18)
         );
 
+
+        // Eventos recentes
 
         painel.add(
                 new RecentEventsTable()
@@ -193,28 +249,34 @@ public class Dashboard extends JFrame {
     // =====================================================
     // TROCAR DE PÁGINA
     // =====================================================
+    private boolean paginaExiste(String pagina) {
 
-    public void mostrarPagina(String pagina) {
+        for (Component componente : painelPaginas.getComponents()) {
 
-        if (pagina.equals("eventos")) {
+            // O CardLayout não disponibiliza diretamente
+            // o nome do card, então verificamos as páginas
+            // que sabemos que já foram cadastradas.
 
-            painelPaginas.remove(
-                    painelPaginas.getComponent(
-                            1
-                    )
-            );
-
-            painelPaginas.add(
-                    new EventosPage(usuarioLogado),
-                    "eventos"
-            );
-
-            painelPaginas.revalidate();
-            painelPaginas.repaint();
         }
 
+        return pagina.equals("dashboard")
+                || pagina.equals("eventos");
+    }
+    public void mostrarPagina(String pagina) {
+
+        // Verifica se a página existe
+        if (!paginaExiste(pagina)) {
+            return;
+        }
+
+        // Mostra a página
         cardLayout.show(
                 painelPaginas,
+                pagina
+        );
+
+        // Atualiza o botão azul da Sidebar
+        sidebar.atualizarPaginaAtiva(
                 pagina
         );
     }
@@ -228,7 +290,8 @@ public class Dashboard extends JFrame {
 
         SwingUtilities.invokeLater(() -> {
 
-            Usuario usuario = new Usuario();
+            Usuario usuario =
+                    new Usuario();
 
             usuario.setId(1);
 
