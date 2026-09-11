@@ -1,9 +1,8 @@
-package br.com.gerenciadoreventos.view;
+package br.com.gerenciadoreventos.view.pages;
 
 import br.com.gerenciadoreventos.model.Evento;
 import br.com.gerenciadoreventos.model.Usuario;
 import br.com.gerenciadoreventos.service.EventoService;
-import br.com.gerenciadoreventos.view.components.Sidebar;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -11,7 +10,7 @@ import java.awt.*;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-public class Eventos extends JFrame {
+public class EventosPage extends JPanel {
 
     private static final Color FUNDO =
             new Color(246, 248, 252);
@@ -28,56 +27,25 @@ public class Eventos extends JFrame {
     private static final DateTimeFormatter HORA =
             DateTimeFormatter.ofPattern("HH:mm");
 
-    public Eventos(Usuario usuarioLogado) {
+    public EventosPage(Usuario usuarioLogado) {
 
         this.usuarioLogado = usuarioLogado;
 
         eventoService = new EventoService();
 
-        configurarJanela();
         inicializarInterface();
         carregarEventos();
     }
 
-    private void configurarJanela() {
-
-        setTitle("Eventos - Gerenciador de eventos");
-
-        setSize(1200, 750);
-
-        setMinimumSize(
-                new Dimension(1000, 650)
-        );
-
-        setDefaultCloseOperation(
-                EXIT_ON_CLOSE
-        );
-
-        setLocationRelativeTo(null);
-    }
-
     private void inicializarInterface() {
 
-        JPanel principal =
-                new JPanel(new BorderLayout());
+        setLayout(new BorderLayout());
+        setBackground(FUNDO);
 
-        principal.setBackground(FUNDO);
-
-        principal.add(
-                new Sidebar(
-                        this,
-                        usuarioLogado,
-                        "eventos"
-                ),
-                BorderLayout.WEST
-        );
-
-        principal.add(
+        add(
                 criarConteudo(),
                 BorderLayout.CENTER
         );
-
-        add(principal);
     }
 
     private JPanel criarConteudo() {
@@ -266,8 +234,14 @@ public class Eventos extends JFrame {
 
         painelEventos.removeAll();
 
+        System.out.println("Carregando eventos...");
+
         List<Evento> eventos =
                 eventoService.listarEventos();
+
+        System.out.println(
+                "Eventos encontrados: " + eventos.size()
+        );
 
         for (Evento evento : eventos) {
 
@@ -281,13 +255,12 @@ public class Eventos extends JFrame {
         }
 
         painelEventos.revalidate();
-
         painelEventos.repaint();
     }
 
-    private JPanel criarCardEvento(
-            Evento evento
-    ) {
+    private JPanel criarCardEvento(Evento evento) {
+
+        System.out.println("Criando card: " + evento.getNome());
 
         JPanel card =
                 new JPanel(
@@ -367,14 +340,16 @@ public class Eventos extends JFrame {
                     Box.createVerticalStrut(6)
             );
 
+            String horarioTexto =
+                    evento.getDataFim() != null
+                            ? evento.getDataInicio().format(HORA)
+                            + " - "
+                            + evento.getDataFim().format(HORA)
+                            : evento.getDataInicio().format(HORA);
+
             JLabel horario =
                     new JLabel(
-                            "Horário: "
-                                    + evento.getDataInicio()
-                                    .format(HORA)
-                                    + " - "
-                                    + evento.getDataFim()
-                                    .format(HORA)
+                            "Horário: " + horarioTexto
                     );
 
             informacoes.add(horario);

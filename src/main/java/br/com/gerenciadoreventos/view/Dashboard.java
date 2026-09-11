@@ -7,6 +7,9 @@ import br.com.gerenciadoreventos.view.components.DashboardHeader;
 import br.com.gerenciadoreventos.view.components.RecentEventsTable;
 import br.com.gerenciadoreventos.view.components.Sidebar;
 
+import br.com.gerenciadoreventos.view.pages.EventosPage;
+
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -17,6 +20,9 @@ public class Dashboard extends JFrame {
 
     private final Usuario usuarioLogado;
 
+    private CardLayout cardLayout;
+    private JPanel painelPaginas;
+
     public Dashboard(Usuario usuarioLogado) {
 
         this.usuarioLogado = usuarioLogado;
@@ -26,6 +32,7 @@ public class Dashboard extends JFrame {
     }
 
     private void configurarJanela() {
+
 
         setTitle("Gerenciamento de eventos");
 
@@ -49,6 +56,11 @@ public class Dashboard extends JFrame {
 
         principal.setBackground(FUNDO);
 
+
+        // =========================
+        // SIDEBAR
+        // =========================
+
         principal.add(
                 new Sidebar(
                         this,
@@ -58,13 +70,48 @@ public class Dashboard extends JFrame {
                 BorderLayout.WEST
         );
 
-        principal.add(
+
+        // =========================
+        // PÁGINAS
+        // =========================
+
+        cardLayout = new CardLayout();
+
+        painelPaginas =
+                new JPanel(cardLayout);
+
+        painelPaginas.setBackground(FUNDO);
+
+
+        // Dashboard
+        painelPaginas.add(
                 criarConteudo(),
+                "dashboard"
+        );
+
+
+        // Eventos
+        painelPaginas.add(
+                new JPanel(),
+                "eventos"
+        );
+
+
+
+
+        principal.add(
+                painelPaginas,
                 BorderLayout.CENTER
         );
 
+
         add(principal);
     }
+
+
+    // =====================================================
+    // CONTEÚDO DO DASHBOARD
+    // =====================================================
 
     private JPanel criarConteudo() {
 
@@ -82,18 +129,22 @@ public class Dashboard extends JFrame {
                 )
         );
 
+
         painel.add(
                 new DashboardHeader(usuarioLogado),
                 BorderLayout.NORTH
         );
+
 
         painel.add(
                 criarDashboard(),
                 BorderLayout.CENTER
         );
 
+
         return painel;
     }
+
 
     private JPanel criarDashboard() {
 
@@ -109,28 +160,69 @@ public class Dashboard extends JFrame {
 
         painel.setBackground(FUNDO);
 
+
         painel.add(
                 new DashboardCards()
         );
 
+
         painel.add(
                 Box.createVerticalStrut(18)
         );
+
 
         painel.add(
                 new DashboardCenter()
         );
 
+
         painel.add(
                 Box.createVerticalStrut(18)
         );
+
 
         painel.add(
                 new RecentEventsTable()
         );
 
+
         return painel;
     }
+
+
+    // =====================================================
+    // TROCAR DE PÁGINA
+    // =====================================================
+
+    public void mostrarPagina(String pagina) {
+
+        if (pagina.equals("eventos")) {
+
+            painelPaginas.remove(
+                    painelPaginas.getComponent(
+                            1
+                    )
+            );
+
+            painelPaginas.add(
+                    new EventosPage(usuarioLogado),
+                    "eventos"
+            );
+
+            painelPaginas.revalidate();
+            painelPaginas.repaint();
+        }
+
+        cardLayout.show(
+                painelPaginas,
+                pagina
+        );
+    }
+
+
+    // =====================================================
+    // MAIN
+    // =====================================================
 
     public static void main(String[] args) {
 
@@ -140,7 +232,9 @@ public class Dashboard extends JFrame {
 
             usuario.setId(1);
 
-            usuario.setNome("Administrador");
+            usuario.setNome(
+                    "Administrador"
+            );
 
             usuario.setEmail(
                     "admin@etec.com.br"
@@ -151,6 +245,7 @@ public class Dashboard extends JFrame {
             );
 
             usuario.setAtivo(true);
+
 
             Dashboard dashboard =
                     new Dashboard(usuario);

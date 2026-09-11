@@ -1,14 +1,11 @@
 package br.com.gerenciadoreventos.view.components;
 
+import br.com.gerenciadoreventos.model.Usuario;
+import br.com.gerenciadoreventos.view.Dashboard;
 import br.com.gerenciadoreventos.view.Login;
 import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.swing.FontIcon;
-import br.com.gerenciadoreventos.model.Usuario;
-import br.com.gerenciadoreventos.model.Usuario;
-import br.com.gerenciadoreventos.view.Dashboard;
-import br.com.gerenciadoreventos.view.Eventos;
-import br.com.gerenciadoreventos.view.Login;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -35,7 +32,11 @@ public class Sidebar extends JPanel {
                     13
             );
 
-    public Sidebar(JFrame janelaAtual,Usuario usuarioLogado,String paginaAtiva) {
+    public Sidebar(
+            Dashboard dashboard,
+            Usuario usuarioLogado,
+            String paginaAtiva
+    ) {
 
         setPreferredSize(
                 new Dimension(240, 0)
@@ -54,7 +55,7 @@ public class Sidebar extends JPanel {
 
         add(
                 criarMenu(
-                        janelaAtual,
+                        dashboard,
                         usuarioLogado,
                         paginaAtiva
                 ),
@@ -62,10 +63,14 @@ public class Sidebar extends JPanel {
         );
 
         add(
-                criarSair(janelaAtual),
+                criarSair(dashboard),
                 BorderLayout.SOUTH
         );
     }
+
+    // =====================================================
+    // LOGO
+    // =====================================================
 
     private JPanel criarLogo() {
 
@@ -129,7 +134,15 @@ public class Sidebar extends JPanel {
         return painel;
     }
 
-    private JPanel criarMenu(JFrame janelaAtual,Usuario usuarioLogado,String paginaAtiva) {
+    // =====================================================
+    // MENU
+    // =====================================================
+
+    private JPanel criarMenu(
+            Dashboard dashboard,
+            Usuario usuarioLogado,
+            String paginaAtiva
+    ) {
 
         JPanel menu = new JPanel();
 
@@ -151,69 +164,100 @@ public class Sidebar extends JPanel {
                 )
         );
 
-        JButton dashboard = item(
-                FontAwesomeSolid.TH_LARGE,
-                "Dashboard",
-                paginaAtiva.equals("dashboard")
-        );
+        // -------------------------------------------------
+        // DASHBOARD
+        // -------------------------------------------------
 
-        dashboard.addActionListener(e -> {
+        JButton botaoDashboard =
+                item(
+                        FontAwesomeSolid.TH_LARGE,
+                        "Dashboard",
+                        paginaAtiva.equals("dashboard")
+                );
 
-            if (!paginaAtiva.equals("dashboard")) {
+        botaoDashboard.addActionListener(e -> {
 
-                new Dashboard(
-                        usuarioLogado
-                ).setVisible(true);
+            dashboard.mostrarPagina("dashboard");
 
-                janelaAtual.dispose();
-            }
         });
 
         adicionarSecao(
                 menu,
                 "PRINCIPAL",
-                dashboard
+                botaoDashboard
         );
 
         menu.add(
                 Box.createVerticalStrut(18)
         );
 
-        JButton eventos = item(
-                FontAwesomeSolid.CALENDAR_ALT,
-                "Eventos",
-                paginaAtiva.equals("eventos")
-        );
+        // -------------------------------------------------
+        // EVENTOS
+        // -------------------------------------------------
+
+        JButton eventos =
+                item(
+                        FontAwesomeSolid.CALENDAR_ALT,
+                        "Eventos",
+                        paginaAtiva.equals("eventos")
+                );
 
         eventos.addActionListener(e -> {
 
-            if (!paginaAtiva.equals("eventos")) {
+            dashboard.mostrarPagina("eventos");
 
-                new Eventos(
-                        usuarioLogado
-                ).setVisible(true);
-
-                janelaAtual.dispose();
-            }
         });
 
-        JButton alunos = item(
-                FontAwesomeSolid.USER_GRADUATE,
-                "Alunos",
-                paginaAtiva.equals("alunos")
-        );
+        // -------------------------------------------------
+        // ALUNOS
+        // -------------------------------------------------
 
-        JButton inscricoes = item(
-                FontAwesomeSolid.CHECK,
-                "Inscrições",
-                paginaAtiva.equals("inscricoes")
-        );
+        JButton alunos =
+                item(
+                        FontAwesomeSolid.USER_GRADUATE,
+                        "Alunos",
+                        paginaAtiva.equals("alunos")
+                );
 
-        JButton atividades = item(
-                FontAwesomeSolid.TASKS,
-                "Atividades",
-                paginaAtiva.equals("atividades")
-        );
+        alunos.addActionListener(e -> {
+
+            dashboard.mostrarPagina("alunos");
+
+        });
+
+        // -------------------------------------------------
+        // INSCRIÇÕES
+        // -------------------------------------------------
+
+        JButton inscricoes =
+                item(
+                        FontAwesomeSolid.CHECK,
+                        "Inscrições",
+                        paginaAtiva.equals("inscricoes")
+                );
+
+        inscricoes.addActionListener(e -> {
+
+            dashboard.mostrarPagina("inscricoes");
+
+        });
+
+        // -------------------------------------------------
+        // ATIVIDADES
+        // -------------------------------------------------
+
+        JButton atividades =
+                item(
+                        FontAwesomeSolid.TASKS,
+                        "Atividades",
+                        paginaAtiva.equals("atividades")
+                );
+
+        atividades.addActionListener(e -> {
+
+            dashboard.mostrarPagina("atividades");
+
+        });
 
         adicionarSecao(
                 menu,
@@ -228,34 +272,62 @@ public class Sidebar extends JPanel {
                 Box.createVerticalStrut(18)
         );
 
-        adicionarSecao(
-                menu,
-                "RELATÓRIOS",
+        // -------------------------------------------------
+        // RELATÓRIOS
+        // -------------------------------------------------
 
+        JButton relatorios =
                 item(
                         FontAwesomeSolid.CHART_BAR,
                         "Relatórios",
-                        false
-                )
+                        paginaAtiva.equals("relatorios")
+                );
+
+        relatorios.addActionListener(e -> {
+
+            dashboard.mostrarPagina("relatorios");
+
+        });
+
+        adicionarSecao(
+                menu,
+                "RELATÓRIOS",
+                relatorios
         );
 
         menu.add(
                 Box.createVerticalStrut(18)
         );
 
-        adicionarSecao(
-                menu,
-                "CONFIGURAÇÃO",
+        // -------------------------------------------------
+        // CONFIGURAÇÕES
+        // -------------------------------------------------
 
+        JButton configuracoes =
                 item(
                         FontAwesomeSolid.COG,
                         "Configurações",
-                        false
-                )
+                        paginaAtiva.equals("configuracoes")
+                );
+
+        configuracoes.addActionListener(e -> {
+
+            dashboard.mostrarPagina("configuracoes");
+
+        });
+
+        adicionarSecao(
+                menu,
+                "CONFIGURAÇÃO",
+                configuracoes
         );
 
         return menu;
     }
+
+    // =====================================================
+    // SEÇÃO
+    // =====================================================
 
     private void adicionarSecao(
             JPanel menu,
@@ -293,6 +365,10 @@ public class Sidebar extends JPanel {
             menu.add(item);
         }
     }
+
+    // =====================================================
+    // BOTÃO DO MENU
+    // =====================================================
 
     private JButton item(
             Ikon icone,
@@ -378,6 +454,7 @@ public class Sidebar extends JPanel {
                         public void mouseEntered(
                                 java.awt.event.MouseEvent e
                         ) {
+
                             botao.setBackground(
                                     SIDEBAR_HOVER
                             );
@@ -387,6 +464,7 @@ public class Sidebar extends JPanel {
                         public void mouseExited(
                                 java.awt.event.MouseEvent e
                         ) {
+
                             botao.setBackground(
                                     SIDEBAR
                             );
@@ -398,7 +476,13 @@ public class Sidebar extends JPanel {
         return botao;
     }
 
-    private JPanel criarSair(JFrame dashboard) {
+    // =====================================================
+    // SAIR
+    // =====================================================
+
+    private JPanel criarSair(
+            Dashboard dashboard
+    ) {
 
         JPanel painel =
                 new JPanel(
@@ -434,6 +518,10 @@ public class Sidebar extends JPanel {
 
         return painel;
     }
+
+    // =====================================================
+    // LABEL COM ÍCONE
+    // =====================================================
 
     private JLabel labelIcone(
             String texto,
