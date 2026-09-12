@@ -8,6 +8,8 @@ import br.com.gerenciadoreventos.view.components.RecentEventsTable;
 import br.com.gerenciadoreventos.view.components.Sidebar;
 import br.com.gerenciadoreventos.view.pages.AlunoPage;
 import br.com.gerenciadoreventos.view.pages.EventosPage;
+import br.com.gerenciadoreventos.view.pages.InscricoesPage;
+import br.com.gerenciadoreventos.view.pages.ProfessorPage;
 
 import javax.swing.*;
 import java.awt.*;
@@ -140,6 +142,20 @@ public class Dashboard extends JFrame {
                 new AlunoPage(),
                 "alunos"
         );
+        // =================================================
+        // PÁGINA: Professores
+        // =================================================
+        painelPaginas.add(
+                new ProfessorPage(),
+                "professores"
+        );
+        // =================================================
+        // PÁGINA: Inscricoes
+        // =================================================
+        painelPaginas.add(
+                new InscricoesPage(),
+                "inscricoes"
+        );
 
         // =================================================
         // ADICIONAR PÁGINAS AO PRINCIPAL
@@ -269,7 +285,9 @@ public class Dashboard extends JFrame {
 
         return pagina.equals("dashboard")
                 || pagina.equals("eventos")
-                || pagina.equals("alunos");
+                || pagina.equals("alunos")
+                || pagina.equals("professores")
+                || pagina.equals("inscricoes");
 
     }
     public void mostrarPagina(String pagina) {
