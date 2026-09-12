@@ -10,6 +10,7 @@ import br.com.gerenciadoreventos.view.pages.AlunoPage;
 import br.com.gerenciadoreventos.view.pages.EventosPage;
 import br.com.gerenciadoreventos.view.pages.InscricoesPage;
 import br.com.gerenciadoreventos.view.pages.ProfessorPage;
+import br.com.gerenciadoreventos.view.pages.AgenteExternoPage;
 
 import javax.swing.*;
 import java.awt.*;
@@ -149,6 +150,13 @@ public class Dashboard extends JFrame {
                 new ProfessorPage(),
                 "professores"
         );
+        //==================================================
+        // PÁGINA: Agentes Externos
+        //==================================================
+        painelPaginas.add(
+                new AgenteExternoPage(),
+                "agentesExternos"
+        );
         // =================================================
         // PÁGINA: Inscricoes
         // =================================================
@@ -287,6 +295,7 @@ public class Dashboard extends JFrame {
                 || pagina.equals("eventos")
                 || pagina.equals("alunos")
                 || pagina.equals("professores")
+                || pagina.equals("agentesExternos")
                 || pagina.equals("inscricoes");
 
     }
