@@ -85,4 +85,76 @@ public class EventoDAO {
 
         return eventos;
     }
+
+    // CADASTRAR EVENTO
+    public boolean cadastrarEvento(Evento evento) {
+
+        String sql = """
+                INSERT INTO evento (
+                    id_usuario_criador,
+                    nome,
+                    descricao,
+                    data_inicio,
+                    data_fim,
+                    local,
+                    capacidade,
+                    status
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """;
+
+        try (
+                Connection conexao = Conexao.conectar();
+                PreparedStatement stmt = conexao.prepareStatement(sql)
+        ) {
+
+            stmt.setLong(
+                    1,
+                    evento.getIdUsuarioCriador()
+            );
+
+            stmt.setString(
+                    2,
+                    evento.getNome()
+            );
+
+            stmt.setString(
+                    3,
+                    evento.getDescricao()
+            );
+
+            stmt.setTimestamp(
+                    4,
+                    Timestamp.valueOf(evento.getDataInicio())
+            );
+
+            stmt.setTimestamp(
+                    5,
+                    Timestamp.valueOf(evento.getDataFim())
+            );
+
+            stmt.setString(
+                    6,
+                    evento.getLocal()
+            );
+
+            stmt.setInt(
+                    7,
+                    evento.getCapacidade()
+            );
+
+            stmt.setString(
+                    8,
+                    evento.getStatus()
+            );
+
+            int linhasAfetadas = stmt.executeUpdate();
+
+            return linhasAfetadas > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
