@@ -6,6 +6,7 @@ import br.com.gerenciadoreventos.view.components.DashboardCenter;
 import br.com.gerenciadoreventos.view.components.DashboardHeader;
 import br.com.gerenciadoreventos.view.components.RecentEventsTable;
 import br.com.gerenciadoreventos.view.components.Sidebar;
+import br.com.gerenciadoreventos.view.pages.AlunoPage;
 import br.com.gerenciadoreventos.view.pages.EventosPage;
 
 import javax.swing.*;
@@ -132,6 +133,13 @@ public class Dashboard extends JFrame {
                 "eventos"
         );
 
+        // =================================================
+        // PÁGINA: ALUNO
+        // =================================================
+        painelPaginas.add(
+                new AlunoPage(),
+                "alunos"
+        );
 
         // =================================================
         // ADICIONAR PÁGINAS AO PRINCIPAL
@@ -260,7 +268,9 @@ public class Dashboard extends JFrame {
         }
 
         return pagina.equals("dashboard")
-                || pagina.equals("eventos");
+                || pagina.equals("eventos")
+                || pagina.equals("alunos");
+
     }
     public void mostrarPagina(String pagina) {
 
