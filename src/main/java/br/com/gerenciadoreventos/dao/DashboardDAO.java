@@ -180,22 +180,22 @@ public class DashboardDAO {
     public List<Evento> buscarProximosEventos(int limite) {
 
         String sql = """
-            SELECT
-                id_evento,
-                id_usuario_criador,
-                nome,
-                descricao,
-                data_inicio,
-                data_fim,
-                local,
-                capacidade,
-                status
-            FROM evento
-            WHERE data_inicio >= NOW()
-            AND status NOT IN ('CANCELADO', 'ENCERRADO')
-            ORDER BY data_inicio ASC
-            LIMIT ?
-            """;
+        SELECT
+            id_evento,
+            id_usuario_criador,
+            nome,
+            descricao,
+            data_inicio,
+            data_fim,
+            local,
+            capacidade,
+            status
+        FROM evento
+        WHERE data_inicio > NOW()
+        AND status <> 'CANCELADO'
+        ORDER BY data_inicio ASC
+        LIMIT ?
+        """;
 
         List<Evento> eventos = new ArrayList<>();
 
@@ -229,23 +229,24 @@ public class DashboardDAO {
                     );
 
                     // DATA DE INÍCIO
-                    if (rs.getTimestamp("data_inicio") != null) {
+                    java.sql.Timestamp dataInicio =
+                            rs.getTimestamp("data_inicio");
 
+                    if (dataInicio != null) {
                         evento.setDataInicio(
-                                rs.getTimestamp("data_inicio")
-                                        .toLocalDateTime()
+                                dataInicio.toLocalDateTime()
                         );
                     }
 
                     // DATA DE FIM
-                    if (rs.getTimestamp("data_fim") != null) {
+                    java.sql.Timestamp dataFim =
+                            rs.getTimestamp("data_fim");
 
+                    if (dataFim != null) {
                         evento.setDataFim(
-                                rs.getTimestamp("data_fim")
-                                        .toLocalDateTime()
+                                dataFim.toLocalDateTime()
                         );
                     } else {
-
                         evento.setDataFim(null);
                     }
 
@@ -274,6 +275,8 @@ public class DashboardDAO {
     }
 
 
+
+
     // =========================================================
     // EVENTOS RECENTES
     // =========================================================
@@ -281,20 +284,25 @@ public class DashboardDAO {
     public List<Evento> buscarEventosRecentes(int limite) {
 
         String sql = """
-            SELECT
-                id_evento,
-                id_usuario_criador,
-                nome,
-                descricao,
-                data_inicio,
-                data_fim,
-                local,
-                capacidade,
-                status
-            FROM evento
-            ORDER BY data_cadastro DESC
-            LIMIT ?
-            """;
+    SELECT
+        id_evento,
+        id_usuario_criador,
+        nome,
+        descricao,
+        data_inicio,
+        data_fim,
+        local,
+        capacidade,
+        status
+    FROM evento
+    WHERE data_fim IS NOT NULL
+      AND data_fim < NOW()
+      AND status <> 'CANCELADO'
+    ORDER BY data_fim DESC
+    LIMIT ?
+    """;
+
+
 
         List<Evento> eventos = new ArrayList<>();
 
