@@ -51,6 +51,9 @@ public class Sidebar extends JPanel {
     private JButton botaoAtividades;
     private JButton botaoRelatorios;
     private JButton botaoConfiguracoes;
+    private JButton botaoComissoes;
+    private JButton botaoProfessores;
+    private JButton botaoAgentesExternos;
 
     // =====================================================
     // CONSTRUTOR
@@ -273,13 +276,62 @@ public class Sidebar extends JPanel {
                 dashboard.mostrarPagina("atividades")
         );
 
+// =================================================
+// PROFESSORES
+// =================================================
+
+        botaoProfessores =
+                item(
+                        FontAwesomeSolid.USER_TIE,
+                        "Professores",
+                        paginaAtiva.equals("professores")
+                );
+
+        botaoProfessores.addActionListener(e ->
+                dashboard.mostrarPagina("professores")
+        );
+
+// =================================================
+// COMISSÕES
+// =================================================
+
+        botaoComissoes =
+                item(
+                        FontAwesomeSolid.USERS,
+                        "Comissões",
+                        paginaAtiva.equals("comissoes")
+                );
+
+        botaoComissoes.addActionListener(e ->
+                dashboard.mostrarPagina("comissoes")
+        );
+
+// =================================================
+// AGENTES EXTERNOS
+// =================================================
+
+        botaoAgentesExternos =
+                item(
+                        FontAwesomeSolid.USER_TIE,
+                        "Agentes Externos",
+                        paginaAtiva.equals("agentesExternos")
+                );
+
+        botaoAgentesExternos.addActionListener(e ->
+                dashboard.mostrarPagina("agentesExternos")
+        );
+
         adicionarSecao(
                 menu,
                 "GESTÃO",
                 botaoEventos,
                 botaoAlunos,
+                botaoProfessores,
                 botaoInscricoes,
+                botaoComissoes,
+                botaoAgentesExternos,
                 botaoAtividades
+
         );
 
         menu.add(
@@ -522,8 +574,23 @@ public class Sidebar extends JPanel {
         );
 
         atualizarBotao(
+                botaoProfessores,
+                pagina.equals("professores")
+        );
+
+        atualizarBotao(
                 botaoInscricoes,
                 pagina.equals("inscricoes")
+        );
+
+        atualizarBotao(
+                botaoComissoes,
+                pagina.equals("comissoes")
+        );
+
+        atualizarBotao(
+                botaoAgentesExternos,
+                pagina.equals("agentesExternos")
         );
 
         atualizarBotao(
@@ -541,6 +608,7 @@ public class Sidebar extends JPanel {
                 pagina.equals("configuracoes")
         );
     }
+
 
     // =====================================================
     // ATUALIZAR UM BOTÃO
