@@ -5,6 +5,7 @@ import br.com.gerenciadoreventos.model.Usuario;
 import br.com.gerenciadoreventos.service.EventoService;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.MaskFormatter;
 
@@ -23,39 +24,25 @@ public class EventosPage extends JPanel {
     // CORES
     // =====================================================
 
-    private static final Color FUNDO =
-            new Color(246, 248, 252);
-
-    private static final Color AZUL =
-            new Color(37, 99, 235);
-
-    private static final Color AZUL_HOVER =
-            new Color(29, 78, 216);
-
-    private static final Color TEXTO =
-            new Color(15, 23, 42);
-
-    private static final Color CINZA_TEXTO =
-            new Color(100, 116, 139);
-
-    private static final Color BORDA =
-            new Color(203, 213, 225);
-
-    private static final Color VERDE =
-            new Color(22, 163, 74);
-
-    private static final Color VERMELHO =
-            new Color(220, 38, 38);
+    private static final Color FUNDO = new Color(246, 248, 252);
+    private static final Color AZUL = new Color(37, 99, 235);
+    private static final Color AZUL_HOVER = new Color(29, 78, 216);
+    private static final Color TEXTO = new Color(15, 23, 42);
+    private static final Color CINZA_TEXTO = new Color(100, 116, 139);
+    private static final Color BORDA = new Color(203, 213, 225);
+    private static final Color VERDE = new Color(22, 163, 74);
+    private static final Color VERMELHO = new Color(220, 38, 38);
 
     // =====================================================
     // ATRIBUTOS
     // =====================================================
 
     private final Usuario usuarioLogado;
-
     private final EventoService eventoService;
 
     private JPanel painelEventos;
+    private JTextField campoBusca;
+    private JComboBox<String> filtroStatus;
 
     private static final DateTimeFormatter DATA =
             DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -70,11 +57,9 @@ public class EventosPage extends JPanel {
     public EventosPage(Usuario usuarioLogado) {
 
         this.usuarioLogado = usuarioLogado;
-
-        eventoService = new EventoService();
+        this.eventoService = new EventoService();
 
         inicializarInterface();
-
         carregarEventos();
     }
 
@@ -85,22 +70,16 @@ public class EventosPage extends JPanel {
     private void inicializarInterface() {
 
         setLayout(new BorderLayout());
-
         setBackground(FUNDO);
 
-        add(
-                criarConteudo(),
-                BorderLayout.CENTER
-        );
+        add(criarConteudo(), BorderLayout.CENTER);
     }
 
     private JPanel criarConteudo() {
 
-        JPanel painel =
-                new JPanel(new BorderLayout());
+        JPanel painel = new JPanel(new BorderLayout());
 
         painel.setBackground(FUNDO);
-
         painel.setBorder(
                 BorderFactory.createEmptyBorder(
                         25,
@@ -110,15 +89,8 @@ public class EventosPage extends JPanel {
                 )
         );
 
-        painel.add(
-                criarCabecalho(),
-                BorderLayout.NORTH
-        );
-
-        painel.add(
-                criarListaEventos(),
-                BorderLayout.CENTER
-        );
+        painel.add(criarCabecalho(), BorderLayout.NORTH);
+        painel.add(criarListaEventos(), BorderLayout.CENTER);
 
         return painel;
     }
@@ -129,52 +101,29 @@ public class EventosPage extends JPanel {
 
     private JPanel criarCabecalho() {
 
-        JPanel cabecalho =
-                new JPanel();
-
+        JPanel cabecalho = new JPanel();
         cabecalho.setLayout(
                 new BoxLayout(
                         cabecalho,
                         BoxLayout.Y_AXIS
                 )
         );
-
         cabecalho.setBackground(FUNDO);
 
+        cabecalho.add(criarLinhaSuperior());
+        cabecalho.add(Box.createVerticalStrut(22));
+        cabecalho.add(criarFiltros());
+        cabecalho.add(Box.createVerticalStrut(20));
+
+        return cabecalho;
+    }
+
+    private JPanel criarLinhaSuperior() {
+
         JPanel linhaSuperior =
-                new JPanel(
-                        new BorderLayout()
-                );
+                new JPanel(new BorderLayout());
 
         linhaSuperior.setBackground(FUNDO);
-
-        JLabel titulo =
-                new JLabel("Eventos");
-
-        titulo.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        28
-                )
-        );
-
-        titulo.setForeground(TEXTO);
-
-        JLabel subtitulo =
-                new JLabel(
-                        "Gerencie os eventos da escola"
-                );
-
-        subtitulo.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        14
-                )
-        );
-
-        subtitulo.setForeground(CINZA_TEXTO);
 
         JPanel textos =
                 new JPanel();
@@ -185,29 +134,38 @@ public class EventosPage extends JPanel {
                         BoxLayout.Y_AXIS
                 )
         );
-
         textos.setBackground(FUNDO);
 
+        JLabel titulo =
+                criarLabel(
+                        "Eventos",
+                        28,
+                        Font.BOLD,
+                        TEXTO
+                );
+
+        JLabel subtitulo =
+                criarLabel(
+                        "Gerencie os eventos da escola",
+                        14,
+                        Font.PLAIN,
+                        CINZA_TEXTO
+                );
+
         textos.add(titulo);
-
-        textos.add(
-                Box.createVerticalStrut(4)
-        );
-
+        textos.add(Box.createVerticalStrut(4));
         textos.add(subtitulo);
+
+        JButton novoEvento =
+                criarBotaoPrincipal("+ Novo Evento");
+
+        novoEvento.addActionListener(e ->
+                abrirNovoEvento()
+        );
 
         linhaSuperior.add(
                 textos,
                 BorderLayout.WEST
-        );
-
-        JButton novoEvento =
-                criarBotaoPrincipal(
-                        "+ Novo Evento"
-                );
-
-        novoEvento.addActionListener(e ->
-                abrirNovoEvento()
         );
 
         linhaSuperior.add(
@@ -215,15 +173,10 @@ public class EventosPage extends JPanel {
                 BorderLayout.EAST
         );
 
-        cabecalho.add(linhaSuperior);
+        return linhaSuperior;
+    }
 
-        cabecalho.add(
-                Box.createVerticalStrut(22)
-        );
-
-        // =================================================
-        // FILTROS
-        // =================================================
+    private JPanel criarFiltros() {
 
         JPanel filtros =
                 new JPanel(
@@ -232,21 +185,46 @@ public class EventosPage extends JPanel {
 
         filtros.setBackground(FUNDO);
 
-        JTextField busca =
-                new JTextField();
+        campoBusca = new JTextField();
 
-        busca.putClientProperty(
+        campoBusca.putClientProperty(
                 "JTextField.placeholderText",
                 "Pesquisar evento..."
         );
 
-        estilizarCampo(busca);
+        estilizarCampo(campoBusca);
 
-        busca.setPreferredSize(
+        campoBusca.setPreferredSize(
                 new Dimension(0, 42)
         );
 
-        JComboBox<String> filtro =
+        campoBusca.getDocument().addDocumentListener(
+                new javax.swing.event.DocumentListener() {
+
+                    @Override
+                    public void insertUpdate(
+                            javax.swing.event.DocumentEvent e
+                    ) {
+                        aplicarFiltros();
+                    }
+
+                    @Override
+                    public void removeUpdate(
+                            javax.swing.event.DocumentEvent e
+                    ) {
+                        aplicarFiltros();
+                    }
+
+                    @Override
+                    public void changedUpdate(
+                            javax.swing.event.DocumentEvent e
+                    ) {
+                        aplicarFiltros();
+                    }
+                }
+        );
+
+        filtroStatus =
                 new JComboBox<>(
                         new String[]{
                                 "Todos os eventos",
@@ -258,29 +236,27 @@ public class EventosPage extends JPanel {
                         }
                 );
 
-        estilizarComboBox(filtro);
+        estilizarComboBox(filtroStatus);
 
-        filtro.setPreferredSize(
+        filtroStatus.setPreferredSize(
                 new Dimension(190, 42)
         );
 
+        filtroStatus.addActionListener(e ->
+                aplicarFiltros()
+        );
+
         filtros.add(
-                busca,
+                campoBusca,
                 BorderLayout.CENTER
         );
 
         filtros.add(
-                filtro,
+                filtroStatus,
                 BorderLayout.EAST
         );
 
-        cabecalho.add(filtros);
-
-        cabecalho.add(
-                Box.createVerticalStrut(20)
-        );
-
-        return cabecalho;
+        return filtros;
     }
 
     // =====================================================
@@ -289,8 +265,7 @@ public class EventosPage extends JPanel {
 
     private JScrollPane criarListaEventos() {
 
-        painelEventos =
-                new JPanel();
+        painelEventos = new JPanel();
 
         painelEventos.setLayout(
                 new BoxLayout(
@@ -311,9 +286,7 @@ public class EventosPage extends JPanel {
         );
 
         JScrollPane scroll =
-                new JScrollPane(
-                        painelEventos
-                );
+                new JScrollPane(painelEventos);
 
         scroll.setBorder(null);
 
@@ -327,14 +300,47 @@ public class EventosPage extends JPanel {
         return scroll;
     }
 
+    // =====================================================
+    // CARREGAR / FILTRAR EVENTOS
+    // =====================================================
+
     private void carregarEventos() {
+
+        aplicarFiltros();
+    }
+
+    private void aplicarFiltros() {
+
+        if (painelEventos == null) {
+            return;
+        }
 
         painelEventos.removeAll();
 
         List<Evento> eventos =
                 eventoService.listarEventos();
 
+        String textoBusca =
+                campoBusca != null
+                        ? campoBusca.getText().trim()
+                        : "";
+
+        String statusSelecionado =
+                filtroStatus != null
+                        ? filtroStatus.getSelectedItem().toString()
+                        : "Todos os eventos";
+
+        int eventosExibidos = 0;
+
         for (Evento evento : eventos) {
+
+            if (!correspondeBusca(evento, textoBusca)) {
+                continue;
+            }
+
+            if (!correspondeStatus(evento, statusSelecionado)) {
+                continue;
+            }
 
             painelEventos.add(
                     criarCardEvento(evento)
@@ -343,11 +349,111 @@ public class EventosPage extends JPanel {
             painelEventos.add(
                     Box.createVerticalStrut(15)
             );
+
+            eventosExibidos++;
+        }
+
+        if (eventosExibidos == 0) {
+            painelEventos.add(
+                    criarMensagemSemEventos()
+            );
         }
 
         painelEventos.revalidate();
-
         painelEventos.repaint();
+    }
+
+    private boolean correspondeBusca(
+            Evento evento,
+            String textoBusca
+    ) {
+
+        if (textoBusca.isEmpty()) {
+            return true;
+        }
+
+        String nomeEvento =
+                evento.getNome() != null
+                        ? evento.getNome()
+                        : "";
+
+        return nomeEvento
+                .toLowerCase()
+                .contains(
+                        textoBusca.toLowerCase()
+                );
+    }
+
+    private boolean correspondeStatus(
+            Evento evento,
+            String filtro
+    ) {
+
+        if ("Todos os eventos".equals(filtro)) {
+            return true;
+        }
+
+        String status = evento.getStatus();
+
+        if (status == null) {
+            return false;
+        }
+
+        return switch (filtro) {
+
+            case "Planejados" ->
+                    "PLANEJADO".equals(status);
+
+            case "Abertos" ->
+                    "ABERTO".equals(status);
+
+            case "Em andamento" ->
+                    "EM_ANDAMENTO".equals(status);
+
+            case "Encerrados" ->
+                    "ENCERRADO".equals(status);
+
+            case "Cancelados" ->
+                    "CANCELADO".equals(status);
+
+            default ->
+                    true;
+        };
+    }
+
+    private JPanel criarMensagemSemEventos() {
+
+        JPanel painel =
+                new JPanel(
+                        new GridBagLayout()
+                );
+
+        painel.setBackground(Color.WHITE);
+
+        painel.setBorder(
+                BorderFactory.createLineBorder(
+                        new Color(226, 232, 240)
+                )
+        );
+
+        painel.setMaximumSize(
+                new Dimension(
+                        Integer.MAX_VALUE,
+                        120
+                )
+        );
+
+        JLabel mensagem =
+                criarLabel(
+                        "Nenhum evento encontrado.",
+                        15,
+                        Font.PLAIN,
+                        CINZA_TEXTO
+                );
+
+        painel.add(mensagem);
+
+        return painel;
     }
 
     // =====================================================
@@ -397,67 +503,25 @@ public class EventosPage extends JPanel {
         informacoes.setBackground(Color.WHITE);
 
         JLabel nome =
-                new JLabel(
-                        evento.getNome()
+                criarLabel(
+                        evento.getNome(),
+                        19,
+                        Font.BOLD,
+                        TEXTO
                 );
 
-        nome.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        19
-                )
-        );
-
-        nome.setForeground(TEXTO);
-
         informacoes.add(nome);
+        informacoes.add(Box.createVerticalStrut(12));
 
-        informacoes.add(
-                Box.createVerticalStrut(12)
+        adicionarInformacoesData(
+                informacoes,
+                evento
         );
-
-        if (evento.getDataInicio() != null) {
-
-            String horarioTexto =
-                    evento.getDataFim() != null
-                            ? evento.getDataInicio().format(HORA)
-                            + " - "
-                            + evento.getDataFim().format(HORA)
-                            : evento.getDataInicio().format(HORA);
-
-            informacoes.add(
-                    criarLabelInformacao(
-                            "Data: "
-                                    + evento.getDataInicio()
-                                    .format(DATA)
-                    )
-            );
-
-            informacoes.add(
-                    Box.createVerticalStrut(6)
-            );
-
-            informacoes.add(
-                    criarLabelInformacao(
-                            "Horário: "
-                                    + horarioTexto
-                    )
-            );
-
-            informacoes.add(
-                    Box.createVerticalStrut(6)
-            );
-        }
 
         informacoes.add(
                 criarLabelInformacao(
                         "Local: "
-                                + (
-                                evento.getLocal() != null
-                                        ? evento.getLocal()
-                                        : "Não informado"
-                        )
+                                + obterLocal(evento)
                 )
         );
 
@@ -468,7 +532,7 @@ public class EventosPage extends JPanel {
         informacoes.add(
                 criarLabelInformacao(
                         "Status: "
-                                + evento.getStatus()
+                                + obterStatus(evento)
                 )
         );
 
@@ -478,9 +542,7 @@ public class EventosPage extends JPanel {
         );
 
         JButton verEvento =
-                criarBotaoSecundario(
-                        "Ver evento"
-                );
+                criarBotaoSecundario("Ver evento");
 
         verEvento.addActionListener(e ->
                 abrirDetalhesEvento(evento)
@@ -492,7 +554,6 @@ public class EventosPage extends JPanel {
                 );
 
         painelBotao.setBackground(Color.WHITE);
-
         painelBotao.add(verEvento);
 
         card.add(
@@ -503,24 +564,78 @@ public class EventosPage extends JPanel {
         return card;
     }
 
-    private JLabel criarLabelInformacao(String texto) {
+    private void adicionarInformacoesData(
+            JPanel painel,
+            Evento evento
+    ) {
 
-        JLabel label =
-                new JLabel(texto);
+        if (evento.getDataInicio() == null) {
+            return;
+        }
 
-        label.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        14
+        String horarioTexto;
+
+        if (evento.getDataFim() != null) {
+
+            horarioTexto =
+                    evento.getDataInicio().format(HORA)
+                            + " - "
+                            + evento.getDataFim().format(HORA);
+
+        } else {
+
+            horarioTexto =
+                    evento.getDataInicio().format(HORA);
+        }
+
+        painel.add(
+                criarLabelInformacao(
+                        "Data: "
+                                + evento.getDataInicio()
+                                .format(DATA)
                 )
         );
 
-        label.setForeground(
-                new Color(71, 85, 105)
+        painel.add(
+                Box.createVerticalStrut(6)
         );
 
-        return label;
+        painel.add(
+                criarLabelInformacao(
+                        "Horário: "
+                                + horarioTexto
+                )
+        );
+
+        painel.add(
+                Box.createVerticalStrut(6)
+        );
+    }
+
+    private String obterLocal(Evento evento) {
+
+        return evento.getLocal() != null
+                ? evento.getLocal()
+                : "Não informado";
+    }
+
+    private String obterStatus(Evento evento) {
+
+        return evento.getStatus() != null
+                ? evento.getStatus()
+                : "Não informado";
+    }
+
+    private JLabel criarLabelInformacao(
+            String texto
+    ) {
+
+        return criarLabel(
+                texto,
+                14,
+                Font.PLAIN,
+                new Color(71, 85, 105)
+        );
     }
 
     // =====================================================
@@ -533,10 +648,12 @@ public class EventosPage extends JPanel {
     }
 
     // =====================================================
-    // EDITAR EVENTO
+    // DETALHES / EDITAR EVENTO
     // =====================================================
 
-    private void abrirDetalhesEvento(Evento evento) {
+    private void abrirDetalhesEvento(
+            Evento evento
+    ) {
 
         Evento eventoAtualizado =
                 eventoService.buscarPorId(
@@ -559,13 +676,14 @@ public class EventosPage extends JPanel {
     }
 
     // =====================================================
-    // DIALOG PRINCIPAL
+    // EDITOR DO EVENTO
     // =====================================================
 
-    private void abrirEditorEvento(Evento evento) {
+    private void abrirEditorEvento(
+            Evento evento
+    ) {
 
-        boolean novo =
-                evento == null;
+        boolean novo = evento == null;
 
         JDialog dialog =
                 new JDialog(
@@ -576,13 +694,8 @@ public class EventosPage extends JPanel {
                         Dialog.ModalityType.APPLICATION_MODAL
                 );
 
-        dialog.setSize(
-                850,
-                800
-        );
-
+        dialog.setSize(850, 800);
         dialog.setLocationRelativeTo(this);
-
         dialog.setResizable(false);
 
         JPanel principal =
@@ -601,9 +714,39 @@ public class EventosPage extends JPanel {
                 )
         );
 
-        // =================================================
-        // CABEÇALHO
-        // =================================================
+        principal.add(
+                criarCabecalhoEditor(
+                        evento,
+                        novo
+                ),
+                BorderLayout.NORTH
+        );
+
+        JTabbedPane abas =
+                criarAbasEditor(
+                        evento,
+                        novo,
+                        dialog
+                );
+
+        principal.add(
+                abas,
+                BorderLayout.CENTER
+        );
+
+        principal.add(
+                criarBotoesEditor(dialog),
+                BorderLayout.SOUTH
+        );
+
+        dialog.setContentPane(principal);
+        dialog.setVisible(true);
+    }
+
+    private JPanel criarCabecalhoEditor(
+            Evento evento,
+            boolean novo
+    ) {
 
         JPanel cabecalho =
                 new JPanel();
@@ -618,55 +761,37 @@ public class EventosPage extends JPanel {
         cabecalho.setBackground(FUNDO);
 
         JLabel titulo =
-                new JLabel(
+                criarLabel(
                         novo
                                 ? "Criar novo evento"
-                                : evento.getNome()
-                );
-
-        titulo.setFont(
-                new Font(
-                        "Segoe UI",
+                                : evento.getNome(),
+                        24,
                         Font.BOLD,
-                        24
-                )
-        );
-
-        titulo.setForeground(TEXTO);
+                        TEXTO
+                );
 
         JLabel descricao =
-                new JLabel(
+                criarLabel(
                         novo
                                 ? "Preencha as informações principais do evento."
-                                : "Gerencie as informações e participantes do evento."
+                                : "Gerencie as informações e participantes do evento.",
+                        14,
+                        Font.PLAIN,
+                        CINZA_TEXTO
                 );
 
-        descricao.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        14
-                )
-        );
-
-        descricao.setForeground(CINZA_TEXTO);
-
         cabecalho.add(titulo);
-
-        cabecalho.add(
-                Box.createVerticalStrut(5)
-        );
-
+        cabecalho.add(Box.createVerticalStrut(5));
         cabecalho.add(descricao);
 
-        principal.add(
-                cabecalho,
-                BorderLayout.NORTH
-        );
+        return cabecalho;
+    }
 
-        // =================================================
-        // ABAS
-        // =================================================
+    private JTabbedPane criarAbasEditor(
+            Evento evento,
+            boolean novo,
+            JDialog dialog
+    ) {
 
         JTabbedPane abas =
                 new JTabbedPane();
@@ -679,28 +804,16 @@ public class EventosPage extends JPanel {
                 )
         );
 
-        // Aba principal
-        if (novo) {
+        abas.addTab(
+                "Dados do evento",
+                criarAbaDados(
+                        evento,
+                        dialog,
+                        novo
+                )
+        );
 
-            abas.addTab(
-                    "Dados do evento",
-                    criarAbaDados(
-                            evento,
-                            dialog,
-                            true
-                    )
-            );
-
-        } else {
-
-            abas.addTab(
-                    "Dados do evento",
-                    criarAbaDados(
-                            evento,
-                            dialog,
-                            false
-                    )
-            );
+        if (!novo) {
 
             abas.addTab(
                     "Comissões",
@@ -733,14 +846,12 @@ public class EventosPage extends JPanel {
             );
         }
 
-        principal.add(
-                abas,
-                BorderLayout.CENTER
-        );
+        return abas;
+    }
 
-        // =================================================
-        // BOTÕES
-        // =================================================
+    private JPanel criarBotoesEditor(
+            JDialog dialog
+    ) {
 
         JPanel botoes =
                 new JPanel(
@@ -754,9 +865,7 @@ public class EventosPage extends JPanel {
         botoes.setBackground(FUNDO);
 
         JButton fechar =
-                criarBotaoSecundario(
-                        "Fechar"
-                );
+                criarBotaoSecundario("Fechar");
 
         fechar.addActionListener(e ->
                 dialog.dispose()
@@ -764,14 +873,7 @@ public class EventosPage extends JPanel {
 
         botoes.add(fechar);
 
-        principal.add(
-                botoes,
-                BorderLayout.SOUTH
-        );
-
-        dialog.setContentPane(principal);
-
-        dialog.setVisible(true);
+        return botoes;
     }
 
     // =====================================================
@@ -822,36 +924,19 @@ public class EventosPage extends JPanel {
         );
 
         GridBagConstraints gbc =
-                new GridBagConstraints();
-
-        gbc.fill =
-                GridBagConstraints.HORIZONTAL;
-
-        gbc.insets =
-                new Insets(
-                        7,
-                        7,
-                        7,
-                        7
-                );
-
-        gbc.weightx = 1;
+                criarConstraintsFormulario();
 
         int linha = 0;
 
         // =================================================
-        // NOME
+        // CAMPOS
         // =================================================
 
-        JTextField campoNome =
-                new JTextField();
-
+        JTextField campoNome = new JTextField();
         estilizarCampo(campoNome);
 
         if (!novo) {
-            campoNome.setText(
-                    evento.getNome()
-            );
+            campoNome.setText(evento.getNome());
         }
 
         adicionarCampo(
@@ -863,35 +948,16 @@ public class EventosPage extends JPanel {
                 2
         );
 
-        // =================================================
-        // DESCRIÇÃO
-        // =================================================
-
         JTextArea campoDescricao =
                 new JTextArea(5, 20);
 
-        campoDescricao.setLineWrap(true);
-        campoDescricao.setWrapStyleWord(true);
+        estilizarAreaTexto(campoDescricao);
 
-        campoDescricao.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        14
-                )
-        );
-
-        campoDescricao.setForeground(TEXTO);
-        campoDescricao.setBackground(Color.WHITE);
-
-        campoDescricao.setMargin(
-                new Insets(
-                        8,
-                        10,
-                        8,
-                        10
-                )
-        );
+        if (!novo && evento.getDescricao() != null) {
+            campoDescricao.setText(
+                    evento.getDescricao()
+            );
+        }
 
         JScrollPane scrollDescricao =
                 new JScrollPane(campoDescricao);
@@ -901,17 +967,11 @@ public class EventosPage extends JPanel {
         );
 
         scrollDescricao.setPreferredSize(
-                new Dimension(
-                        0,
-                        100
-                )
+                new Dimension(0, 100)
         );
 
         scrollDescricao.setMinimumSize(
-                new Dimension(
-                        0,
-                        100
-                )
+                new Dimension(0, 100)
         );
 
         scrollDescricao.setVerticalScrollBarPolicy(
@@ -921,7 +981,6 @@ public class EventosPage extends JPanel {
         scrollDescricao.setHorizontalScrollBarPolicy(
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
         );
-
 
         adicionarCampo(
                 formulario,
@@ -933,7 +992,7 @@ public class EventosPage extends JPanel {
         );
 
         // =================================================
-        // DATA INÍCIO
+        // DATA E HORA DE INÍCIO
         // =================================================
 
         JFormattedTextField campoDataInicio =
@@ -976,7 +1035,7 @@ public class EventosPage extends JPanel {
         linha++;
 
         // =================================================
-        // DATA FIM
+        // DATA E HORA DE TÉRMINO
         // =================================================
 
         JFormattedTextField campoDataFim =
@@ -1022,8 +1081,7 @@ public class EventosPage extends JPanel {
         // LOCAL
         // =================================================
 
-        JTextField campoLocal =
-                new JTextField();
+        JTextField campoLocal = new JTextField();
 
         estilizarCampo(campoLocal);
 
@@ -1052,7 +1110,6 @@ public class EventosPage extends JPanel {
         estilizarCampo(campoCapacidade);
 
         if (!novo) {
-
             campoCapacidade.setText(
                     String.valueOf(
                             evento.getCapacidade()
@@ -1103,7 +1160,7 @@ public class EventosPage extends JPanel {
         );
 
         // =================================================
-        // BOTÃO SALVAR
+        // SALVAR
         // =================================================
 
         JButton salvar =
@@ -1113,305 +1170,22 @@ public class EventosPage extends JPanel {
                                 : "Salvar alterações"
                 );
 
-        salvar.addActionListener(e -> {
-
-            try {
-
-                // -----------------------------
-                // NOME
-                // -----------------------------
-
-                if (campoNome.getText()
-                        .trim()
-                        .isEmpty()) {
-
-                    JOptionPane.showMessageDialog(
-                            dialog,
-                            "Informe o nome do evento.",
-                            "Campo obrigatório",
-                            JOptionPane.WARNING_MESSAGE
-                    );
-
-                    campoNome.requestFocus();
-
-                    return;
-                }
-
-                // -----------------------------
-                // DATA INÍCIO
-                // -----------------------------
-
-                String textoDataInicio =
-                        campoDataInicio
-                                .getText()
-                                .trim();
-
-                String textoHoraInicio =
-                        campoHoraInicio
-                                .getText()
-                                .trim();
-
-                if (textoDataInicio.contains("_")
-                        || textoHoraInicio.contains("_")
-                        || textoDataInicio.isEmpty()
-                        || textoHoraInicio.isEmpty()) {
-
-                    JOptionPane.showMessageDialog(
-                            dialog,
-                            "Informe a data e o horário de início.",
-                            "Campo obrigatório",
-                            JOptionPane.WARNING_MESSAGE
-                    );
-
-                    return;
-                }
-
-                LocalDate dataInicio =
-                        LocalDate.parse(
-                                textoDataInicio,
-                                DATA
-                        );
-
-                LocalTime horaInicio =
-                        LocalTime.parse(
-                                textoHoraInicio,
-                                HORA
-                        );
-
-                LocalDateTime dataInicioFinal =
-                        LocalDateTime.of(
-                                dataInicio,
-                                horaInicio
-                        );
-
-                // -----------------------------
-                // DATA FIM
-                // -----------------------------
-
-                LocalDateTime dataFimFinal =
-                        null;
-
-                String textoDataFim =
-                        campoDataFim
-                                .getText()
-                                .trim();
-
-                String textoHoraFim =
-                        campoHoraFim
-                                .getText()
-                                .trim();
-
-                boolean informouDataFim =
-                        !textoDataFim.isEmpty()
-                                && !textoDataFim.contains("_");
-
-                boolean informouHoraFim =
-                        !textoHoraFim.isEmpty()
-                                && !textoHoraFim.contains("_");
-
-                if (informouDataFim != informouHoraFim) {
-
-                    JOptionPane.showMessageDialog(
-                            dialog,
-                            "Informe a data e o horário de término completos.",
-                            "Dados incompletos",
-                            JOptionPane.WARNING_MESSAGE
-                    );
-
-                    return;
-                }
-
-                if (informouDataFim && informouHoraFim) {
-
-                    LocalDate dataFim =
-                            LocalDate.parse(
-                                    textoDataFim,
-                                    DATA
-                            );
-
-                    LocalTime horaFim =
-                            LocalTime.parse(
-                                    textoHoraFim,
-                                    HORA
-                            );
-
-                    dataFimFinal =
-                            LocalDateTime.of(
-                                    dataFim,
-                                    horaFim
-                            );
-
-                    if (dataFimFinal.isBefore(
-                            dataInicioFinal
-                    )) {
-
-                        JOptionPane.showMessageDialog(
-                                dialog,
-                                "A data de término não pode ser anterior à data de início.",
-                                "Data inválida",
-                                JOptionPane.WARNING_MESSAGE
-                        );
-
-                        return;
-                    }
-                }
-
-                // -----------------------------
-                // CAPACIDADE
-                // -----------------------------
-
-                int capacidade = 0;
-
-                String textoCapacidade =
-                        campoCapacidade
-                                .getText()
-                                .trim();
-
-                if (!textoCapacidade.isEmpty()) {
-
-                    capacidade =
-                            Integer.parseInt(
-                                    textoCapacidade
-                            );
-
-                    if (capacidade < 0) {
-
-                        JOptionPane.showMessageDialog(
-                                dialog,
-                                "A capacidade não pode ser negativa.",
-                                "Valor inválido",
-                                JOptionPane.WARNING_MESSAGE
-                        );
-
-                        return;
-                    }
-                }
-
-                // -----------------------------
-                // EVENTO
-                // -----------------------------
-
-                Evento eventoSalvar =
-                        novo
-                                ? new Evento()
-                                : evento;
-
-                if (novo) {
-
-                    eventoSalvar.setIdUsuarioCriador(
-                            usuarioLogado.getId()
-                    );
-                }
-
-                eventoSalvar.setNome(
-                        campoNome.getText().trim()
-                );
-
-                eventoSalvar.setDescricao(
-                        campoDescricao.getText().trim()
-                );
-
-                eventoSalvar.setDataInicio(
-                        dataInicioFinal
-                );
-
-                eventoSalvar.setDataFim(
-                        dataFimFinal
-                );
-
-                eventoSalvar.setLocal(
-                        campoLocal.getText().trim()
-                );
-
-                eventoSalvar.setCapacidade(
-                        capacidade
-                );
-
-                eventoSalvar.setStatus(
+        salvar.addActionListener(e ->
+                salvarEvento(
+                        evento,
+                        novo,
+                        dialog,
+                        campoNome,
+                        campoDescricao,
+                        campoDataInicio,
+                        campoHoraInicio,
+                        campoDataFim,
+                        campoHoraFim,
+                        campoLocal,
+                        campoCapacidade,
                         campoStatus
-                                .getSelectedItem()
-                                .toString()
-                );
-
-                // -----------------------------
-                // SALVAR
-                // -----------------------------
-
-                boolean sucesso;
-
-                if (novo) {
-
-                    sucesso =
-                            eventoService
-                                    .cadastrarEvento(
-                                            eventoSalvar
-                                    );
-
-                } else {
-
-                    sucesso =
-                            eventoService
-                                    .atualizarEvento(
-                                            eventoSalvar
-                                    );
-                }
-
-                if (!sucesso) {
-
-                    JOptionPane.showMessageDialog(
-                            dialog,
-                            "Não foi possível salvar o evento.",
-                            "Erro",
-                            JOptionPane.ERROR_MESSAGE
-                    );
-
-                    return;
-                }
-
-                JOptionPane.showMessageDialog(
-                        dialog,
-                        novo
-                                ? "Evento criado com sucesso!"
-                                : "Evento atualizado com sucesso!",
-                        "Sucesso",
-                        JOptionPane.INFORMATION_MESSAGE
-                );
-
-                dialog.dispose();
-
-                carregarEventos();
-
-            } catch (DateTimeParseException ex) {
-
-                JOptionPane.showMessageDialog(
-                        dialog,
-                        "Verifique as datas e horários.\n\n"
-                                + "Data: dd/MM/yyyy\n"
-                                + "Horário: HH:mm",
-                        "Formato inválido",
-                        JOptionPane.WARNING_MESSAGE
-                );
-
-            } catch (NumberFormatException ex) {
-
-                JOptionPane.showMessageDialog(
-                        dialog,
-                        "A capacidade deve ser um número inteiro.",
-                        "Valor inválido",
-                        JOptionPane.WARNING_MESSAGE
-                );
-
-            } catch (Exception ex) {
-
-                JOptionPane.showMessageDialog(
-                        dialog,
-                        "Erro ao salvar evento:\n\n"
-                                + ex.getMessage(),
-                        "Erro",
-                        JOptionPane.ERROR_MESSAGE
-                );
-            }
-        });
+                )
+        );
 
         JPanel painelSalvar =
                 new JPanel(
@@ -1421,7 +1195,6 @@ public class EventosPage extends JPanel {
                 );
 
         painelSalvar.setBackground(Color.WHITE);
-
         painelSalvar.add(salvar);
 
         JPanel container =
@@ -1450,52 +1223,325 @@ public class EventosPage extends JPanel {
     }
 
     // =====================================================
+    // SALVAR EVENTO
+    // =====================================================
+
+    private void salvarEvento(
+            Evento evento,
+            boolean novo,
+            JDialog dialog,
+            JTextField campoNome,
+            JTextArea campoDescricao,
+            JFormattedTextField campoDataInicio,
+            JFormattedTextField campoHoraInicio,
+            JFormattedTextField campoDataFim,
+            JFormattedTextField campoHoraFim,
+            JTextField campoLocal,
+            JTextField campoCapacidade,
+            JComboBox<String> campoStatus
+    ) {
+
+        try {
+
+            // ---------------------------------------------
+            // NOME
+            // ---------------------------------------------
+
+            if (campoNome.getText()
+                    .trim()
+                    .isEmpty()) {
+
+                mostrarAviso(
+                        dialog,
+                        "Informe o nome do evento.",
+                        "Campo obrigatório"
+                );
+
+                campoNome.requestFocus();
+                return;
+            }
+
+            // ---------------------------------------------
+            // DATA DE INÍCIO
+            // ---------------------------------------------
+
+            String textoDataInicio =
+                    campoDataInicio.getText().trim();
+
+            String textoHoraInicio =
+                    campoHoraInicio.getText().trim();
+
+            if (
+                    textoDataInicio.isEmpty()
+                            || textoHoraInicio.isEmpty()
+                            || textoDataInicio.contains("_")
+                            || textoHoraInicio.contains("_")
+            ) {
+
+                mostrarAviso(
+                        dialog,
+                        "Informe a data e o horário de início.",
+                        "Campo obrigatório"
+                );
+
+                return;
+            }
+
+            LocalDate dataInicio =
+                    LocalDate.parse(
+                            textoDataInicio,
+                            DATA
+                    );
+
+            LocalTime horaInicio =
+                    LocalTime.parse(
+                            textoHoraInicio,
+                            HORA
+                    );
+
+            LocalDateTime dataInicioFinal =
+                    LocalDateTime.of(
+                            dataInicio,
+                            horaInicio
+                    );
+
+            // ---------------------------------------------
+            // DATA DE TÉRMINO
+            // ---------------------------------------------
+
+            LocalDateTime dataFimFinal = null;
+
+            String textoDataFim =
+                    campoDataFim.getText().trim();
+
+            String textoHoraFim =
+                    campoHoraFim.getText().trim();
+
+            boolean informouDataFim =
+                    !textoDataFim.isEmpty()
+                            && !textoDataFim.contains("_");
+
+            boolean informouHoraFim =
+                    !textoHoraFim.isEmpty()
+                            && !textoHoraFim.contains("_");
+
+            if (informouDataFim != informouHoraFim) {
+
+                mostrarAviso(
+                        dialog,
+                        "Informe a data e o horário de término completos.",
+                        "Dados incompletos"
+                );
+
+                return;
+            }
+
+            if (informouDataFim && informouHoraFim) {
+
+                LocalDate dataFim =
+                        LocalDate.parse(
+                                textoDataFim,
+                                DATA
+                        );
+
+                LocalTime horaFim =
+                        LocalTime.parse(
+                                textoHoraFim,
+                                HORA
+                        );
+
+                dataFimFinal =
+                        LocalDateTime.of(
+                                dataFim,
+                                horaFim
+                        );
+
+                if (dataFimFinal.isBefore(
+                        dataInicioFinal
+                )) {
+
+                    mostrarAviso(
+                            dialog,
+                            "A data de término não pode ser anterior à data de início.",
+                            "Data inválida"
+                    );
+
+                    return;
+                }
+            }
+
+            // ---------------------------------------------
+            // CAPACIDADE
+            // ---------------------------------------------
+
+            int capacidade = 0;
+
+            String textoCapacidade =
+                    campoCapacidade.getText().trim();
+
+            if (!textoCapacidade.isEmpty()) {
+
+                capacidade =
+                        Integer.parseInt(
+                                textoCapacidade
+                        );
+
+                if (capacidade < 0) {
+
+                    mostrarAviso(
+                            dialog,
+                            "A capacidade não pode ser negativa.",
+                            "Valor inválido"
+                    );
+
+                    return;
+                }
+            }
+
+            // ---------------------------------------------
+            // OBJETO EVENTO
+            // ---------------------------------------------
+
+            Evento eventoSalvar =
+                    novo
+                            ? new Evento()
+                            : evento;
+
+            if (novo) {
+
+                eventoSalvar.setIdUsuarioCriador(
+                        usuarioLogado.getId()
+                );
+            }
+
+            eventoSalvar.setNome(
+                    campoNome.getText().trim()
+            );
+
+            eventoSalvar.setDescricao(
+                    campoDescricao.getText().trim()
+            );
+
+            eventoSalvar.setDataInicio(
+                    dataInicioFinal
+            );
+
+            eventoSalvar.setDataFim(
+                    dataFimFinal
+            );
+
+            eventoSalvar.setLocal(
+                    campoLocal.getText().trim()
+            );
+
+            eventoSalvar.setCapacidade(
+                    capacidade
+            );
+
+            eventoSalvar.setStatus(
+                    campoStatus
+                            .getSelectedItem()
+                            .toString()
+            );
+
+            // ---------------------------------------------
+            // BANCO
+            // ---------------------------------------------
+
+            boolean sucesso;
+
+            if (novo) {
+
+                sucesso =
+                        eventoService.cadastrarEvento(
+                                eventoSalvar
+                        );
+
+            } else {
+
+                sucesso =
+                        eventoService.atualizarEvento(
+                                eventoSalvar
+                        );
+            }
+
+            if (!sucesso) {
+
+                JOptionPane.showMessageDialog(
+                        dialog,
+                        "Não foi possível salvar o evento.",
+                        "Erro",
+                        JOptionPane.ERROR_MESSAGE
+                );
+
+                return;
+            }
+
+            JOptionPane.showMessageDialog(
+                    dialog,
+                    novo
+                            ? "Evento criado com sucesso!"
+                            : "Evento atualizado com sucesso!",
+                    "Sucesso",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+
+            dialog.dispose();
+
+            aplicarFiltros();
+
+        } catch (DateTimeParseException ex) {
+
+            mostrarAviso(
+                    dialog,
+                    "Verifique as datas e horários.\n\n"
+                            + "Data: dd/MM/yyyy\n"
+                            + "Horário: HH:mm",
+                    "Formato inválido"
+            );
+
+        } catch (NumberFormatException ex) {
+
+            mostrarAviso(
+                    dialog,
+                    "A capacidade deve ser um número inteiro.",
+                    "Valor inválido"
+            );
+
+        } catch (Exception ex) {
+
+            JOptionPane.showMessageDialog(
+                    dialog,
+                    "Erro ao salvar evento:\n\n"
+                            + ex.getMessage(),
+                    "Erro",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+    private void mostrarAviso(
+            Component componente,
+            String mensagem,
+            String titulo
+    ) {
+
+        JOptionPane.showMessageDialog(
+                componente,
+                mensagem,
+                titulo,
+                JOptionPane.WARNING_MESSAGE
+        );
+    }
+
+    // =====================================================
     // ABA COMISSÕES
     // =====================================================
 
     private JPanel criarAbaComissoes(Evento evento) {
 
-        JPanel painel =
-                criarPainelAba();
-
-        JLabel titulo =
-                new JLabel(
-                        "Comissões do evento"
-                );
-
-        titulo.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        18
-                )
-        );
-
-        titulo.setForeground(TEXTO);
-
-        painel.add(
-                titulo,
-                BorderLayout.NORTH
-        );
-
-        JTextArea informacao =
-                new JTextArea();
-
-        informacao.setEditable(false);
-
-        informacao.setLineWrap(true);
-
-        informacao.setWrapStyleWord(true);
-
-        informacao.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        14
-                )
-        );
-
-        informacao.setText(
+        return criarAbaInformacao(
+                "Comissões do evento",
                 """
                 Aqui ficarão as comissões deste evento.
 
@@ -1509,54 +1555,11 @@ public class EventosPage extends JPanel {
                 • Tecnologia
 
                 Cada comissão poderá possuir vários alunos.
-                """
+                """,
+                "+ Nova comissão",
+                e -> abrirNovaComissao(evento)
         );
-
-        informacao.setBorder(
-                new EmptyBorder(
-                        15,
-                        10,
-                        15,
-                        10
-                )
-        );
-
-        painel.add(
-                new JScrollPane(informacao),
-                BorderLayout.CENTER
-        );
-
-        JPanel botoes =
-                new JPanel(
-                        new FlowLayout(
-                                FlowLayout.RIGHT
-                        )
-                );
-
-        botoes.setBackground(FUNDO);
-
-        JButton adicionar =
-                criarBotaoPrincipal(
-                        "+ Nova comissão"
-                );
-
-        adicionar.addActionListener(e ->
-                abrirNovaComissao(evento)
-        );
-
-        botoes.add(adicionar);
-
-        painel.add(
-                botoes,
-                BorderLayout.SOUTH
-        );
-
-        return painel;
     }
-
-    // =====================================================
-    // NOVA COMISSÃO
-    // =====================================================
 
     private void abrirNovaComissao(Evento evento) {
 
@@ -1578,96 +1581,22 @@ public class EventosPage extends JPanel {
 
     private JPanel criarAbaProfessores(Evento evento) {
 
-        JPanel painel =
-                criarPainelAba();
-
-        JLabel titulo =
-                new JLabel(
-                        "Professores participantes"
-                );
-
-        titulo.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        18
-                )
-        );
-
-        titulo.setForeground(TEXTO);
-
-        painel.add(
-                titulo,
-                BorderLayout.NORTH
-        );
-
-        JTextArea informacao =
-                new JTextArea();
-
-        informacao.setEditable(false);
-
-        informacao.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        14
-                )
-        );
-
-        informacao.setText(
+        return criarAbaInformacao(
+                "Professores participantes",
                 """
                 Professores vinculados ao evento aparecerão aqui.
 
                 Um professor pode ser marcado como responsável/principal
                 pelo evento.
-                """
-        );
-
-        informacao.setBorder(
-                new EmptyBorder(
-                        15,
-                        10,
-                        15,
-                        10
-                )
-        );
-
-        painel.add(
-                new JScrollPane(informacao),
-                BorderLayout.CENTER
-        );
-
-        JPanel botoes =
-                new JPanel(
-                        new FlowLayout(
-                                FlowLayout.RIGHT
-                        )
-                );
-
-        botoes.setBackground(FUNDO);
-
-        JButton adicionar =
-                criarBotaoPrincipal(
-                        "+ Adicionar professor"
-                );
-
-        adicionar.addActionListener(e ->
-                JOptionPane.showMessageDialog(
+                """,
+                "+ Adicionar professor",
+                e -> JOptionPane.showMessageDialog(
                         this,
                         "Aqui será aberta a seleção dos professores cadastrados.",
                         "Adicionar professor",
                         JOptionPane.INFORMATION_MESSAGE
                 )
         );
-
-        botoes.add(adicionar);
-
-        painel.add(
-                botoes,
-                BorderLayout.SOUTH
-        );
-
-        return painel;
     }
 
     // =====================================================
@@ -1676,43 +1605,8 @@ public class EventosPage extends JPanel {
 
     private JPanel criarAbaAlunos(Evento evento) {
 
-        JPanel painel =
-                criarPainelAba();
-
-        JLabel titulo =
-                new JLabel(
-                        "Alunos inscritos"
-                );
-
-        titulo.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        18
-                )
-        );
-
-        titulo.setForeground(TEXTO);
-
-        painel.add(
-                titulo,
-                BorderLayout.NORTH
-        );
-
-        JTextArea informacao =
-                new JTextArea();
-
-        informacao.setEditable(false);
-
-        informacao.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        14
-                )
-        );
-
-        informacao.setText(
+        return criarAbaInformacao(
+                "Alunos inscritos",
                 """
                 Os alunos inscritos neste evento aparecerão aqui.
 
@@ -1724,24 +1618,10 @@ public class EventosPage extends JPanel {
                 • Curso
                 • Status da inscrição
                 • Data da inscrição
-                """
+                """,
+                null,
+                null
         );
-
-        informacao.setBorder(
-                new EmptyBorder(
-                        15,
-                        10,
-                        15,
-                        10
-                )
-        );
-
-        painel.add(
-                new JScrollPane(informacao),
-                BorderLayout.CENTER
-        );
-
-        return painel;
     }
 
     // =====================================================
@@ -1750,43 +1630,8 @@ public class EventosPage extends JPanel {
 
     private JPanel criarAbaAgentesExternos(Evento evento) {
 
-        JPanel painel =
-                criarPainelAba();
-
-        JLabel titulo =
-                new JLabel(
-                        "Agentes externos"
-                );
-
-        titulo.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        18
-                )
-        );
-
-        titulo.setForeground(TEXTO);
-
-        painel.add(
-                titulo,
-                BorderLayout.NORTH
-        );
-
-        JTextArea informacao =
-                new JTextArea();
-
-        informacao.setEditable(false);
-
-        informacao.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        14
-                )
-        );
-
-        informacao.setText(
+        return criarAbaInformacao(
+                "Agentes externos",
                 """
                 Pessoas externas à escola poderão ser vinculadas
                 a este evento.
@@ -1800,39 +1645,9 @@ public class EventosPage extends JPanel {
                 • Outro
 
                 Também será possível informar o tema da participação.
-                """
-        );
-
-        informacao.setBorder(
-                new EmptyBorder(
-                        15,
-                        10,
-                        15,
-                        10
-                )
-        );
-
-        painel.add(
-                new JScrollPane(informacao),
-                BorderLayout.CENTER
-        );
-
-        JPanel botoes =
-                new JPanel(
-                        new FlowLayout(
-                                FlowLayout.RIGHT
-                        )
-                );
-
-        botoes.setBackground(FUNDO);
-
-        JButton adicionar =
-                criarBotaoPrincipal(
-                        "+ Adicionar agente externo"
-                );
-
-        adicionar.addActionListener(e ->
-                JOptionPane.showMessageDialog(
+                """,
+                "+ Adicionar agente externo",
+                e -> JOptionPane.showMessageDialog(
                         this,
                         "Aqui será aberta a tela para cadastrar/vincular "
                                 + "um palestrante ou convidado.",
@@ -1840,15 +1655,6 @@ public class EventosPage extends JPanel {
                         JOptionPane.INFORMATION_MESSAGE
                 )
         );
-
-        botoes.add(adicionar);
-
-        painel.add(
-                botoes,
-                BorderLayout.SOUTH
-        );
-
-        return painel;
     }
 
     // =====================================================
@@ -1857,66 +1663,17 @@ public class EventosPage extends JPanel {
 
     private JPanel criarAbaAtividades(Evento evento) {
 
-        JPanel painel =
-                criarPainelAba();
-
-        JLabel titulo =
-                new JLabel(
-                        "Atividades"
-                );
-
-        titulo.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        18
-                )
-        );
-
-        titulo.setForeground(TEXTO);
-
-        painel.add(
-                titulo,
-                BorderLayout.NORTH
-        );
-
-        JTextArea informacao =
-                new JTextArea();
-
-        informacao.setEditable(false);
-
-        informacao.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        14
-                )
-        );
-
-        informacao.setText(
+        return criarAbaInformacao(
+                "Atividades",
                 """
                 As atividades do evento aparecerão aqui.
 
                 Cada atividade poderá ser vinculada a uma ou mais
                 comissões responsáveis.
-                """
+                """,
+                null,
+                null
         );
-
-        informacao.setBorder(
-                new EmptyBorder(
-                        15,
-                        10,
-                        15,
-                        10
-                )
-        );
-
-        painel.add(
-                new JScrollPane(informacao),
-                BorderLayout.CENTER
-        );
-
-        return painel;
     }
 
     // =====================================================
@@ -1925,43 +1682,8 @@ public class EventosPage extends JPanel {
 
     private JPanel criarAbaResponsabilidades(Evento evento) {
 
-        JPanel painel =
-                criarPainelAba();
-
-        JLabel titulo =
-                new JLabel(
-                        "Responsabilidades"
-                );
-
-        titulo.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        18
-                )
-        );
-
-        titulo.setForeground(TEXTO);
-
-        painel.add(
-                titulo,
-                BorderLayout.NORTH
-        );
-
-        JTextArea informacao =
-                new JTextArea();
-
-        informacao.setEditable(false);
-
-        informacao.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        14
-                )
-        );
-
-        informacao.setText(
+        return criarAbaInformacao(
+                "Responsabilidades",
                 """
                 Responsabilidades específicas deste evento.
 
@@ -1974,8 +1696,57 @@ public class EventosPage extends JPanel {
                 • Recepcionar convidados
                 • Preparar equipamentos
                 • Organizar certificados
-                """
+                """,
+                null,
+                null
         );
+    }
+
+    // =====================================================
+    // ABA DE INFORMAÇÃO PADRÃO
+    // =====================================================
+
+    private JPanel criarAbaInformacao(
+            String titulo,
+            String texto,
+            String textoBotao,
+            java.awt.event.ActionListener acaoBotao
+    ) {
+
+        JPanel painel =
+                criarPainelAba();
+
+        JLabel labelTitulo =
+                criarLabel(
+                        titulo,
+                        18,
+                        Font.BOLD,
+                        TEXTO
+                );
+
+        painel.add(
+                labelTitulo,
+                BorderLayout.NORTH
+        );
+
+        JTextArea informacao =
+                new JTextArea();
+
+        informacao.setEditable(false);
+        informacao.setLineWrap(true);
+        informacao.setWrapStyleWord(true);
+
+        informacao.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        14
+                )
+        );
+
+        informacao.setForeground(TEXTO);
+        informacao.setBackground(Color.WHITE);
+        informacao.setText(texto);
 
         informacao.setBorder(
                 new EmptyBorder(
@@ -1990,6 +1761,37 @@ public class EventosPage extends JPanel {
                 new JScrollPane(informacao),
                 BorderLayout.CENTER
         );
+
+        if (
+                textoBotao != null
+                        && acaoBotao != null
+        ) {
+
+            JPanel botoes =
+                    new JPanel(
+                            new FlowLayout(
+                                    FlowLayout.RIGHT
+                            )
+                    );
+
+            botoes.setBackground(FUNDO);
+
+            JButton botao =
+                    criarBotaoPrincipal(
+                            textoBotao
+                    );
+
+            botao.addActionListener(
+                    acaoBotao
+            );
+
+            botoes.add(botao);
+
+            painel.add(
+                    botoes,
+                    BorderLayout.SOUTH
+            );
+        }
 
         return painel;
     }
@@ -2020,6 +1822,32 @@ public class EventosPage extends JPanel {
     }
 
     // =====================================================
+    // CONSTRAINTS DO FORMULÁRIO
+    // =====================================================
+
+    private GridBagConstraints criarConstraintsFormulario() {
+
+        GridBagConstraints gbc =
+                new GridBagConstraints();
+
+        gbc.fill =
+                GridBagConstraints.HORIZONTAL;
+
+        gbc.insets =
+                new Insets(
+                        7,
+                        7,
+                        7,
+                        7
+                );
+
+        gbc.weightx = 1;
+        gbc.weighty = 0;
+
+        return gbc;
+    }
+
+    // =====================================================
     // CAMPO DATA
     // =====================================================
 
@@ -2035,38 +1863,7 @@ public class EventosPage extends JPanel {
             JFormattedTextField campo =
                     new JFormattedTextField(mascara);
 
-            campo.setFont(
-                    new Font(
-                            "Segoe UI",
-                            Font.PLAIN,
-                            14
-                    )
-            );
-
-            campo.setPreferredSize(
-                    new Dimension(
-                            0,
-                            40
-                    )
-            );
-
-            campo.setFocusLostBehavior(
-                    JFormattedTextField.PERSIST
-            );
-
-            campo.setBorder(
-                    BorderFactory.createCompoundBorder(
-                            BorderFactory.createLineBorder(
-                                    BORDA
-                            ),
-                            new EmptyBorder(
-                                    8,
-                                    10,
-                                    8,
-                                    10
-                            )
-                    )
-            );
+            estilizarCampoFormatado(campo);
 
             return campo;
 
@@ -2095,38 +1892,7 @@ public class EventosPage extends JPanel {
             JFormattedTextField campo =
                     new JFormattedTextField(mascara);
 
-            campo.setFont(
-                    new Font(
-                            "Segoe UI",
-                            Font.PLAIN,
-                            14
-                    )
-            );
-
-            campo.setPreferredSize(
-                    new Dimension(
-                            0,
-                            40
-                    )
-            );
-
-            campo.setFocusLostBehavior(
-                    JFormattedTextField.PERSIST
-            );
-
-            campo.setBorder(
-                    BorderFactory.createCompoundBorder(
-                            BorderFactory.createLineBorder(
-                                    BORDA
-                            ),
-                            new EmptyBorder(
-                                    8,
-                                    10,
-                                    8,
-                                    10
-                            )
-                    )
-            );
+            estilizarCampoFormatado(campo);
 
             return campo;
 
@@ -2139,9 +1905,38 @@ public class EventosPage extends JPanel {
         }
     }
 
+    private void estilizarCampoFormatado(
+            JFormattedTextField campo
+    ) {
+
+        campo.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        14
+                )
+        );
+
+        campo.setPreferredSize(
+                new Dimension(
+                        0,
+                        40
+                )
+        );
+
+        campo.setFocusLostBehavior(
+                JFormattedTextField.PERSIST
+        );
+
+        campo.setBorder(
+                criarBordaCampo()
+        );
+    }
+
     // =====================================================
     // ADICIONAR CAMPO
     // =====================================================
+
     private void adicionarCampo(
             JPanel painel,
             GridBagConstraints gbc,
@@ -2153,14 +1948,9 @@ public class EventosPage extends JPanel {
 
         gbc.gridx = coluna - 1;
         gbc.gridy = linha;
-
         gbc.gridwidth = 1;
-
         gbc.weightx = 0.5;
-
-        // Importante para o campo crescer corretamente
         gbc.weighty = 0;
-
         gbc.fill =
                 GridBagConstraints.HORIZONTAL;
 
@@ -2177,24 +1967,15 @@ public class EventosPage extends JPanel {
         container.setBackground(Color.WHITE);
 
         JLabel label =
-                new JLabel(titulo);
-
-        label.setFont(
-                new Font(
-                        "Segoe UI",
+                criarLabel(
+                        titulo,
+                        12,
                         Font.BOLD,
-                        12
-                )
-        );
-
-        label.setForeground(TEXTO);
+                        TEXTO
+                );
 
         container.add(label);
-
-        container.add(
-                Box.createVerticalStrut(5)
-        );
-
+        container.add(Box.createVerticalStrut(5));
         container.add(campo);
 
         painel.add(
@@ -2202,7 +1983,6 @@ public class EventosPage extends JPanel {
                 gbc
         );
     }
-
 
     // =====================================================
     // BOTÃO PRINCIPAL
@@ -2224,11 +2004,8 @@ public class EventosPage extends JPanel {
         );
 
         botao.setForeground(Color.WHITE);
-
         botao.setBackground(AZUL);
-
         botao.setFocusPainted(false);
-
         botao.setBorderPainted(false);
 
         botao.setCursor(
@@ -2294,9 +2071,7 @@ public class EventosPage extends JPanel {
         );
 
         botao.setForeground(TEXTO);
-
         botao.setBackground(Color.WHITE);
-
         botao.setFocusPainted(false);
 
         botao.setBorder(
@@ -2323,6 +2098,33 @@ public class EventosPage extends JPanel {
     }
 
     // =====================================================
+    // LABEL
+    // =====================================================
+
+    private JLabel criarLabel(
+            String texto,
+            int tamanho,
+            int estilo,
+            Color cor
+    ) {
+
+        JLabel label =
+                new JLabel(texto);
+
+        label.setFont(
+                new Font(
+                        "Segoe UI",
+                        estilo,
+                        tamanho
+                )
+        );
+
+        label.setForeground(cor);
+
+        return label;
+    }
+
+    // =====================================================
     // ESTILIZAR CAMPO
     // =====================================================
 
@@ -2339,23 +2141,60 @@ public class EventosPage extends JPanel {
         );
 
         campo.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(
-                                BORDA
-                        ),
-                        new EmptyBorder(
-                                8,
-                                10,
-                                8,
-                                10
-                        )
-                )
+                criarBordaCampo()
         );
 
         campo.setPreferredSize(
                 new Dimension(
                         0,
                         40
+                )
+        );
+    }
+
+    private Border criarBordaCampo() {
+
+        return BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(
+                        BORDA
+                ),
+                new EmptyBorder(
+                        8,
+                        10,
+                        8,
+                        10
+                )
+        );
+    }
+
+    // =====================================================
+    // ESTILIZAR ÁREA DE TEXTO
+    // =====================================================
+
+    private void estilizarAreaTexto(
+            JTextArea area
+    ) {
+
+        area.setLineWrap(true);
+        area.setWrapStyleWord(true);
+
+        area.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        14
+                )
+        );
+
+        area.setForeground(TEXTO);
+        area.setBackground(Color.WHITE);
+
+        area.setMargin(
+                new Insets(
+                        8,
+                        10,
+                        8,
+                        10
                 )
         );
     }
@@ -2377,7 +2216,6 @@ public class EventosPage extends JPanel {
         );
 
         combo.setBackground(Color.WHITE);
-
         combo.setForeground(TEXTO);
 
         combo.setBorder(
