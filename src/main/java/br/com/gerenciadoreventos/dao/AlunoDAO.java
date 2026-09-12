@@ -95,7 +95,7 @@ public class AlunoDAO {
             e.printStackTrace();
         }
 
-        return alunos;
+        return listarAlunosPorStatus(true);
     }
 
 
@@ -257,4 +257,93 @@ public class AlunoDAO {
             return false;
         }
     }
+    public List<Aluno> listarAlunosPorStatus(boolean ativo) {
+
+        List<Aluno> alunos = new ArrayList<>();
+
+        String sql = """
+            SELECT
+                id_aluno,
+                rm,
+                nome,
+                data_nascimento,
+                turma,
+                curso,
+                email,
+                telefone,
+                ativo
+            FROM aluno
+            WHERE ativo = ?
+            ORDER BY nome ASC
+            """;
+
+        try (
+                Connection conn = Conexao.conectar();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+
+            stmt.setBoolean(1, ativo);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+
+                while (rs.next()) {
+
+                    Aluno aluno = new Aluno();
+
+                    aluno.setId(
+                            rs.getLong("id_aluno")
+                    );
+
+                    aluno.setRm(
+                            rs.getString("rm")
+                    );
+
+                    aluno.setNome(
+                            rs.getString("nome")
+                    );
+
+                    Date dataNascimento =
+                            rs.getDate("data_nascimento");
+
+                    if (dataNascimento != null) {
+
+                        aluno.setDataNascimento(
+                                dataNascimento
+                                        .toLocalDate()
+                                        .toString()
+                        );
+                    }
+
+                    aluno.setTurma(
+                            rs.getString("turma")
+                    );
+
+                    aluno.setCurso(
+                            rs.getString("curso")
+                    );
+
+                    aluno.setEmail(
+                            rs.getString("email")
+                    );
+
+                    aluno.setTelefone(
+                            rs.getString("telefone")
+                    );
+
+                    aluno.setAtivo(
+                            rs.getBoolean("ativo")
+                    );
+
+                    alunos.add(aluno);
+                }
+            }
+
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+        }
+
+        return alunos;
+    }
+
 }

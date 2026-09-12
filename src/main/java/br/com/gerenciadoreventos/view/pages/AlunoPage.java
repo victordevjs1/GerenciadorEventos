@@ -5,6 +5,8 @@ import br.com.gerenciadoreventos.service.AlunoService;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.text.MaskFormatter;
 import java.awt.*;
 import java.text.ParseException;
@@ -13,6 +15,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class AlunoPage extends JPanel {
+
+    // =====================================================
+    // CORES
+    // =====================================================
 
     private static final Color FUNDO =
             new Color(246, 248, 252);
@@ -32,9 +38,36 @@ public class AlunoPage extends JPanel {
     private static final Color BORDA =
             new Color(203, 213, 225);
 
+
+    // =====================================================
+    // COMPONENTES
+    // =====================================================
+
     private JPanel painelAlunos;
 
+    private JTextField campoBusca;
+
+    private JButton botaoAtivados;
+
+    private JButton botaoDesativados;
+
+
+    // =====================================================
+    // SERVICE
+    // =====================================================
+
     private final AlunoService alunoService;
+
+
+    // =====================================================
+    // FILTRO ATUAL
+    // =====================================================
+
+    /*
+     * true  = mostrando alunos ativados
+     * false = mostrando alunos desativados
+     */
+    private boolean mostrandoAtivos = true;
 
 
     // =====================================================
@@ -43,7 +76,8 @@ public class AlunoPage extends JPanel {
 
     public AlunoPage() {
 
-        alunoService = new AlunoService();
+        alunoService =
+                new AlunoService();
 
         inicializarInterface();
 
@@ -124,6 +158,11 @@ public class AlunoPage extends JPanel {
 
         cabecalho.setBackground(FUNDO);
 
+
+        // =================================================
+        // LINHA SUPERIOR
+        // =================================================
+
         JPanel linhaSuperior =
                 new JPanel(
                         new BorderLayout()
@@ -131,6 +170,10 @@ public class AlunoPage extends JPanel {
 
         linhaSuperior.setBackground(FUNDO);
 
+
+        // =================================================
+        // TÍTULOS
+        // =================================================
 
         JPanel textos =
                 new JPanel();
@@ -192,6 +235,10 @@ public class AlunoPage extends JPanel {
         );
 
 
+        // =================================================
+        // NOVO ALUNO
+        // =================================================
+
         JButton novoAluno =
                 criarBotaoPrincipal(
                         "+ Novo Aluno"
@@ -208,7 +255,10 @@ public class AlunoPage extends JPanel {
         );
 
 
-        cabecalho.add(linhaSuperior);
+        cabecalho.add(
+                linhaSuperior
+        );
+
 
         cabecalho.add(
                 Box.createVerticalStrut(22)
@@ -216,20 +266,108 @@ public class AlunoPage extends JPanel {
 
 
         // =================================================
+        // FILTROS
+        // =================================================
+
+        JPanel painelFiltros =
+                new JPanel(
+                        new FlowLayout(
+                                FlowLayout.LEFT,
+                                0,
+                                0
+                        )
+                );
+
+        painelFiltros.setBackground(FUNDO);
+
+
+        botaoAtivados =
+                criarBotaoFiltro(
+                        "Ativos"
+                );
+
+        botaoDesativados =
+                criarBotaoFiltro(
+                        "Inativos"
+                );
+
+
+        painelFiltros.add(
+                botaoAtivados
+        );
+
+        painelFiltros.add(
+                Box.createHorizontalStrut(8)
+        );
+
+        painelFiltros.add(
+                botaoDesativados
+        );
+
+
+        // =================================================
+        // CLIQUE ATIVADOS
+        // =================================================
+
+        botaoAtivados.addActionListener(
+                e -> {
+
+                    mostrandoAtivos = true;
+
+                    atualizarBotoesFiltro();
+
+                    carregarAlunos();
+                }
+        );
+
+
+        // =================================================
+        // CLIQUE DESATIVADOS
+        // =================================================
+
+        botaoDesativados.addActionListener(
+                e -> {
+
+                    mostrandoAtivos = false;
+
+                    atualizarBotoesFiltro();
+
+                    carregarAlunos();
+                }
+        );
+
+
+        atualizarBotoesFiltro();
+
+
+        cabecalho.add(
+                painelFiltros
+        );
+
+
+        cabecalho.add(
+                Box.createVerticalStrut(15)
+        );
+
+
+        // =================================================
         // PESQUISA
         // =================================================
 
-        JTextField busca =
+        campoBusca =
                 new JTextField();
 
-        busca.putClientProperty(
+        campoBusca.putClientProperty(
                 "JTextField.placeholderText",
                 "Pesquisar por nome ou RM..."
         );
 
-        estilizarCampo(busca);
+        estilizarCampo(
+                campoBusca
+        );
 
-        busca.setPreferredSize(
+
+        campoBusca.setPreferredSize(
                 new Dimension(
                         0,
                         42
@@ -237,35 +375,49 @@ public class AlunoPage extends JPanel {
         );
 
 
-        busca.getDocument()
+        campoBusca.getDocument()
                 .addDocumentListener(
-                        new javax.swing.event.DocumentListener() {
+                        new DocumentListener() {
 
                             @Override
                             public void insertUpdate(
-                                    javax.swing.event.DocumentEvent e
+                                    DocumentEvent e
                             ) {
-                                filtrar(busca.getText());
+
+                                filtrar(
+                                        campoBusca.getText()
+                                );
                             }
+
 
                             @Override
                             public void removeUpdate(
-                                    javax.swing.event.DocumentEvent e
+                                    DocumentEvent e
                             ) {
-                                filtrar(busca.getText());
+
+                                filtrar(
+                                        campoBusca.getText()
+                                );
                             }
+
 
                             @Override
                             public void changedUpdate(
-                                    javax.swing.event.DocumentEvent e
+                                    DocumentEvent e
                             ) {
-                                filtrar(busca.getText());
+
+                                filtrar(
+                                        campoBusca.getText()
+                                );
                             }
                         }
                 );
 
 
-        cabecalho.add(busca);
+        cabecalho.add(
+                campoBusca
+        );
+
 
         cabecalho.add(
                 Box.createVerticalStrut(20)
@@ -273,6 +425,106 @@ public class AlunoPage extends JPanel {
 
 
         return cabecalho;
+    }
+
+
+    // =====================================================
+    // BOTÕES DO FILTRO
+    // =====================================================
+
+    private JButton criarBotaoFiltro(
+            String texto
+    ) {
+
+        JButton botao =
+                new JButton(texto);
+
+        botao.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        13
+                )
+        );
+
+        botao.setFocusPainted(false);
+
+        botao.setCursor(
+                new Cursor(
+                        Cursor.HAND_CURSOR
+                )
+        );
+
+        botao.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                BORDA
+                        ),
+                        new EmptyBorder(
+                                9,
+                                18,
+                                9,
+                                18
+                        )
+                )
+        );
+
+        return botao;
+    }
+
+
+    // =====================================================
+    // ATUALIZAR FILTROS
+    // =====================================================
+
+    private void atualizarBotoesFiltro() {
+
+        if (mostrandoAtivos) {
+
+            // ATIVADOS SELECIONADO
+
+            botaoAtivados.setBackground(
+                    AZUL
+            );
+
+            botaoAtivados.setForeground(
+                    Color.WHITE
+            );
+
+
+            // DESATIVADOS
+
+            botaoDesativados.setBackground(
+                    Color.WHITE
+            );
+
+            botaoDesativados.setForeground(
+                    TEXTO
+            );
+
+        } else {
+
+            // ATIVADOS
+
+            botaoAtivados.setBackground(
+                    Color.WHITE
+            );
+
+            botaoAtivados.setForeground(
+                    TEXTO
+            );
+
+
+            // DESATIVADOS SELECIONADO
+
+            botaoDesativados.setBackground(
+                    AZUL
+            );
+
+            botaoDesativados.setForeground(
+                    Color.WHITE
+            );
+        }
     }
 
 
@@ -331,15 +583,20 @@ public class AlunoPage extends JPanel {
 
         painelAlunos.removeAll();
 
+
         List<Aluno> alunos =
-                alunoService.listarAlunos();
+                alunoService.listarAlunosPorStatus(
+                        mostrandoAtivos
+                );
 
 
         if (alunos.isEmpty()) {
 
             JLabel vazio =
                     new JLabel(
-                            "Nenhum aluno cadastrado."
+                            mostrandoAtivos
+                                    ? "Nenhum aluno ativado."
+                                    : "Nenhum aluno desativado."
                     );
 
             vazio.setFont(
@@ -363,7 +620,9 @@ public class AlunoPage extends JPanel {
                     Box.createVerticalStrut(30)
             );
 
-            painelAlunos.add(vazio);
+            painelAlunos.add(
+                    vazio
+            );
 
         } else {
 
@@ -387,12 +646,15 @@ public class AlunoPage extends JPanel {
 
 
     // =====================================================
-    // FILTRO
+    // FILTRO DE PESQUISA
     // =====================================================
 
-    private void filtrar(String texto) {
+    private void filtrar(
+            String texto
+    ) {
 
         painelAlunos.removeAll();
+
 
         String busca =
                 texto
@@ -401,7 +663,9 @@ public class AlunoPage extends JPanel {
 
 
         List<Aluno> alunos =
-                alunoService.listarAlunos();
+                alunoService.listarAlunosPorStatus(
+                        mostrandoAtivos
+                );
 
 
         int encontrados = 0;
@@ -412,13 +676,15 @@ public class AlunoPage extends JPanel {
             String nome =
                     aluno.getNome() == null
                             ? ""
-                            : aluno.getNome().toLowerCase();
+                            : aluno.getNome()
+                            .toLowerCase();
 
 
             String rm =
                     aluno.getRm() == null
                             ? ""
-                            : aluno.getRm().toLowerCase();
+                            : aluno.getRm()
+                            .toLowerCase();
 
 
             boolean corresponde =
@@ -446,7 +712,9 @@ public class AlunoPage extends JPanel {
 
             JLabel vazio =
                     new JLabel(
-                            "Nenhum aluno encontrado."
+                            mostrandoAtivos
+                                    ? "Nenhum aluno ativado encontrado."
+                                    : "Nenhum aluno desativado encontrado."
                     );
 
             vazio.setFont(
@@ -465,7 +733,14 @@ public class AlunoPage extends JPanel {
                     Component.CENTER_ALIGNMENT
             );
 
-            painelAlunos.add(vazio);
+
+            painelAlunos.add(
+                    Box.createVerticalStrut(30)
+            );
+
+            painelAlunos.add(
+                    vazio
+            );
         }
 
 
@@ -491,7 +766,10 @@ public class AlunoPage extends JPanel {
                         )
                 );
 
-        card.setBackground(Color.WHITE);
+        card.setBackground(
+                Color.WHITE
+        );
+
 
         card.setMaximumSize(
                 new Dimension(
@@ -541,7 +819,9 @@ public class AlunoPage extends JPanel {
 
         JLabel nome =
                 new JLabel(
-                        valor(aluno.getNome())
+                        valor(
+                                aluno.getNome()
+                        )
                 );
 
         nome.setFont(
@@ -552,9 +832,13 @@ public class AlunoPage extends JPanel {
                 )
         );
 
-        nome.setForeground(TEXTO);
+        nome.setForeground(
+                TEXTO
+        );
+
 
         informacoes.add(nome);
+
 
         informacoes.add(
                 Box.createVerticalStrut(8)
@@ -564,9 +848,13 @@ public class AlunoPage extends JPanel {
         JLabel dados =
                 new JLabel(
                         "RM: "
-                                + valor(aluno.getRm())
+                                + valor(
+                                aluno.getRm()
+                        )
                                 + "   •   Turma: "
-                                + valor(aluno.getTurma())
+                                + valor(
+                                aluno.getTurma()
+                        )
                 );
 
         dados.setFont(
@@ -585,7 +873,11 @@ public class AlunoPage extends JPanel {
                 )
         );
 
-        informacoes.add(dados);
+
+        informacoes.add(
+                dados
+        );
+
 
         informacoes.add(
                 Box.createVerticalStrut(6)
@@ -595,7 +887,9 @@ public class AlunoPage extends JPanel {
         JLabel curso =
                 new JLabel(
                         "Curso: "
-                                + valor(aluno.getCurso())
+                                + valor(
+                                aluno.getCurso()
+                        )
                 );
 
         curso.setFont(
@@ -614,7 +908,10 @@ public class AlunoPage extends JPanel {
                 )
         );
 
-        informacoes.add(curso);
+
+        informacoes.add(
+                curso
+        );
 
 
         card.add(
@@ -649,6 +946,7 @@ public class AlunoPage extends JPanel {
                                 : "INATIVO"
                 );
 
+
         status.setFont(
                 new Font(
                         "Segoe UI",
@@ -657,7 +955,9 @@ public class AlunoPage extends JPanel {
                 )
         );
 
+
         status.setOpaque(true);
+
 
         status.setBorder(
                 new EmptyBorder(
@@ -707,7 +1007,9 @@ public class AlunoPage extends JPanel {
         }
 
 
-        lateral.add(status);
+        lateral.add(
+                status
+        );
 
 
         // =================================================
@@ -730,7 +1032,9 @@ public class AlunoPage extends JPanel {
             );
 
 
-            lateral.add(remover);
+            lateral.add(
+                    remover
+            );
         }
 
 
@@ -764,7 +1068,11 @@ public class AlunoPage extends JPanel {
                 );
 
 
-        if (confirmacao != JOptionPane.YES_OPTION) {
+        if (
+                confirmacao
+                        != JOptionPane.YES_OPTION
+        ) {
+
             return;
         }
 
@@ -773,7 +1081,7 @@ public class AlunoPage extends JPanel {
 
             boolean sucesso =
                     alunoService.desativarAluno(
-                             aluno.getId()
+                            aluno.getId()
                     );
 
 
@@ -785,6 +1093,7 @@ public class AlunoPage extends JPanel {
                         "Sucesso",
                         JOptionPane.INFORMATION_MESSAGE
                 );
+
 
                 carregarAlunos();
 
@@ -827,14 +1136,16 @@ public class AlunoPage extends JPanel {
                 );
 
 
-        // AUMENTADO PARA CABER TODOS OS CAMPOS
-
         dialog.setSize(
                 650,
                 700
         );
 
-        dialog.setLocationRelativeTo(this);
+
+        dialog.setLocationRelativeTo(
+                this
+        );
+
 
         dialog.setResizable(false);
 
@@ -886,7 +1197,9 @@ public class AlunoPage extends JPanel {
                 )
         );
 
-        titulo.setForeground(TEXTO);
+        titulo.setForeground(
+                TEXTO
+        );
 
 
         JLabel descricao =
@@ -907,13 +1220,17 @@ public class AlunoPage extends JPanel {
         );
 
 
-        cabecalho.add(titulo);
+        cabecalho.add(
+                titulo
+        );
 
         cabecalho.add(
                 Box.createVerticalStrut(5)
         );
 
-        cabecalho.add(descricao);
+        cabecalho.add(
+                descricao
+        );
 
 
         principal.add(
@@ -934,6 +1251,7 @@ public class AlunoPage extends JPanel {
         formulario.setBackground(
                 Color.WHITE
         );
+
 
         formulario.setBorder(
                 BorderFactory.createCompoundBorder(
@@ -983,7 +1301,9 @@ public class AlunoPage extends JPanel {
                 "Ex.: 12345"
         );
 
-        estilizarCampo(campoRm);
+        estilizarCampo(
+                campoRm
+        );
 
 
         adicionarCampo(
@@ -1003,7 +1323,9 @@ public class AlunoPage extends JPanel {
         JTextField campoNome =
                 new JTextField();
 
-        estilizarCampo(campoNome);
+        estilizarCampo(
+                campoNome
+        );
 
 
         adicionarCampo(
@@ -1046,7 +1368,9 @@ public class AlunoPage extends JPanel {
                 "Ex.: 2º DS"
         );
 
-        estilizarCampo(campoTurma);
+        estilizarCampo(
+                campoTurma
+        );
 
 
         adicionarCampo(
@@ -1066,7 +1390,9 @@ public class AlunoPage extends JPanel {
         JTextField campoCurso =
                 new JTextField();
 
-        estilizarCampo(campoCurso);
+        estilizarCampo(
+                campoCurso
+        );
 
 
         adicionarCampo(
@@ -1086,7 +1412,9 @@ public class AlunoPage extends JPanel {
         JTextField campoEmail =
                 new JTextField();
 
-        estilizarCampo(campoEmail);
+        estilizarCampo(
+                campoEmail
+        );
 
 
         adicionarCampo(
@@ -1111,7 +1439,9 @@ public class AlunoPage extends JPanel {
                 "(11) 99999-9999"
         );
 
-        estilizarCampo(campoTelefone);
+        estilizarCampo(
+                campoTelefone
+        );
 
 
         adicionarCampo(
@@ -1143,13 +1473,16 @@ public class AlunoPage extends JPanel {
                         )
                 );
 
-        botoes.setBackground(FUNDO);
+        botoes.setBackground(
+                FUNDO
+        );
 
 
         JButton cancelar =
                 criarBotaoSecundario(
                         "Cancelar"
                 );
+
 
         cancelar.addActionListener(
                 e -> dialog.dispose()
@@ -1177,9 +1510,9 @@ public class AlunoPage extends JPanel {
                                     .trim();
 
 
-                    // =================================================
-                    // VALIDAÇÃO RM
-                    // =================================================
+                    // =====================================
+                    // VALIDA RM
+                    // =====================================
 
                     if (rm.isEmpty()) {
 
@@ -1196,9 +1529,9 @@ public class AlunoPage extends JPanel {
                     }
 
 
-                    // =================================================
-                    // VALIDAÇÃO NOME
-                    // =================================================
+                    // =====================================
+                    // VALIDA NOME
+                    // =====================================
 
                     if (nome.isEmpty()) {
 
@@ -1221,14 +1554,19 @@ public class AlunoPage extends JPanel {
                                 new Aluno();
 
 
-                        aluno.setRm(rm);
+                        aluno.setRm(
+                                rm
+                        );
 
-                        aluno.setNome(nome);
+
+                        aluno.setNome(
+                                nome
+                        );
 
 
-                        // =================================================
+                        // =================================
                         // DATA
-                        // =================================================
+                        // =================================
 
                         String data =
                                 campoData
@@ -1258,9 +1596,9 @@ public class AlunoPage extends JPanel {
                         }
 
 
-                        // =================================================
+                        // =================================
                         // TURMA
-                        // =================================================
+                        // =================================
 
                         aluno.setTurma(
                                 campoTurma
@@ -1269,9 +1607,9 @@ public class AlunoPage extends JPanel {
                         );
 
 
-                        // =================================================
+                        // =================================
                         // CURSO
-                        // =================================================
+                        // =================================
 
                         aluno.setCurso(
                                 campoCurso
@@ -1280,9 +1618,9 @@ public class AlunoPage extends JPanel {
                         );
 
 
-                        // =================================================
+                        // =================================
                         // EMAIL
-                        // =================================================
+                        // =================================
 
                         aluno.setEmail(
                                 campoEmail
@@ -1291,9 +1629,9 @@ public class AlunoPage extends JPanel {
                         );
 
 
-                        // =================================================
+                        // =================================
                         // TELEFONE
-                        // =================================================
+                        // =================================
 
                         aluno.setTelefone(
                                 campoTelefone
@@ -1302,13 +1640,15 @@ public class AlunoPage extends JPanel {
                         );
 
 
-                        // =================================================
-                        // SERVICE
-                        // =================================================
+                        // =================================
+                        // BANCO
+                        // =================================
 
                         boolean sucesso =
                                 alunoService
-                                        .cadastrarAluno(aluno);
+                                        .cadastrarAluno(
+                                                aluno
+                                        );
 
 
                         if (!sucesso) {
@@ -1334,6 +1674,7 @@ public class AlunoPage extends JPanel {
 
                         dialog.dispose();
 
+
                         carregarAlunos();
 
 
@@ -1352,9 +1693,13 @@ public class AlunoPage extends JPanel {
                 });
 
 
-        botoes.add(cancelar);
+        botoes.add(
+                cancelar
+        );
 
-        botoes.add(salvar);
+        botoes.add(
+                salvar
+        );
 
 
         principal.add(
@@ -1363,7 +1708,10 @@ public class AlunoPage extends JPanel {
         );
 
 
-        dialog.setContentPane(principal);
+        dialog.setContentPane(
+                principal
+        );
+
 
         dialog.setVisible(true);
     }
@@ -1509,7 +1857,9 @@ public class AlunoPage extends JPanel {
 
 
         JLabel label =
-                new JLabel(titulo);
+                new JLabel(
+                        titulo
+                );
 
 
         label.setFont(
@@ -1521,10 +1871,14 @@ public class AlunoPage extends JPanel {
         );
 
 
-        label.setForeground(TEXTO);
+        label.setForeground(
+                TEXTO
+        );
 
 
-        container.add(label);
+        container.add(
+                label
+        );
 
 
         container.add(
@@ -1540,7 +1894,9 @@ public class AlunoPage extends JPanel {
         );
 
 
-        container.add(campo);
+        container.add(
+                campo
+        );
 
 
         painel.add(
@@ -1625,11 +1981,19 @@ public class AlunoPage extends JPanel {
         );
 
 
-        botao.setBackground(AZUL);
+        botao.setBackground(
+                AZUL
+        );
 
-        botao.setFocusPainted(false);
 
-        botao.setBorderPainted(false);
+        botao.setFocusPainted(
+                false
+        );
+
+
+        botao.setBorderPainted(
+                false
+        );
 
 
         botao.setCursor(
@@ -1701,11 +2065,19 @@ public class AlunoPage extends JPanel {
         );
 
 
-        botao.setForeground(TEXTO);
+        botao.setForeground(
+                TEXTO
+        );
 
-        botao.setBackground(Color.WHITE);
 
-        botao.setFocusPainted(false);
+        botao.setBackground(
+                Color.WHITE
+        );
+
+
+        botao.setFocusPainted(
+                false
+        );
 
 
         botao.setBorder(
@@ -1741,7 +2113,9 @@ public class AlunoPage extends JPanel {
     private JButton criarBotaoRemover() {
 
         JButton botao =
-                new JButton("Remover");
+                new JButton(
+                        "Remover"
+                );
 
 
         botao.setFont(
@@ -1767,7 +2141,9 @@ public class AlunoPage extends JPanel {
         );
 
 
-        botao.setFocusPainted(false);
+        botao.setFocusPainted(
+                false
+        );
 
 
         botao.setCursor(
@@ -1808,8 +2184,10 @@ public class AlunoPage extends JPanel {
             String texto
     ) {
 
-        if (texto == null
-                || texto.isBlank()) {
+        if (
+                texto == null
+                        || texto.isBlank()
+        ) {
 
             return "Não informado";
         }

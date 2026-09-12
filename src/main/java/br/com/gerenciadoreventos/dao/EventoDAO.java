@@ -86,7 +86,6 @@ public class EventoDAO {
         return eventos;
     }
 
-    // CADASTRAR EVENTO
     public boolean cadastrarEvento(Evento evento) {
 
         String sql = """
@@ -105,23 +104,13 @@ public class EventoDAO {
 
         try (
                 Connection conexao = Conexao.conectar();
-                PreparedStatement stmt = conexao.prepareStatement(sql)
+                PreparedStatement stmt =
+                        conexao.prepareStatement(sql)
         ) {
 
-            stmt.setLong(
-                    1,
-                    evento.getIdUsuarioCriador()
-            );
-
-            stmt.setString(
-                    2,
-                    evento.getNome()
-            );
-
-            stmt.setString(
-                    3,
-                    evento.getDescricao()
-            );
+            stmt.setLong(1, evento.getIdUsuarioCriador());
+            stmt.setString(2, evento.getNome());
+            stmt.setString(3, evento.getDescricao());
 
             stmt.setTimestamp(
                     4,
@@ -133,24 +122,143 @@ public class EventoDAO {
                     Timestamp.valueOf(evento.getDataFim())
             );
 
-            stmt.setString(
-                    6,
-                    evento.getLocal()
+            stmt.setString(6, evento.getLocal());
+            stmt.setInt(7, evento.getCapacidade());
+            stmt.setString(8, evento.getStatus());
+
+            return stmt.executeUpdate() > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public Evento buscarPorId(long idEvento) {
+
+        String sql = """
+                SELECT *
+                FROM evento
+                WHERE id_evento = ?
+                """;
+
+        try (
+                Connection conexao = Conexao.conectar();
+                PreparedStatement stmt =
+                        conexao.prepareStatement(sql)
+        ) {
+
+            stmt.setLong(1, idEvento);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+
+                if (rs.next()) {
+
+                    Evento evento = new Evento();
+
+                    evento.setId(
+                            rs.getLong("id_evento")
+                    );
+
+                    evento.setIdUsuarioCriador(
+                            rs.getLong("id_usuario_criador")
+                    );
+
+                    evento.setNome(
+                            rs.getString("nome")
+                    );
+
+                    evento.setDescricao(
+                            rs.getString("descricao")
+                    );
+
+                    Timestamp inicio =
+                            rs.getTimestamp("data_inicio");
+
+                    if (inicio != null) {
+                        evento.setDataInicio(
+                                inicio.toLocalDateTime()
+                        );
+                    }
+
+                    Timestamp fim =
+                            rs.getTimestamp("data_fim");
+
+                    if (fim != null) {
+                        evento.setDataFim(
+                                fim.toLocalDateTime()
+                        );
+                    }
+
+                    evento.setLocal(
+                            rs.getString("local")
+                    );
+
+                    evento.setCapacidade(
+                            rs.getInt("capacidade")
+                    );
+
+                    evento.setStatus(
+                            rs.getString("status")
+                    );
+
+                    return evento;
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public boolean atualizarEvento(Evento evento) {
+
+        String sql = """
+            UPDATE evento
+            SET
+                nome = ?,
+                descricao = ?,
+                data_inicio = ?,
+                data_fim = ?,
+                local = ?,
+                capacidade = ?,
+                status = ?
+            WHERE id_evento = ?
+            """;
+
+        try (
+                Connection conexao = Conexao.conectar();
+                PreparedStatement stmt = conexao.prepareStatement(sql)
+        ) {
+
+            stmt.setString(1, evento.getNome());
+            stmt.setString(2, evento.getDescricao());
+
+            stmt.setTimestamp(
+                    3,
+                    Timestamp.valueOf(evento.getDataInicio())
             );
 
-            stmt.setInt(
-                    7,
-                    evento.getCapacidade()
-            );
+            if (evento.getDataFim() != null) {
+                stmt.setTimestamp(
+                        4,
+                        Timestamp.valueOf(evento.getDataFim())
+                );
+            } else {
+                stmt.setNull(
+                        4,
+                        java.sql.Types.TIMESTAMP
+                );
+            }
 
-            stmt.setString(
-                    8,
-                    evento.getStatus()
-            );
+            stmt.setString(5, evento.getLocal());
+            stmt.setInt(6, evento.getCapacidade());
+            stmt.setString(7, evento.getStatus());
+            stmt.setLong(8, evento.getId());
 
-            int linhasAfetadas = stmt.executeUpdate();
-
-            return linhasAfetadas > 0;
+            return stmt.executeUpdate() > 0;
 
         } catch (Exception e) {
             e.printStackTrace();

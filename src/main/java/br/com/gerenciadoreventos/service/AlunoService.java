@@ -24,4 +24,8 @@ public class AlunoService {
     public boolean desativarAluno(long idAluno) {
         return alunoDAO.desativar(idAluno);
     }
+    public List<Aluno> listarAlunosPorStatus(boolean ativo) {
+        return alunoDAO.listarAlunosPorStatus(ativo);
+    }
+
 }
