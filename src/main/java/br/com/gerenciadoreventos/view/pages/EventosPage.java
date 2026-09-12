@@ -6,7 +6,9 @@ import br.com.gerenciadoreventos.service.EventoService;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.text.MaskFormatter;
 import java.awt.*;
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -113,10 +115,6 @@ public class EventosPage extends JPanel {
 
         cabecalho.setBackground(FUNDO);
 
-        // -------------------------
-        // TÍTULO + BOTÃO
-        // -------------------------
-
         JPanel linhaSuperior =
                 new JPanel(
                         new BorderLayout()
@@ -193,9 +191,9 @@ public class EventosPage extends JPanel {
                 Box.createVerticalStrut(22)
         );
 
-        // -------------------------
+        // =================================================
         // FILTROS
-        // -------------------------
+        // =================================================
 
         JPanel filtros =
                 new JPanel(
@@ -355,10 +353,6 @@ public class EventosPage extends JPanel {
                 )
         );
 
-        // -------------------------
-        // INFORMAÇÕES
-        // -------------------------
-
         JPanel informacoes =
                 new JPanel();
 
@@ -453,10 +447,6 @@ public class EventosPage extends JPanel {
                 BorderLayout.CENTER
         );
 
-        // -------------------------
-        // BOTÃO
-        // -------------------------
-
         JButton verEvento =
                 criarBotaoSecundario(
                         "Ver evento"
@@ -550,7 +540,7 @@ public class EventosPage extends JPanel {
         );
 
         // =================================================
-        // CABEÇALHO DO FORMULÁRIO
+        // CABEÇALHO
         // =================================================
 
         JPanel cabecalho =
@@ -651,7 +641,9 @@ public class EventosPage extends JPanel {
 
         int linha = 0;
 
+        // =================================================
         // NOME
+        // =================================================
 
         JTextField campoNome =
                 new JTextField();
@@ -667,7 +659,9 @@ public class EventosPage extends JPanel {
                 2
         );
 
+        // =================================================
         // DESCRIÇÃO
+        // =================================================
 
         JTextArea campoDescricao =
                 new JTextArea(3, 20);
@@ -711,17 +705,12 @@ public class EventosPage extends JPanel {
                 2
         );
 
-        // DATA INÍCIO
+        // =================================================
+        // DATA DE INÍCIO
+        // =================================================
 
-        JTextField campoDataInicio =
-                new JTextField();
-
-        campoDataInicio.putClientProperty(
-                "JTextField.placeholderText",
-                "dd/MM/yyyy"
-        );
-
-        estilizarCampo(campoDataInicio);
+        JFormattedTextField campoDataInicio =
+                criarCampoData();
 
         adicionarCampo(
                 formulario,
@@ -732,15 +721,12 @@ public class EventosPage extends JPanel {
                 1
         );
 
-        JTextField campoHoraInicio =
-                new JTextField();
+        // =================================================
+        // HORA DE INÍCIO
+        // =================================================
 
-        campoHoraInicio.putClientProperty(
-                "JTextField.placeholderText",
-                "HH:mm"
-        );
-
-        estilizarCampo(campoHoraInicio);
+        JFormattedTextField campoHoraInicio =
+                criarCampoHora();
 
         adicionarCampo(
                 formulario,
@@ -753,17 +739,12 @@ public class EventosPage extends JPanel {
 
         linha++;
 
-        // DATA FIM
+        // =================================================
+        // DATA DE FIM
+        // =================================================
 
-        JTextField campoDataFim =
-                new JTextField();
-
-        campoDataFim.putClientProperty(
-                "JTextField.placeholderText",
-                "dd/MM/yyyy"
-        );
-
-        estilizarCampo(campoDataFim);
+        JFormattedTextField campoDataFim =
+                criarCampoData();
 
         adicionarCampo(
                 formulario,
@@ -774,15 +755,12 @@ public class EventosPage extends JPanel {
                 1
         );
 
-        JTextField campoHoraFim =
-                new JTextField();
+        // =================================================
+        // HORA DE FIM
+        // =================================================
 
-        campoHoraFim.putClientProperty(
-                "JTextField.placeholderText",
-                "HH:mm"
-        );
-
-        estilizarCampo(campoHoraFim);
+        JFormattedTextField campoHoraFim =
+                criarCampoHora();
 
         adicionarCampo(
                 formulario,
@@ -795,7 +773,9 @@ public class EventosPage extends JPanel {
 
         linha++;
 
+        // =================================================
         // LOCAL
+        // =================================================
 
         JTextField campoLocal =
                 new JTextField();
@@ -811,7 +791,9 @@ public class EventosPage extends JPanel {
                 2
         );
 
+        // =================================================
         // CAPACIDADE
+        // =================================================
 
         JTextField campoCapacidade =
                 new JTextField();
@@ -832,7 +814,9 @@ public class EventosPage extends JPanel {
                 1
         );
 
+        // =================================================
         // STATUS
+        // =================================================
 
         JComboBox<String> campoStatus =
                 new JComboBox<>(
@@ -894,9 +878,9 @@ public class EventosPage extends JPanel {
 
             try {
 
-                // -----------------------------
-                // VALIDAÇÕES
-                // -----------------------------
+                // =================================================
+                // VALIDAÇÃO DO NOME
+                // =================================================
 
                 if (campoNome.getText().trim().isEmpty()) {
 
@@ -908,11 +892,24 @@ public class EventosPage extends JPanel {
                     );
 
                     campoNome.requestFocus();
+
                     return;
                 }
 
-                if (campoDataInicio.getText().trim().isEmpty()
-                        || campoHoraInicio.getText().trim().isEmpty()) {
+                // =================================================
+                // VALIDAÇÃO DA DATA/HORA DE INÍCIO
+                // =================================================
+
+                String textoDataInicio =
+                        campoDataInicio.getText().trim();
+
+                String textoHoraInicio =
+                        campoHoraInicio.getText().trim();
+
+                if (textoDataInicio.contains("_")
+                        || textoHoraInicio.contains("_")
+                        || textoDataInicio.isEmpty()
+                        || textoHoraInicio.isEmpty()) {
 
                     JOptionPane.showMessageDialog(
                             dialog,
@@ -921,22 +918,24 @@ public class EventosPage extends JPanel {
                             JOptionPane.WARNING_MESSAGE
                     );
 
+                    campoDataInicio.requestFocus();
+
                     return;
                 }
 
-                // -----------------------------
-                // DATA E HORA
-                // -----------------------------
+                // =================================================
+                // CONVERTER DATA/HORA DE INÍCIO
+                // =================================================
 
                 LocalDate dataInicio =
                         LocalDate.parse(
-                                campoDataInicio.getText().trim(),
+                                textoDataInicio,
                                 DATA
                         );
 
                 LocalTime horaInicio =
                         LocalTime.parse(
-                                campoHoraInicio.getText().trim(),
+                                textoHoraInicio,
                                 HORA
                         );
 
@@ -946,20 +945,50 @@ public class EventosPage extends JPanel {
                                 horaInicio
                         );
 
+                // =================================================
+                // DATA/HORA DE FIM
+                // =================================================
+
                 LocalDateTime dataFimFinal = null;
 
-                if (!campoDataFim.getText().trim().isEmpty()
-                        && !campoHoraFim.getText().trim().isEmpty()) {
+                String textoDataFim =
+                        campoDataFim.getText().trim();
+
+                String textoHoraFim =
+                        campoHoraFim.getText().trim();
+
+                boolean informouDataFim =
+                        !textoDataFim.isEmpty()
+                                && !textoDataFim.contains("_");
+
+                boolean informouHoraFim =
+                        !textoHoraFim.isEmpty()
+                                && !textoHoraFim.contains("_");
+
+                // Se informou apenas um dos dois
+                if (informouDataFim != informouHoraFim) {
+
+                    JOptionPane.showMessageDialog(
+                            dialog,
+                            "Informe a data e o horário de término completos.",
+                            "Dados incompletos",
+                            JOptionPane.WARNING_MESSAGE
+                    );
+
+                    return;
+                }
+
+                if (informouDataFim && informouHoraFim) {
 
                     LocalDate dataFim =
                             LocalDate.parse(
-                                    campoDataFim.getText().trim(),
+                                    textoDataFim,
                                     DATA
                             );
 
                     LocalTime horaFim =
                             LocalTime.parse(
-                                    campoHoraFim.getText().trim(),
+                                    textoHoraFim,
                                     HORA
                             );
 
@@ -968,6 +997,10 @@ public class EventosPage extends JPanel {
                                     dataFim,
                                     horaFim
                             );
+
+                    // =================================================
+                    // VALIDAR ORDEM
+                    // =================================================
 
                     if (dataFimFinal.isBefore(dataInicioFinal)) {
 
@@ -978,13 +1011,15 @@ public class EventosPage extends JPanel {
                                 JOptionPane.WARNING_MESSAGE
                         );
 
+                        campoDataFim.requestFocus();
+
                         return;
                     }
                 }
 
-                // -----------------------------
+                // =================================================
                 // CAPACIDADE
-                // -----------------------------
+                // =================================================
 
                 int capacidade = 0;
 
@@ -1006,13 +1041,15 @@ public class EventosPage extends JPanel {
                                 JOptionPane.WARNING_MESSAGE
                         );
 
+                        campoCapacidade.requestFocus();
+
                         return;
                     }
                 }
 
-                // -----------------------------
-                // OBJETO EVENTO
-                // -----------------------------
+                // =================================================
+                // CRIAR OBJETO EVENTO
+                // =================================================
 
                 Evento evento =
                         new Evento();
@@ -1053,17 +1090,9 @@ public class EventosPage extends JPanel {
                                 .toString()
                 );
 
-                // --------------------------------
+                // =================================================
                 // SALVAR
-                // --------------------------------
-                //
-                // Quando o método cadastrarEvento()
-                // estiver implementado no Service,
-                // coloque aqui:
-                //
-                // eventoService.cadastrarEvento(evento);
-                //
-                // --------------------------------
+                // =================================================
 
                 eventoService.cadastrarEvento(evento);
 
@@ -1121,6 +1150,134 @@ public class EventosPage extends JPanel {
         dialog.setContentPane(principal);
 
         dialog.setVisible(true);
+    }
+
+    // =====================================================
+    // CAMPO DE DATA
+    // =====================================================
+
+    private JFormattedTextField criarCampoData() {
+
+        try {
+
+            MaskFormatter mascara =
+                    new MaskFormatter("##/##/####");
+
+            mascara.setPlaceholderCharacter('_');
+
+            JFormattedTextField campo =
+                    new JFormattedTextField(mascara);
+
+            campo.setFont(
+                    new Font(
+                            "Segoe UI",
+                            Font.PLAIN,
+                            14
+                    )
+            );
+
+            campo.setPreferredSize(
+                    new Dimension(
+                            0,
+                            40
+                    )
+            );
+
+            campo.setToolTipText(
+                    "Formato: dd/mm/aaaa"
+            );
+
+            campo.setFocusLostBehavior(
+                    JFormattedTextField.PERSIST
+            );
+
+            campo.setBorder(
+                    BorderFactory.createCompoundBorder(
+                            BorderFactory.createLineBorder(
+                                    BORDA
+                            ),
+                            new EmptyBorder(
+                                    8,
+                                    10,
+                                    8,
+                                    10
+                            )
+                    )
+            );
+
+            return campo;
+
+        } catch (ParseException e) {
+
+            throw new RuntimeException(
+                    "Erro ao criar campo de data.",
+                    e
+            );
+        }
+    }
+
+    // =====================================================
+    // CAMPO DE HORA
+    // =====================================================
+
+    private JFormattedTextField criarCampoHora() {
+
+        try {
+
+            MaskFormatter mascara =
+                    new MaskFormatter("##:##");
+
+            mascara.setPlaceholderCharacter('_');
+
+            JFormattedTextField campo =
+                    new JFormattedTextField(mascara);
+
+            campo.setFont(
+                    new Font(
+                            "Segoe UI",
+                            Font.PLAIN,
+                            14
+                    )
+            );
+
+            campo.setPreferredSize(
+                    new Dimension(
+                            0,
+                            40
+                    )
+            );
+
+            campo.setToolTipText(
+                    "Formato: hh:mm"
+            );
+
+            campo.setFocusLostBehavior(
+                    JFormattedTextField.PERSIST
+            );
+
+            campo.setBorder(
+                    BorderFactory.createCompoundBorder(
+                            BorderFactory.createLineBorder(
+                                    BORDA
+                            ),
+                            new EmptyBorder(
+                                    8,
+                                    10,
+                                    8,
+                                    10
+                            )
+                    )
+            );
+
+            return campo;
+
+        } catch (ParseException e) {
+
+            throw new RuntimeException(
+                    "Erro ao criar campo de horário.",
+                    e
+            );
+        }
     }
 
     // =====================================================
@@ -1184,7 +1341,7 @@ public class EventosPage extends JPanel {
     }
 
     // =====================================================
-    // ESTILOS
+    // BOTÃO PRINCIPAL
     // =====================================================
 
     private JButton criarBotaoPrincipal(String texto) {
@@ -1230,6 +1387,7 @@ public class EventosPage extends JPanel {
                     public void mouseEntered(
                             java.awt.event.MouseEvent e
                     ) {
+
                         botao.setBackground(
                                 AZUL_HOVER
                         );
@@ -1239,6 +1397,7 @@ public class EventosPage extends JPanel {
                     public void mouseExited(
                             java.awt.event.MouseEvent e
                     ) {
+
                         botao.setBackground(
                                 AZUL
                         );
@@ -1248,6 +1407,10 @@ public class EventosPage extends JPanel {
 
         return botao;
     }
+
+    // =====================================================
+    // BOTÃO SECUNDÁRIO
+    // =====================================================
 
     private JButton criarBotaoSecundario(String texto) {
 
@@ -1291,6 +1454,10 @@ public class EventosPage extends JPanel {
         return botao;
     }
 
+    // =====================================================
+    // ESTILIZAR CAMPO
+    // =====================================================
+
     private void estilizarCampo(
             JTextField campo
     ) {
@@ -1324,6 +1491,10 @@ public class EventosPage extends JPanel {
                 )
         );
     }
+
+    // =====================================================
+    // COMBOBOX
+    // =====================================================
 
     private void estilizarComboBox(
             JComboBox<String> combo
