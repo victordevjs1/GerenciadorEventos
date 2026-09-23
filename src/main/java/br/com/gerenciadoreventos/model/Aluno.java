@@ -12,6 +12,18 @@ public class Aluno {
     private String telefone;
     private boolean ativo;
 
+    // =====================================================
+    // SÉRIE / FORMATURA AUTOMÁTICA
+    // =====================================================
+
+    // 1, 2 ou 3 (1º, 2º ou 3º ano do ensino médio)
+    private Integer serie;
+
+    // Ano em que o aluno conclui o 3º ano (calculado a partir
+    // da série informada no cadastro). Quando o ano atual
+    // ultrapassa este valor, o aluno é desativado automaticamente.
+    private Integer anoConclusao;
+
     public Aluno() {
     }
 
@@ -85,5 +97,21 @@ public class Aluno {
 
     public void setAtivo(boolean ativo) {
         this.ativo = ativo;
+    }
+
+    public Integer getSerie() {
+        return serie;
+    }
+
+    public void setSerie(Integer serie) {
+        this.serie = serie;
+    }
+
+    public Integer getAnoConclusao() {
+        return anoConclusao;
+    }
+
+    public void setAnoConclusao(Integer anoConclusao) {
+        this.anoConclusao = anoConclusao;
     }
 }

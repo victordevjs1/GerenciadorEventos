@@ -38,6 +38,14 @@ public class AlunoPage extends JPanel {
     private static final Color BORDA =
             new Color(203, 213, 225);
 
+    // Cor do selo de presença (identidade visual própria,
+    // diferente do selo de status ATIVO/INATIVO)
+    private static final Color ROXO_PRESENCA_TEXTO =
+            new Color(91, 33, 182);
+
+    private static final Color ROXO_PRESENCA_FUNDO =
+            new Color(237, 233, 254);
+
 
     // =====================================================
     // COMPONENTES
@@ -581,6 +589,17 @@ public class AlunoPage extends JPanel {
 
     private void carregarAlunos() {
 
+        // =================================================
+        // FORMATURA AUTOMÁTICA
+        //
+        // Antes de exibir a lista, verifica se algum aluno
+        // ativo já ultrapassou o ano de conclusão previsto
+        // (ex.: estava no 3º ano e o ano virou) e o desativa.
+        // =================================================
+
+        alunoService.desativarAlunosFormados();
+
+
         painelAlunos.removeAll();
 
 
@@ -774,7 +793,7 @@ public class AlunoPage extends JPanel {
         card.setMaximumSize(
                 new Dimension(
                         Integer.MAX_VALUE,
-                        125
+                        150
                 )
         );
 
@@ -914,6 +933,61 @@ public class AlunoPage extends JPanel {
         );
 
 
+        informacoes.add(
+                Box.createVerticalStrut(6)
+        );
+
+
+        JLabel serieInfo =
+                new JLabel(
+                        "Série: "
+                                + textoSerie(aluno.getSerie())
+                                + "   •   Conclusão prevista: "
+                                + (
+                                aluno.getAnoConclusao() != null
+                                        ? aluno.getAnoConclusao().toString()
+                                        : "Não informado"
+                        )
+                );
+
+        serieInfo.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        14
+                )
+        );
+
+        serieInfo.setForeground(
+                new Color(
+                        71,
+                        85,
+                        105
+                )
+        );
+
+
+        informacoes.add(
+                serieInfo
+        );
+
+
+        // =================================================
+        // LINHA DE PRESENÇA
+        // (segue a regra do diagrama: presença é registrada
+        // por ALUNO via InscricaoEvento / ParticipacaoAtividade,
+        // agregada pelo Relatorio)
+        // =================================================
+
+        informacoes.add(
+                Box.createVerticalStrut(10)
+        );
+
+        informacoes.add(
+                criarLinhaPresenca(aluno)
+        );
+
+
         card.add(
                 informacoes,
                 BorderLayout.CENTER
@@ -1007,8 +1081,40 @@ public class AlunoPage extends JPanel {
         }
 
 
+        status.setAlignmentX(
+                Component.RIGHT_ALIGNMENT
+        );
+
+
         lateral.add(
                 status
+        );
+
+
+        // =================================================
+        // VER PRESENÇA
+        // =================================================
+
+        lateral.add(
+                Box.createVerticalStrut(10)
+        );
+
+
+        JButton verPresenca =
+                criarBotaoSecundarioPequeno(
+                        "Ver Presença"
+                );
+
+        verPresenca.setAlignmentX(
+                Component.RIGHT_ALIGNMENT
+        );
+
+        verPresenca.addActionListener(
+                e -> abrirHistoricoPresenca(aluno)
+        );
+
+        lateral.add(
+                verPresenca
         );
 
 
@@ -1025,6 +1131,10 @@ public class AlunoPage extends JPanel {
 
             JButton remover =
                     criarBotaoRemover();
+
+            remover.setAlignmentX(
+                    Component.RIGHT_ALIGNMENT
+            );
 
 
             remover.addActionListener(
@@ -1045,6 +1155,274 @@ public class AlunoPage extends JPanel {
 
 
         return card;
+    }
+
+
+    // =====================================================
+    // LINHA DE PRESENÇA (selo dentro do card)
+    // =====================================================
+
+    private JPanel criarLinhaPresenca(
+            Aluno aluno
+    ) {
+
+        JPanel linha =
+                new JPanel(
+                        new FlowLayout(
+                                FlowLayout.LEFT,
+                                0,
+                                0
+                        )
+                );
+
+        linha.setBackground(
+                Color.WHITE
+        );
+
+
+        // TODO: quando o RelatorioService existir, trocar por:
+        //   double percentual =
+        //       relatorioService.calcularPercentualPresencaAluno(
+        //           aluno, eventoAtualOuFiltro
+        //       );
+        // e formatar o texto com esse valor real.
+
+        String textoPresenca =
+                "Presença: —%";
+
+
+        JLabel selo =
+                new JLabel(
+                        textoPresenca
+                );
+
+        selo.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        12
+                )
+        );
+
+        selo.setOpaque(true);
+
+        selo.setForeground(
+                ROXO_PRESENCA_TEXTO
+        );
+
+        selo.setBackground(
+                ROXO_PRESENCA_FUNDO
+        );
+
+        selo.setBorder(
+                new EmptyBorder(
+                        5,
+                        10,
+                        5,
+                        10
+                )
+        );
+
+
+        linha.add(
+                selo
+        );
+
+
+        return linha;
+    }
+
+
+    // =====================================================
+    // HISTÓRICO DE PRESENÇA (diálogo)
+    // =====================================================
+
+    private void abrirHistoricoPresenca(
+            Aluno aluno
+    ) {
+
+        JDialog dialog =
+                new JDialog(
+                        SwingUtilities
+                                .getWindowAncestor(this),
+                        "Presença de " + valor(aluno.getNome()),
+                        Dialog.ModalityType.APPLICATION_MODAL
+                );
+
+        dialog.setSize(
+                520,
+                480
+        );
+
+        dialog.setLocationRelativeTo(
+                this
+        );
+
+
+        JPanel principal =
+                new JPanel(
+                        new BorderLayout()
+                );
+
+        principal.setBackground(FUNDO);
+
+        principal.setBorder(
+                new EmptyBorder(
+                        25,
+                        25,
+                        25,
+                        25
+                )
+        );
+
+
+        JLabel titulo =
+                new JLabel(
+                        "Histórico de presença"
+                );
+
+        titulo.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        20
+                )
+        );
+
+        titulo.setForeground(
+                TEXTO
+        );
+
+
+        principal.add(
+                titulo,
+                BorderLayout.NORTH
+        );
+
+
+        // =================================================
+        // LISTA (placeholder até existir RelatorioService)
+        // =================================================
+
+        // TODO: substituir este placeholder por:
+        //   List<InscricaoEvento> inscricoes =
+        //       relatorioService.listarPresencaAluno(aluno);
+        // e por:
+        //   List<ParticipacaoAtividade> participacoes =
+        //       relatorioService.listarPresencaAtividadesAluno(aluno);
+        // Cada linha deve mostrar: evento/atividade, data e
+        // o status de presença (PRESENTE, AUSENTE, JUSTIFICADO),
+        // exatamente os enums do diagrama (StatusPresenca).
+
+        JPanel corpo =
+                new JPanel();
+
+        corpo.setLayout(
+                new BoxLayout(
+                        corpo,
+                        BoxLayout.Y_AXIS
+                )
+        );
+
+        corpo.setBackground(
+                Color.WHITE
+        );
+
+        corpo.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                new Color(226, 232, 240)
+                        ),
+                        new EmptyBorder(20, 20, 20, 20)
+                )
+        );
+
+
+        JLabel aviso =
+                new JLabel(
+                        "<html>Ainda não há relatório de presença "
+                                + "conectado.<br><br>Assim que o "
+                                + "<b>RelatorioService</b> (baseado em "
+                                + "InscricaoEvento e ParticipacaoAtividade) "
+                                + "estiver pronto, este painel vai listar "
+                                + "aqui os eventos e atividades do aluno "
+                                + "com o status PRESENTE / AUSENTE / "
+                                + "JUSTIFICADO.</html>"
+                );
+
+        aviso.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        14
+                )
+        );
+
+        aviso.setForeground(
+                CINZA_TEXTO
+        );
+
+
+        corpo.add(
+                aviso
+        );
+
+
+        JScrollPane scroll =
+                new JScrollPane(
+                        corpo
+                );
+
+        scroll.setBorder(null);
+
+
+        principal.add(
+                scroll,
+                BorderLayout.CENTER
+        );
+
+
+        // =================================================
+        // FECHAR
+        // =================================================
+
+        JPanel botoes =
+                new JPanel(
+                        new FlowLayout(
+                                FlowLayout.RIGHT
+                        )
+                );
+
+        botoes.setBackground(
+                FUNDO
+        );
+
+
+        JButton fechar =
+                criarBotaoSecundario(
+                        "Fechar"
+                );
+
+        fechar.addActionListener(
+                e -> dialog.dispose()
+        );
+
+        botoes.add(
+                fechar
+        );
+
+
+        principal.add(
+                botoes,
+                BorderLayout.SOUTH
+        );
+
+
+        dialog.setContentPane(
+                principal
+        );
+
+        dialog.setVisible(true);
     }
 
 
@@ -1454,6 +1832,94 @@ public class AlunoPage extends JPanel {
         );
 
 
+        // =================================================
+        // SÉRIE (toggle 1º / 2º / 3º ano)
+        //
+        // Define a série atual do aluno. É usada para
+        // calcular o ano de conclusão do ensino médio e,
+        // a partir dele, desativar o aluno automaticamente
+        // quando ele se formar.
+        // =================================================
+
+        JToggleButton toggle1Ano =
+                new JToggleButton("1º Ano");
+
+        JToggleButton toggle2Ano =
+                new JToggleButton("2º Ano");
+
+        JToggleButton toggle3Ano =
+                new JToggleButton("3º Ano");
+
+        for (JToggleButton toggle : new JToggleButton[]{
+                toggle1Ano, toggle2Ano, toggle3Ano
+        }) {
+
+            toggle.setFont(
+                    new Font("Segoe UI", Font.BOLD, 13)
+            );
+
+            toggle.setFocusPainted(false);
+
+            toggle.setCursor(
+                    new Cursor(Cursor.HAND_CURSOR)
+            );
+
+            toggle.setBackground(Color.WHITE);
+
+            toggle.setForeground(TEXTO);
+
+            toggle.setBorder(
+                    BorderFactory.createCompoundBorder(
+                            BorderFactory.createLineBorder(BORDA),
+                            new EmptyBorder(8, 14, 8, 14)
+                    )
+            );
+
+            toggle.addItemListener(
+                    e -> {
+
+                        boolean selecionado =
+                                toggle.isSelected();
+
+                        toggle.setBackground(
+                                selecionado ? AZUL : Color.WHITE
+                        );
+
+                        toggle.setForeground(
+                                selecionado ? Color.WHITE : TEXTO
+                        );
+                    }
+            );
+        }
+
+        ButtonGroup grupoSerie =
+                new ButtonGroup();
+
+        grupoSerie.add(toggle1Ano);
+        grupoSerie.add(toggle2Ano);
+        grupoSerie.add(toggle3Ano);
+
+        JPanel painelSerie =
+                new JPanel(
+                        new FlowLayout(FlowLayout.LEFT, 8, 0)
+                );
+
+        painelSerie.setBackground(Color.WHITE);
+
+        painelSerie.add(toggle1Ano);
+        painelSerie.add(toggle2Ano);
+        painelSerie.add(toggle3Ano);
+
+        adicionarCampo(
+                formulario,
+                gbc,
+                3,
+                "Série",
+                painelSerie,
+                1
+        );
+
+
         principal.add(
                 formulario,
                 BorderLayout.CENTER
@@ -1548,10 +2014,57 @@ public class AlunoPage extends JPanel {
                     }
 
 
+                    // =====================================
+                    // VALIDA SÉRIE
+                    // =====================================
+
+                    int serieSelecionada;
+
+                    if (toggle1Ano.isSelected()) {
+
+                        serieSelecionada = 1;
+
+                    } else if (toggle2Ano.isSelected()) {
+
+                        serieSelecionada = 2;
+
+                    } else if (toggle3Ano.isSelected()) {
+
+                        serieSelecionada = 3;
+
+                    } else {
+
+                        JOptionPane.showMessageDialog(
+                                dialog,
+                                "Selecione a série do aluno "
+                                        + "(1º, 2º ou 3º ano).",
+                                "Campo obrigatório",
+                                JOptionPane.WARNING_MESSAGE
+                        );
+
+                        return;
+                    }
+
+
                     try {
 
                         Aluno aluno =
                                 new Aluno();
+
+
+                        // =================================
+                        // SÉRIE E ANO DE CONCLUSÃO
+                        // =================================
+
+                        aluno.setSerie(
+                                serieSelecionada
+                        );
+
+                        aluno.setAnoConclusao(
+                                alunoService.calcularAnoConclusao(
+                                        serieSelecionada
+                                )
+                        );
 
 
                         aluno.setRm(
@@ -2107,6 +2620,61 @@ public class AlunoPage extends JPanel {
 
 
     // =====================================================
+    // BOTÃO SECUNDÁRIO PEQUENO (usado no card, ex.: Ver Presença)
+    // =====================================================
+
+    private JButton criarBotaoSecundarioPequeno(
+            String texto
+    ) {
+
+        JButton botao =
+                new JButton(texto);
+
+        botao.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        11
+                )
+        );
+
+        botao.setForeground(
+                AZUL
+        );
+
+        botao.setBackground(
+                Color.WHITE
+        );
+
+        botao.setFocusPainted(
+                false
+        );
+
+        botao.setCursor(
+                new Cursor(
+                        Cursor.HAND_CURSOR
+                )
+        );
+
+        botao.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                new Color(191, 219, 254)
+                        ),
+                        new EmptyBorder(
+                                5,
+                                10,
+                                5,
+                                10
+                        )
+                )
+        );
+
+        return botao;
+    }
+
+
+    // =====================================================
     // BOTÃO REMOVER
     // =====================================================
 
@@ -2173,6 +2741,29 @@ public class AlunoPage extends JPanel {
 
 
         return botao;
+    }
+
+
+    // =====================================================
+    // TEXTO DA SÉRIE
+    // =====================================================
+
+    private String textoSerie(
+            Integer serie
+    ) {
+
+        if (serie == null) {
+
+            return "Não informado";
+        }
+
+        return switch (serie) {
+
+            case 1 -> "1º Ano";
+            case 2 -> "2º Ano";
+            case 3 -> "3º Ano";
+            default -> "Não informado";
+        };
     }
 
 

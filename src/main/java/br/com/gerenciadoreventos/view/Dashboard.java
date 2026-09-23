@@ -139,6 +139,7 @@ public class Dashboard extends JFrame {
                 new AlunoPage(),
                 "alunos"
         );
+
         // =================================================
         // PÁGINA: Professores
         // =================================================
@@ -166,6 +167,16 @@ public class Dashboard extends JFrame {
         painelPaginas.add(
                 new ComissoesPage(),
                 "comissoes"
+        );
+
+        // =================================================
+        // PÁGINA: Relatórios
+        // (contém, dentro dela, a aba de Importar
+        // Presença via CSV)
+        // =================================================
+        painelPaginas.add(
+                new RelatoriosPage(),
+                "relatorios"
         );
 
         // =================================================
@@ -286,21 +297,14 @@ public class Dashboard extends JFrame {
     // =====================================================
     private boolean paginaExiste(String pagina) {
 
-        for (Component componente : painelPaginas.getComponents()) {
-
-            // O CardLayout não disponibiliza diretamente
-            // o nome do card, então verificamos as páginas
-            // que sabemos que já foram cadastradas.
-
-        }
-
         return pagina.equals("dashboard")
                 || pagina.equals("eventos")
                 || pagina.equals("alunos")
                 || pagina.equals("professores")
                 || pagina.equals("agentesExternos")
                 || pagina.equals("inscricoes")
-                || pagina.equals("comissoes");
+                || pagina.equals("comissoes")
+                || pagina.equals("relatorios");
 
     }
     public void mostrarPagina(String pagina) {

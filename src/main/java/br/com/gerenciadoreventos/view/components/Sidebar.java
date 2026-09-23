@@ -10,8 +10,6 @@ import org.kordamp.ikonli.swing.FontIcon;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 public class Sidebar extends JPanel {
 
@@ -276,9 +274,9 @@ public class Sidebar extends JPanel {
                 dashboard.mostrarPagina("atividades")
         );
 
-// =================================================
-// PROFESSORES
-// =================================================
+        // =================================================
+        // PROFESSORES
+        // =================================================
 
         botaoProfessores =
                 item(
@@ -291,9 +289,9 @@ public class Sidebar extends JPanel {
                 dashboard.mostrarPagina("professores")
         );
 
-// =================================================
-// COMISSÕES
-// =================================================
+        // =================================================
+        // COMISSÕES
+        // =================================================
 
         botaoComissoes =
                 item(
@@ -306,9 +304,9 @@ public class Sidebar extends JPanel {
                 dashboard.mostrarPagina("comissoes")
         );
 
-// =================================================
-// AGENTES EXTERNOS
-// =================================================
+        // =================================================
+        // AGENTES EXTERNOS
+        // =================================================
 
         botaoAgentesExternos =
                 item(
@@ -340,6 +338,8 @@ public class Sidebar extends JPanel {
 
         // =================================================
         // RELATÓRIOS
+        // (a importação de presença via CSV vive dentro
+        // desta página, como uma aba)
         // =================================================
 
         botaoRelatorios =
@@ -528,16 +528,6 @@ public class Sidebar extends JPanel {
 
         // =================================================
         // FUNDO
-        // =================================================
-
-        botao.setBackground(
-                ativo
-                        ? AZUL
-                        : SIDEBAR
-        );
-
-        // =================================================
-        // HOVER
         // =================================================
 
         botao.setBackground(
