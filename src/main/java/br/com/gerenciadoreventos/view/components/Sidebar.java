@@ -46,8 +46,7 @@ public class Sidebar extends JPanel {
     private JButton botaoEventos;
     private JButton botaoAlunos;
     private JButton botaoInscricoes;
-    private JButton botaoAtividades;
-    private JButton botaoRelatorios;
+    private JButton botaoResumo;
     private JButton botaoConfiguracoes;
     private JButton botaoComissoes;
     private JButton botaoProfessores;
@@ -259,20 +258,9 @@ public class Sidebar extends JPanel {
                 dashboard.mostrarPagina("inscricoes")
         );
 
-        // =================================================
-        // ATIVIDADES
-        // =================================================
 
-        botaoAtividades =
-                item(
-                        FontAwesomeSolid.TASKS,
-                        "Atividades",
-                        paginaAtiva.equals("atividades")
-                );
 
-        botaoAtividades.addActionListener(e ->
-                dashboard.mostrarPagina("atividades")
-        );
+
 
         // =================================================
         // PROFESSORES
@@ -327,8 +315,7 @@ public class Sidebar extends JPanel {
                 botaoProfessores,
                 botaoInscricoes,
                 botaoComissoes,
-                botaoAgentesExternos,
-                botaoAtividades
+                botaoAgentesExternos
 
         );
 
@@ -342,21 +329,22 @@ public class Sidebar extends JPanel {
         // desta página, como uma aba)
         // =================================================
 
-        botaoRelatorios =
+
+        botaoResumo =
                 item(
                         FontAwesomeSolid.CHART_BAR,
-                        "Relatórios",
-                        paginaAtiva.equals("relatorios")
+                        "Resumo",
+                        paginaAtiva.equals("resumo")
                 );
 
-        botaoRelatorios.addActionListener(e ->
-                dashboard.mostrarPagina("relatorios")
+        botaoResumo.addActionListener(e ->
+                dashboard.mostrarPagina("resumo")
         );
-
         adicionarSecao(
                 menu,
                 "RELATÓRIOS",
-                botaoRelatorios
+
+                botaoResumo
         );
 
         menu.add(
@@ -583,15 +571,7 @@ public class Sidebar extends JPanel {
                 pagina.equals("agentesExternos")
         );
 
-        atualizarBotao(
-                botaoAtividades,
-                pagina.equals("atividades")
-        );
 
-        atualizarBotao(
-                botaoRelatorios,
-                pagina.equals("relatorios")
-        );
 
         atualizarBotao(
                 botaoConfiguracoes,

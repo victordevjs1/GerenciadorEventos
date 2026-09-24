@@ -1,13 +1,13 @@
 package br.com.gerenciadoreventos.view.pages;
 
-import br.com.gerenciadoreventos.dao.AlunoDAO;
-import br.com.gerenciadoreventos.dao.PresencaImportDAO;
-import br.com.gerenciadoreventos.dao.PresencaImportDAO.AtividadeOpcao;
-import br.com.gerenciadoreventos.dao.PresencaImportDAO.EventoOpcao;
 import br.com.gerenciadoreventos.model.Aluno;
+import br.com.gerenciadoreventos.model.AtividadeOpcao;
+import br.com.gerenciadoreventos.model.EventoOpcao;
+import br.com.gerenciadoreventos.service.PresencaImportService;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.io.BufferedReader;
@@ -22,315 +22,900 @@ import java.util.List;
 public class ImportarPresencaCsvPage extends JPanel {
 
     // =====================================================
-    // CORES (mesma paleta usada no resto do app)
+    // CORES
     // =====================================================
 
-    private static final Color FUNDO = new Color(246, 248, 252);
-    private static final Color AZUL = new Color(37, 99, 235);
-    private static final Color TEXTO = new Color(15, 23, 42);
-    private static final Color CINZA_TEXTO = new Color(100, 116, 139);
-    private static final Color BORDA = new Color(203, 213, 225);
+    private static final Color FUNDO =
+            new Color(246, 248, 252);
 
+    private static final Color AZUL =
+            new Color(37, 99, 235);
+
+    private static final Color AZUL_CLARO =
+            new Color(239, 246, 255);
+
+    private static final Color TEXTO =
+            new Color(15, 23, 42);
+
+    private static final Color CINZA_TEXTO =
+            new Color(100, 116, 139);
+
+    private static final Color BORDA =
+            new Color(226, 232, 240);
+
+    private static final Color VERDE =
+            new Color(22, 163, 74);
+
+    private static final Color VERMELHO =
+            new Color(220, 38, 38);
 
     // =====================================================
     // COMPONENTES
     // =====================================================
 
     private JToggleButton toggleModoEvento;
+
     private JToggleButton toggleModoAtividade;
+
     private boolean modoAtividade = false;
 
     private JLabel labelContexto;
-    private JComboBox<Object> comboContexto; // EventoOpcao ou AtividadeOpcao
+
+    private JComboBox<Object> comboContexto;
+
     private JPanel painelData;
-    private JTextField campoData; // formato yyyy-MM-dd, só usado no modo Evento
+
+    private JTextField campoData;
 
     private JLabel labelArquivo;
+
     private DefaultTableModel modeloTabela;
+
     private JTable tabela;
+
     private JButton botaoImportar;
+
     private JLabel labelResumo;
 
-    // Linhas lidas do CSV: [0]=rm, [1]=nomeCsv
-    private final List<String[]> linhasCsv = new ArrayList<>();
+    /*
+     * [0] = RM
+     * [1] = Nome vindo do CSV
+     */
+    private final List<String[]> linhasCsv =
+            new ArrayList<>();
 
-    private final AlunoDAO alunoDAO = new AlunoDAO();
-    private final PresencaImportDAO presencaDAO = new PresencaImportDAO();
+    private final PresencaImportService presencaService =
+            new PresencaImportService();
 
+    // =====================================================
+    // CONSTRUTOR
+    // =====================================================
 
     public ImportarPresencaCsvPage() {
 
         setLayout(new BorderLayout());
+
         setBackground(FUNDO);
 
-        JPanel conteudo = new JPanel(new BorderLayout(0, 20));
-        conteudo.setBackground(FUNDO);
-        conteudo.setBorder(new EmptyBorder(25, 25, 25, 25));
-
-        conteudo.add(criarCabecalho(), BorderLayout.NORTH);
-        conteudo.add(criarPreview(), BorderLayout.CENTER);
-        conteudo.add(criarRodape(), BorderLayout.SOUTH);
-
-        add(conteudo, BorderLayout.CENTER);
+        criarInterface();
 
         carregarContexto();
     }
 
+    // =====================================================
+    // INTERFACE
+    // =====================================================
+
+    private void criarInterface() {
+
+        JPanel principal =
+                new JPanel(
+                        new BorderLayout(0, 15)
+                );
+
+        principal.setBackground(FUNDO);
+
+        principal.setBorder(
+                new EmptyBorder(
+                        25,
+                        25,
+                        20,
+                        25
+                )
+        );
+
+        principal.add(
+                criarCabecalho(),
+                BorderLayout.NORTH
+        );
+
+        principal.add(
+                criarPreview(),
+                BorderLayout.CENTER
+        );
+
+        principal.add(
+                criarRodape(),
+                BorderLayout.SOUTH
+        );
+
+        add(
+                principal,
+                BorderLayout.CENTER
+        );
+    }
 
     // =====================================================
-    // CABEÇALHO: título + toggle de modo + seleção + arquivo
+    // CABEÇALHO
     // =====================================================
 
     private JPanel criarCabecalho() {
 
-        JPanel painel = new JPanel();
-        painel.setLayout(new BoxLayout(painel, BoxLayout.Y_AXIS));
-        painel.setBackground(FUNDO);
+        JPanel painel =
+                new JPanel();
 
-        JLabel titulo = new JLabel("Importar Presença (CSV)");
-        titulo.setFont(new Font("Segoe UI", Font.BOLD, 26));
-        titulo.setForeground(TEXTO);
-
-        JLabel subtitulo = new JLabel(
-                "Importe as respostas de um formulário (Google Forms / Sheets exportado como CSV)"
-        );
-        subtitulo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        subtitulo.setForeground(CINZA_TEXTO);
-
-        painel.add(titulo);
-        painel.add(Box.createVerticalStrut(4));
-        painel.add(subtitulo);
-        painel.add(Box.createVerticalStrut(20));
-
-        JPanel controles = new JPanel();
-        controles.setLayout(new BoxLayout(controles, BoxLayout.Y_AXIS));
-        controles.setBackground(Color.WHITE);
-        controles.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(new Color(226, 232, 240)),
-                        new EmptyBorder(20, 20, 20, 20)
+        painel.setLayout(
+                new BoxLayout(
+                        painel,
+                        BoxLayout.Y_AXIS
                 )
         );
 
+        painel.setBackground(FUNDO);
+        JButton voltar =
+                new JButton(
+                        "← Voltar para relatórios"
+                );
+
+        voltar.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        13
+                )
+        );
+
+        voltar.setForeground(AZUL);
+
+        voltar.setBorderPainted(false);
+
+        voltar.setContentAreaFilled(false);
+
+        voltar.setFocusPainted(false);
+
+        voltar.setCursor(
+                new Cursor(
+                        Cursor.HAND_CURSOR
+                )
+        );
+
+        voltar.setAlignmentX(
+                Component.LEFT_ALIGNMENT
+        );
+
+        voltar.addActionListener(
+                e -> voltarParaRelatorios()
+        );
+
+        painel.add(
+                voltar
+        );
+
+        painel.add(
+                Box.createVerticalStrut(8)
+        );
+
+        JLabel titulo =
+                new JLabel("Importar Presença");
+
+        titulo.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        25
+                )
+        );
+
+        titulo.setForeground(TEXTO);
+
+        titulo.setAlignmentX(
+                Component.LEFT_ALIGNMENT
+        );
+
+        JLabel subtitulo =
+                new JLabel(
+                        "Importe as respostas do Google Forms ou Google Sheets através de um arquivo CSV."
+                );
+
+        subtitulo.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+        subtitulo.setForeground(
+                CINZA_TEXTO
+        );
+
+        subtitulo.setAlignmentX(
+                Component.LEFT_ALIGNMENT
+        );
+
+        painel.add(titulo);
+
+        painel.add(
+                Box.createVerticalStrut(4)
+        );
+
+        painel.add(subtitulo);
+
+        painel.add(
+                Box.createVerticalStrut(18)
+        );
+
+        JPanel configuracao =
+                new JPanel();
+
+        configuracao.setLayout(
+                new BoxLayout(
+                        configuracao,
+                        BoxLayout.Y_AXIS
+                )
+        );
+
+        configuracao.setBackground(
+                Color.WHITE
+        );
+
+        configuracao.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                BORDA
+                        ),
+                        new EmptyBorder(
+                                16,
+                                18,
+                                16,
+                                18
+                        )
+                )
+        );
+
+        configuracao.setAlignmentX(
+                Component.LEFT_ALIGNMENT
+        );
+
         // =================================================
-        // TOGGLE DE MODO (Evento / Atividade)
+        // TIPO DE IMPORTAÇÃO
         // =================================================
 
-        JPanel linhaModo = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-        linhaModo.setBackground(Color.WHITE);
+        JLabel labelModo =
+                new JLabel(
+                        "Tipo de importação"
+                );
 
-        toggleModoEvento = criarToggleModo("Presença em Evento");
-        toggleModoAtividade = criarToggleModo("Participação em Atividade");
+        labelModo.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        12
+                )
+        );
 
-        ButtonGroup grupoModo = new ButtonGroup();
-        grupoModo.add(toggleModoEvento);
-        grupoModo.add(toggleModoAtividade);
+        labelModo.setForeground(TEXTO);
+
+        configuracao.add(labelModo);
+
+        configuracao.add(
+                Box.createVerticalStrut(7)
+        );
+
+        JPanel linhaModo =
+                new JPanel(
+                        new FlowLayout(
+                                FlowLayout.LEFT,
+                                0,
+                                0
+                        )
+                );
+
+        linhaModo.setBackground(
+                Color.WHITE
+        );
+
+        toggleModoEvento =
+                criarToggleModo(
+                        "Presença em Evento"
+                );
+
+        toggleModoAtividade =
+                criarToggleModo(
+                        "Participação em Atividade"
+                );
+
+        ButtonGroup grupo =
+                new ButtonGroup();
+
+        grupo.add(toggleModoEvento);
+        grupo.add(toggleModoAtividade);
 
         toggleModoEvento.setSelected(true);
-        aplicarEstiloToggle(toggleModoEvento, true);
-        aplicarEstiloToggle(toggleModoAtividade, false);
+
+        aplicarEstiloToggle(
+                toggleModoEvento,
+                true
+        );
+
+        aplicarEstiloToggle(
+                toggleModoAtividade,
+                false
+        );
 
         toggleModoEvento.addActionListener(e -> {
+
             modoAtividade = false;
-            aplicarEstiloToggle(toggleModoEvento, true);
-            aplicarEstiloToggle(toggleModoAtividade, false);
+
+            aplicarEstiloToggle(
+                    toggleModoEvento,
+                    true
+            );
+
+            aplicarEstiloToggle(
+                    toggleModoAtividade,
+                    false
+            );
+
             alternarModo();
         });
 
         toggleModoAtividade.addActionListener(e -> {
+
             modoAtividade = true;
-            aplicarEstiloToggle(toggleModoEvento, false);
-            aplicarEstiloToggle(toggleModoAtividade, true);
+
+            aplicarEstiloToggle(
+                    toggleModoEvento,
+                    false
+            );
+
+            aplicarEstiloToggle(
+                    toggleModoAtividade,
+                    true
+            );
+
             alternarModo();
         });
 
-        linhaModo.add(toggleModoEvento);
-        linhaModo.add(toggleModoAtividade);
+        linhaModo.add(
+                toggleModoEvento
+        );
 
-        controles.add(linhaModo);
-        controles.add(Box.createVerticalStrut(15));
+        linhaModo.add(
+                Box.createHorizontalStrut(8)
+        );
+
+        linhaModo.add(
+                toggleModoAtividade
+        );
+
+        configuracao.add(linhaModo);
+
+        configuracao.add(
+                Box.createVerticalStrut(15)
+        );
 
         // =================================================
-        // LINHA DE SELEÇÃO (evento/atividade + data)
+        // CONTEXTO
         // =================================================
 
-        JPanel linha1 = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
-        linha1.setBackground(Color.WHITE);
+        JPanel linhaContexto =
+                new JPanel(
+                        new FlowLayout(
+                                FlowLayout.LEFT,
+                                15,
+                                0
+                        )
+                );
 
-        JPanel blocoContexto = new JPanel();
-        blocoContexto.setLayout(new BoxLayout(blocoContexto, BoxLayout.Y_AXIS));
-        blocoContexto.setBackground(Color.WHITE);
+        linhaContexto.setBackground(
+                Color.WHITE
+        );
 
-        labelContexto = new JLabel("Evento");
-        labelContexto.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        labelContexto.setForeground(TEXTO);
+        JPanel blocoContexto =
+                criarBlocoContexto();
 
-        comboContexto = new JComboBox<>();
-        comboContexto.setPreferredSize(new Dimension(320, 38));
-        comboContexto.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        linhaContexto.add(
+                blocoContexto
+        );
 
-        blocoContexto.add(labelContexto);
-        blocoContexto.add(Box.createVerticalStrut(5));
-        blocoContexto.add(comboContexto);
+        painelData =
+                criarBlocoData();
 
-        painelData = new JPanel();
-        painelData.setLayout(new BoxLayout(painelData, BoxLayout.Y_AXIS));
-        painelData.setBackground(Color.WHITE);
+        linhaContexto.add(
+                painelData
+        );
 
-        JLabel labelData = new JLabel("Data da presença (AAAA-MM-DD)");
-        labelData.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        labelData.setForeground(TEXTO);
+        configuracao.add(
+                linhaContexto
+        );
 
-        campoData = new JTextField(LocalDate.now().toString());
-        campoData.setPreferredSize(new Dimension(160, 38));
-        campoData.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        campoData.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(BORDA),
-                        new EmptyBorder(8, 10, 8, 10)
+        configuracao.add(
+                Box.createVerticalStrut(15)
+        );
+
+        // =================================================
+        // ARQUIVO
+        // =================================================
+
+        JPanel linhaArquivo =
+                new JPanel(
+                        new FlowLayout(
+                                FlowLayout.LEFT,
+                                10,
+                                0
+                        )
+                );
+
+        linhaArquivo.setBackground(
+                Color.WHITE
+        );
+
+        JButton escolher =
+                criarBotaoPrincipal(
+                        "Escolher arquivo CSV"
+                );
+
+        escolher.addActionListener(
+                e -> escolherArquivo()
+        );
+
+        labelArquivo =
+                new JLabel(
+                        "Nenhum arquivo selecionado."
+                );
+
+        labelArquivo.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
                 )
         );
 
-        painelData.add(labelData);
-        painelData.add(Box.createVerticalStrut(5));
-        painelData.add(campoData);
+        labelArquivo.setForeground(
+                CINZA_TEXTO
+        );
 
-        linha1.add(blocoContexto);
-        linha1.add(painelData);
+        linhaArquivo.add(escolher);
 
-        controles.add(linha1);
-        controles.add(Box.createVerticalStrut(15));
+        linhaArquivo.add(labelArquivo);
 
-        // =================================================
-        // ESCOLHER ARQUIVO
-        // =================================================
+        configuracao.add(linhaArquivo);
 
-        JPanel linha2 = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
-        linha2.setBackground(Color.WHITE);
-
-        JButton botaoEscolher = criarBotaoPrincipal("Escolher arquivo CSV...");
-        botaoEscolher.addActionListener(e -> escolherArquivo());
-
-        labelArquivo = new JLabel("Nenhum arquivo selecionado.");
-        labelArquivo.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        labelArquivo.setForeground(CINZA_TEXTO);
-
-        linha2.add(botaoEscolher);
-        linha2.add(labelArquivo);
-
-        controles.add(linha2);
-
-        painel.add(controles);
+        painel.add(configuracao);
 
         return painel;
     }
 
+    // =====================================================
+    // BLOCO CONTEXTO
+    // =====================================================
+
+    private JPanel criarBlocoContexto() {
+
+        JPanel painel =
+                new JPanel();
+
+        painel.setLayout(
+                new BoxLayout(
+                        painel,
+                        BoxLayout.Y_AXIS
+                )
+        );
+
+        painel.setBackground(
+                Color.WHITE
+        );
+
+        labelContexto =
+                new JLabel("Evento");
+
+        labelContexto.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        12
+                )
+        );
+
+        labelContexto.setForeground(TEXTO);
+
+        comboContexto =
+                new JComboBox<>();
+
+        comboContexto.setPreferredSize(
+                new Dimension(
+                        360,
+                        38
+                )
+        );
+
+        comboContexto.setMaximumSize(
+                new Dimension(
+                        360,
+                        38
+                )
+        );
+
+        comboContexto.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+        painel.add(labelContexto);
+
+        painel.add(
+                Box.createVerticalStrut(5)
+        );
+
+        painel.add(comboContexto);
+
+        return painel;
+    }
 
     // =====================================================
-    // TOGGLE DE MODO — estilo
+    // BLOCO DATA
     // =====================================================
 
-    private JToggleButton criarToggleModo(String texto) {
+    private JPanel criarBlocoData() {
 
-        JToggleButton toggle = new JToggleButton(texto);
+        JPanel painel =
+                new JPanel();
 
-        toggle.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        painel.setLayout(
+                new BoxLayout(
+                        painel,
+                        BoxLayout.Y_AXIS
+                )
+        );
+
+        painel.setBackground(
+                Color.WHITE
+        );
+
+        JLabel label =
+                new JLabel(
+                        "Data da presença (AAAA-MM-DD)"
+                );
+
+        label.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        12
+                )
+        );
+
+        label.setForeground(TEXTO);
+
+        campoData =
+                new JTextField(
+                        LocalDate.now().toString()
+                );
+
+        campoData.setPreferredSize(
+                new Dimension(
+                        180,
+                        38
+                )
+        );
+
+        campoData.setMaximumSize(
+                new Dimension(
+                        180,
+                        38
+                )
+        );
+
+        campoData.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+        campoData.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                BORDA
+                        ),
+                        new EmptyBorder(
+                                7,
+                                10,
+                                7,
+                                10
+                        )
+                )
+        );
+
+        painel.add(label);
+
+        painel.add(
+                Box.createVerticalStrut(5)
+        );
+
+        painel.add(campoData);
+
+        return painel;
+    }
+
+    // =====================================================
+    // TOGGLE
+    // =====================================================
+
+    private JToggleButton criarToggleModo(
+            String texto
+    ) {
+
+        JToggleButton toggle =
+                new JToggleButton(texto);
+
+        toggle.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        12
+                )
+        );
+
         toggle.setFocusPainted(false);
-        toggle.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        toggle.setCursor(
+                new Cursor(
+                        Cursor.HAND_CURSOR
+                )
+        );
+
         toggle.setBorder(
                 BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(BORDA),
-                        new EmptyBorder(9, 16, 9, 16)
+                        BorderFactory.createLineBorder(
+                                BORDA
+                        ),
+                        new EmptyBorder(
+                                8,
+                                14,
+                                8,
+                                14
+                        )
                 )
         );
 
         return toggle;
     }
 
-    private void aplicarEstiloToggle(JToggleButton toggle, boolean ativo) {
+    private void aplicarEstiloToggle(
+            JToggleButton toggle,
+            boolean ativo
+    ) {
 
-        toggle.setBackground(ativo ? AZUL : Color.WHITE);
-        toggle.setForeground(ativo ? Color.WHITE : TEXTO);
+        toggle.setBackground(
+                ativo
+                        ? AZUL
+                        : Color.WHITE
+        );
+
+        toggle.setForeground(
+                ativo
+                        ? Color.WHITE
+                        : TEXTO
+        );
     }
 
-
     // =====================================================
-    // ALTERNAR MODO (troca rótulo, combo e visibilidade
-    // do campo de data)
+    // ALTERNAR MODO
     // =====================================================
 
     private void alternarModo() {
 
-        labelContexto.setText(modoAtividade ? "Atividade" : "Evento");
-        painelData.setVisible(!modoAtividade);
+        labelContexto.setText(
+                modoAtividade
+                        ? "Atividade"
+                        : "Evento"
+        );
+
+        painelData.setVisible(
+                !modoAtividade
+        );
 
         carregarContexto();
 
         linhasCsv.clear();
+
         modeloTabela.setRowCount(0);
-        labelArquivo.setText("Nenhum arquivo selecionado.");
+
+        labelArquivo.setText(
+                "Nenhum arquivo selecionado."
+        );
+
         labelResumo.setText(" ");
+
         botaoImportar.setEnabled(false);
+
+        revalidate();
+        repaint();
     }
 
-
     // =====================================================
-    // PREVIEW (tabela com o que foi lido do CSV)
+    // PREVIEW
     // =====================================================
 
     private JScrollPane criarPreview() {
 
-        modeloTabela = new DefaultTableModel(
-                new Object[]{"RM", "Nome (do formulário)", "Situação"}, 0
-        ) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
+        JPanel caixa =
+                new JPanel(
+                        new BorderLayout()
+                );
 
-        tabela = new JTable(modeloTabela);
-        tabela.setRowHeight(28);
-        tabela.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        tabela.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
+        caixa.setBackground(Color.WHITE);
 
-        JScrollPane scroll = new JScrollPane(tabela);
-        scroll.setBorder(
-                BorderFactory.createLineBorder(new Color(226, 232, 240))
+        caixa.setBorder(
+                BorderFactory.createLineBorder(
+                        BORDA
+                )
+        );
+
+        modeloTabela =
+                new DefaultTableModel(
+                        new Object[]{
+                                "RM",
+                                "Nome (CSV)",
+                                "Situação"
+                        },
+                        0
+                ) {
+
+                    @Override
+                    public boolean isCellEditable(
+                            int row,
+                            int column
+                    ) {
+                        return false;
+                    }
+                };
+
+        tabela =
+                new JTable(modeloTabela);
+
+        tabela.setRowHeight(32);
+
+        tabela.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+        tabela.getTableHeader()
+                .setFont(
+                        new Font(
+                                "Segoe UI",
+                                Font.BOLD,
+                                13
+                        )
+                );
+
+        tabela.getTableHeader()
+                .setBackground(
+                        new Color(
+                                249,
+                                250,
+                                252
+                        )
+                );
+
+        tabela.getTableHeader()
+                .setForeground(TEXTO);
+
+        tabela.setShowGrid(true);
+
+        tabela.setGridColor(BORDA);
+
+        tabela.setSelectionBackground(
+                AZUL_CLARO
+        );
+
+        tabela.setSelectionForeground(
+                TEXTO
+        );
+
+        tabela.getColumnModel()
+                .getColumn(2)
+                .setCellRenderer(
+                        new SituacaoRenderer()
+                );
+
+        JScrollPane scroll =
+                new JScrollPane(tabela);
+
+        scroll.setBorder(null);
+
+        caixa.add(
+                scroll,
+                BorderLayout.CENTER
         );
 
         return scroll;
     }
 
-
     // =====================================================
-    // RODAPÉ (botão importar + resumo)
+    // RODAPÉ
     // =====================================================
 
     private JPanel criarRodape() {
 
-        JPanel painel = new JPanel(new BorderLayout());
+        JPanel painel =
+                new JPanel(
+                        new BorderLayout()
+                );
+
         painel.setBackground(FUNDO);
-        painel.setBorder(new EmptyBorder(15, 0, 0, 0));
 
-        labelResumo = new JLabel(" ");
-        labelResumo.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        labelResumo.setForeground(CINZA_TEXTO);
+        painel.setBorder(
+                new EmptyBorder(
+                        5,
+                        0,
+                        0,
+                        0
+                )
+        );
 
-        botaoImportar = criarBotaoPrincipal("Importar Presenças");
+        labelResumo =
+                new JLabel(" ");
+
+        labelResumo.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+        labelResumo.setForeground(
+                CINZA_TEXTO
+        );
+
+        botaoImportar =
+                criarBotaoPrincipal(
+                        "Importar Presenças"
+                );
+
         botaoImportar.setEnabled(false);
-        botaoImportar.addActionListener(e -> importarPresencas());
 
-        painel.add(labelResumo, BorderLayout.WEST);
-        painel.add(botaoImportar, BorderLayout.EAST);
+        botaoImportar.addActionListener(
+                e -> importarPresencas()
+        );
+
+        painel.add(
+                labelResumo,
+                BorderLayout.WEST
+        );
+
+        painel.add(
+                botaoImportar,
+                BorderLayout.EAST
+        );
 
         return painel;
     }
 
-
     // =====================================================
-    // CARREGAR EVENTOS OU ATIVIDADES NO COMBO, conforme o
-    // modo selecionado
+    // CARREGAR CONTEXTO
     // =====================================================
 
     private void carregarContexto() {
@@ -339,107 +924,152 @@ public class ImportarPresencaCsvPage extends JPanel {
 
         if (modoAtividade) {
 
-            List<AtividadeOpcao> atividades = presencaDAO.listarAtividades();
+            List<AtividadeOpcao> atividades =
+                    presencaService.listarAtividades();
 
-            for (AtividadeOpcao atividade : atividades) {
-                comboContexto.addItem(atividade);
+            for (
+                    AtividadeOpcao atividade
+                    : atividades
+            ) {
+
+                comboContexto.addItem(
+                        atividade
+                );
             }
 
         } else {
 
-            List<EventoOpcao> eventos = presencaDAO.listarEventos();
+            List<EventoOpcao> eventos =
+                    presencaService.listarEventos();
 
-            for (EventoOpcao evento : eventos) {
-                comboContexto.addItem(evento);
+            for (
+                    EventoOpcao evento
+                    : eventos
+            ) {
+
+                comboContexto.addItem(
+                        evento
+                );
             }
         }
     }
 
-
     // =====================================================
-    // ESCOLHER ARQUIVO CSV
+    // ESCOLHER CSV
     // =====================================================
 
     private void escolherArquivo() {
 
-        JFileChooser seletor = new JFileChooser();
-        seletor.setDialogTitle("Selecione o CSV exportado do Google Sheets");
+        JFileChooser seletor =
+                new JFileChooser();
 
-        int resultado = seletor.showOpenDialog(this);
+        seletor.setDialogTitle(
+                "Selecione o CSV exportado do Google Sheets"
+        );
 
-        if (resultado != JFileChooser.APPROVE_OPTION) {
+        if (
+                seletor.showOpenDialog(this)
+                        != JFileChooser.APPROVE_OPTION
+        ) {
             return;
         }
 
-        File arquivo = seletor.getSelectedFile();
-        labelArquivo.setText(arquivo.getName());
+        File arquivo =
+                seletor.getSelectedFile();
+
+        if (!arquivo.getName()
+                .toLowerCase()
+                .endsWith(".csv")) {
+
+            mostrarAviso(
+                    "Selecione um arquivo com extensão .csv."
+            );
+
+            return;
+        }
+
+        labelArquivo.setText(
+                arquivo.getName()
+        );
 
         lerCsv(arquivo);
     }
 
-
     // =====================================================
     // LER CSV
-    //
-    // Espera um cabeçalho contendo uma coluna "RM" e,
-    // opcionalmente, uma coluna com o nome (qualquer coluna
-    // cujo título contenha "nome"). A ordem das colunas do
-    // Google Forms pode variar, então localizamos pelo
-    // cabeçalho em vez de posição fixa.
     // =====================================================
 
-    private void lerCsv(File arquivo) {
+    private void lerCsv(
+            File arquivo
+    ) {
 
         linhasCsv.clear();
+
         modeloTabela.setRowCount(0);
 
         try (
-                BufferedReader leitor = new BufferedReader(
-                        new FileReader(arquivo, StandardCharsets.UTF_8)
-                )
+                BufferedReader leitor =
+                        new BufferedReader(
+                                new FileReader(
+                                        arquivo,
+                                        StandardCharsets.UTF_8
+                                )
+                        )
         ) {
 
-            String cabecalho = leitor.readLine();
+            String cabecalho =
+                    leitor.readLine();
 
             if (cabecalho == null) {
 
-                JOptionPane.showMessageDialog(
-                        this,
-                        "O arquivo está vazio.",
-                        "Erro",
-                        JOptionPane.ERROR_MESSAGE
+                mostrarErro(
+                        "O arquivo está vazio."
                 );
 
                 return;
             }
 
-            String[] colunas = dividirLinhaCsv(cabecalho);
+            String[] colunas =
+                    dividirLinhaCsv(
+                            removerBOM(cabecalho)
+                    );
 
             int indiceRm = -1;
+
             int indiceNome = -1;
 
-            for (int i = 0; i < colunas.length; i++) {
+            for (
+                    int i = 0;
+                    i < colunas.length;
+                    i++
+            ) {
 
-                String coluna = colunas[i].trim().toLowerCase();
+                String coluna =
+                        limparCampo(
+                                colunas[i]
+                        ).toLowerCase();
 
-                if (coluna.equals("rm")) {
+                if (
+                        coluna.equals("rm")
+                                || coluna.equals("r.m.")
+                ) {
+
                     indiceRm = i;
                 }
 
-                if (coluna.contains("nome")) {
+                if (
+                        coluna.contains("nome")
+                ) {
+
                     indiceNome = i;
                 }
             }
 
             if (indiceRm == -1) {
 
-                JOptionPane.showMessageDialog(
-                        this,
-                        "Não encontrei uma coluna chamada \"RM\" no CSV.\n"
-                                + "Confira se o formulário tem essa pergunta "
-                                + "exatamente com esse nome.",
-                        "Coluna não encontrada",
-                        JOptionPane.WARNING_MESSAGE
+                mostrarAviso(
+                        "Não encontrei uma coluna chamada \"RM\" no CSV.\n\n"
+                                + "O cabeçalho precisa conter uma coluna chamada RM."
                 );
 
                 return;
@@ -447,38 +1077,52 @@ public class ImportarPresencaCsvPage extends JPanel {
 
             String linha;
 
-            while ((linha = leitor.readLine()) != null) {
+            while (
+                    (linha = leitor.readLine())
+                            != null
+            ) {
 
                 if (linha.isBlank()) {
                     continue;
                 }
 
-                String[] valores = dividirLinhaCsv(linha);
+                String[] valores =
+                        dividirLinhaCsv(linha);
 
-                String rm = indiceRm < valores.length
-                        ? valores[indiceRm].trim()
-                        : "";
+                String rm =
+                        indiceRm < valores.length
+                                ? limparCampo(
+                                valores[indiceRm]
+                        )
+                                : "";
 
-                String nomeCsv = (indiceNome != -1 && indiceNome < valores.length)
-                        ? valores[indiceNome].trim()
-                        : "";
+                String nomeCsv =
+                        (
+                                indiceNome != -1
+                                        && indiceNome < valores.length
+                        )
+                                ? limparCampo(
+                                valores[indiceNome]
+                        )
+                                : "";
 
                 if (rm.isBlank()) {
                     continue;
                 }
 
-                linhasCsv.add(new String[]{rm, nomeCsv});
+                linhasCsv.add(
+                        new String[]{
+                                rm,
+                                nomeCsv
+                        }
+                );
             }
 
         } catch (IOException e) {
 
-            e.printStackTrace();
-
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Não foi possível ler o arquivo.",
-                    "Erro",
-                    JOptionPane.ERROR_MESSAGE
+            mostrarErro(
+                    "Não foi possível ler o arquivo:\n"
+                            + e.getMessage()
             );
 
             return;
@@ -487,20 +1131,133 @@ public class ImportarPresencaCsvPage extends JPanel {
         validarLinhas();
     }
 
-
     // =====================================================
-    // DIVIDIR LINHA CSV RESPEITANDO ASPAS
+    // REMOVER BOM
     // =====================================================
 
-    private String[] dividirLinhaCsv(String linha) {
+    private String removerBOM(
+            String texto
+    ) {
 
-        return linha.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+        if (
+                texto != null
+                        && !texto.isEmpty()
+                        && texto.charAt(0) == '\uFEFF'
+        ) {
+
+            return texto.substring(1);
+        }
+
+        return texto;
     }
 
+    // =====================================================
+    // LIMPAR CAMPO
+    // =====================================================
+
+    private String limparCampo(
+            String valor
+    ) {
+
+        if (valor == null) {
+            return "";
+        }
+
+        valor =
+                valor.trim();
+
+        if (
+                valor.length() >= 2
+                        && valor.startsWith("\"")
+                        && valor.endsWith("\"")
+        ) {
+
+            valor =
+                    valor.substring(
+                            1,
+                            valor.length() - 1
+                    );
+        }
+
+        return valor
+                .replace(
+                        "\"\"",
+                        "\""
+                )
+                .trim();
+    }
 
     // =====================================================
-    // VALIDAR LINHAS (checa RM contra o banco e preenche
-    // a tabela de preview)
+    // DIVIDIR CSV
+    // =====================================================
+
+    private String[] dividirLinhaCsv(
+            String linha
+    ) {
+
+        List<String> campos =
+                new ArrayList<>();
+
+        StringBuilder atual =
+                new StringBuilder();
+
+        boolean dentroAspas = false;
+
+        for (
+                int i = 0;
+                i < linha.length();
+                i++
+        ) {
+
+            char c =
+                    linha.charAt(i);
+
+            if (c == '"') {
+
+                if (
+                        dentroAspas
+                                && i + 1 < linha.length()
+                                && linha.charAt(i + 1) == '"'
+                ) {
+
+                    atual.append('"');
+
+                    i++;
+
+                } else {
+
+                    dentroAspas =
+                            !dentroAspas;
+                }
+
+            } else if (
+                    c == ','
+                            && !dentroAspas
+            ) {
+
+                campos.add(
+                        atual.toString()
+                );
+
+                atual.setLength(0);
+
+            } else {
+
+                atual.append(c);
+            }
+        }
+
+        campos.add(
+                atual.toString()
+        );
+
+        return campos.toArray(
+                new String[0]
+        );
+    }
+
+    // =====================================================
+    // VALIDAR
     // =====================================================
 
     private void validarLinhas() {
@@ -508,70 +1265,105 @@ public class ImportarPresencaCsvPage extends JPanel {
         modeloTabela.setRowCount(0);
 
         int encontrados = 0;
+
         int naoEncontrados = 0;
 
-        for (String[] linha : linhasCsv) {
+        for (
+                String[] linha
+                : linhasCsv
+        ) {
 
-            String rm = linha[0];
-            String nomeCsv = linha[1];
+            String rm =
+                    linha[0];
 
-            Aluno aluno = alunoDAO.buscarPorRm(rm);
+            String nomeCsv =
+                    linha[1];
+
+            Aluno aluno =
+                    presencaService.buscarAlunoPorRm(
+                            rm
+                    );
 
             String situacao;
 
             if (aluno != null) {
 
-                situacao = "Encontrado: " + aluno.getNome();
+                situacao =
+                        "Encontrado: "
+                                + aluno.getNome();
+
                 encontrados++;
 
             } else {
 
-                situacao = "RM não encontrado no cadastro de alunos";
+                situacao =
+                        "RM não encontrado no cadastro";
+
                 naoEncontrados++;
             }
 
-            modeloTabela.addRow(new Object[]{rm, nomeCsv, situacao});
+            modeloTabela.addRow(
+                    new Object[]{
+                            rm,
+                            nomeCsv,
+                            situacao
+                    }
+            );
         }
 
         labelResumo.setText(
-                linhasCsv.size() + " linha(s) lida(s)  •  "
-                        + encontrados + " encontrado(s)  •  "
-                        + naoEncontrados + " não encontrado(s)"
+                linhasCsv.size()
+                        + " linha(s) lida(s)  •  "
+                        + encontrados
+                        + " encontrado(s)  •  "
+                        + naoEncontrados
+                        + " não encontrado(s)"
         );
 
-        botaoImportar.setEnabled(encontrados > 0);
+        botaoImportar.setEnabled(
+                encontrados > 0
+        );
     }
 
-
     // =====================================================
-    // IMPORTAR PRESENÇAS / PARTICIPAÇÕES
+    // IMPORTAR
     // =====================================================
 
     private void importarPresencas() {
 
+        if (linhasCsv.isEmpty()) {
+
+            mostrarAviso(
+                    "Nenhum registro foi carregado."
+            );
+
+            return;
+        }
+
         if (modoAtividade) {
+
             importarParticipacaoAtividade();
+
         } else {
+
             importarPresencaEvento();
         }
     }
 
-
     // =====================================================
-    // IMPORTAR — MODO EVENTO
+    // IMPORTAR EVENTO
     // =====================================================
 
     private void importarPresencaEvento() {
 
-        EventoOpcao evento = (EventoOpcao) comboContexto.getSelectedItem();
+        EventoOpcao evento =
+                (EventoOpcao)
+                        comboContexto.getSelectedItem();
 
         if (evento == null) {
 
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Selecione um evento.",
-                    "Campo obrigatório",
-                    JOptionPane.WARNING_MESSAGE
+            mostrarAviso(
+                    "Selecione um evento."
             );
 
             return;
@@ -581,167 +1373,399 @@ public class ImportarPresencaCsvPage extends JPanel {
 
         try {
 
-            data = LocalDate.parse(campoData.getText().trim());
+            data =
+                    LocalDate.parse(
+                            campoData
+                                    .getText()
+                                    .trim()
+                    );
 
         } catch (Exception ex) {
 
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Data inválida. Use o formato AAAA-MM-DD.",
-                    "Data inválida",
-                    JOptionPane.WARNING_MESSAGE
+            mostrarAviso(
+                    "Data inválida.\n\n"
+                            + "Use o formato AAAA-MM-DD."
             );
 
             return;
         }
 
-        if (evento.dataInicio != null && evento.dataFim != null) {
+        // =================================================
+        // PERÍODO
+        // =================================================
+
+        if (
+                evento.getDataInicio() != null
+                        && evento.getDataFim() != null
+        ) {
 
             boolean foraDoPeriodo =
-                    data.isBefore(evento.dataInicio)
-                            || data.isAfter(evento.dataFim);
+                    data.isBefore(
+                            evento.getDataInicio()
+                    )
+                            || data.isAfter(
+                            evento.getDataFim()
+                    );
 
             if (foraDoPeriodo) {
 
-                int continuar = JOptionPane.showConfirmDialog(
-                        this,
-                        "A data informada está fora do período do evento\n"
-                                + "(" + evento.dataInicio + " a " + evento.dataFim + ").\n\n"
-                                + "Deseja continuar mesmo assim?",
-                        "Data fora do período",
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.WARNING_MESSAGE
-                );
+                int continuar =
+                        JOptionPane.showConfirmDialog(
+                                this,
+                                "A data informada está fora do período do evento.\n\n"
+                                        + "Período: "
+                                        + evento.getDataInicio()
+                                        + " até "
+                                        + evento.getDataFim()
+                                        + "\n\n"
+                                        + "Deseja continuar?",
+                                "Data fora do período",
+                                JOptionPane.YES_NO_OPTION,
+                                JOptionPane.WARNING_MESSAGE
+                        );
 
-                if (continuar != JOptionPane.YES_OPTION) {
+                if (
+                        continuar
+                                != JOptionPane.YES_OPTION
+                ) {
+
                     return;
                 }
             }
         }
 
+        // =================================================
+        // CONFIRMAÇÃO
+        // =================================================
+
+        int confirmacao =
+                JOptionPane.showConfirmDialog(
+                        this,
+                        "Deseja importar "
+                                + linhasCsv.size()
+                                + " linha(s) para o evento?\n\n"
+                                + evento
+                                + "\n"
+                                + "Data: "
+                                + data,
+                        "Confirmar importação",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE
+                );
+
+        if (
+                confirmacao
+                        != JOptionPane.YES_OPTION
+        ) {
+            return;
+        }
+
         int importados = 0;
+
         int falhas = 0;
 
-        for (String[] linha : linhasCsv) {
+        for (
+                String[] linha
+                : linhasCsv
+        ) {
 
-            Aluno aluno = alunoDAO.buscarPorRm(linha[0]);
+            Aluno aluno =
+                    presencaService.buscarAlunoPorRm(
+                            linha[0]
+                    );
 
             if (aluno == null) {
+
                 falhas++;
+
                 continue;
             }
 
-            Long idInscricao = presencaDAO.obterOuCriarInscricao(
-                    aluno.getId(),
-                    evento.id
-            );
-
-            if (idInscricao == null) {
-                falhas++;
-                continue;
-            }
-
-            boolean sucesso = presencaDAO.registrarPresenca(
-                    idInscricao,
-                    data,
-                    "PRESENTE"
-            );
+            boolean sucesso =
+                    presencaService.registrarPresencaEvento(
+                            aluno.getId(),
+                            evento.getId(),
+                            data,
+                            "PRESENTE"
+                    );
 
             if (sucesso) {
+
                 importados++;
+
             } else {
+
                 falhas++;
             }
         }
 
-        mostrarResultado(importados, falhas);
+        mostrarResultado(
+                importados,
+                falhas
+        );
     }
 
-
     // =====================================================
-    // IMPORTAR — MODO ATIVIDADE
-    //
-    // Não precisa de data: a atividade já tem seu próprio
-    // horário, e a ligação é direta aluno <-> atividade.
+    // IMPORTAR ATIVIDADE
     // =====================================================
 
     private void importarParticipacaoAtividade() {
 
-        AtividadeOpcao atividade = (AtividadeOpcao) comboContexto.getSelectedItem();
+        AtividadeOpcao atividade =
+                (AtividadeOpcao)
+                        comboContexto.getSelectedItem();
 
         if (atividade == null) {
 
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Selecione uma atividade.",
-                    "Campo obrigatório",
-                    JOptionPane.WARNING_MESSAGE
+            mostrarAviso(
+                    "Selecione uma atividade."
             );
 
             return;
         }
 
+        int confirmacao =
+                JOptionPane.showConfirmDialog(
+                        this,
+                        "Deseja importar "
+                                + linhasCsv.size()
+                                + " linha(s) para a atividade?\n\n"
+                                + atividade,
+                        "Confirmar importação",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE
+                );
+
+        if (
+                confirmacao
+                        != JOptionPane.YES_OPTION
+        ) {
+            return;
+        }
+
         int importados = 0;
+
         int falhas = 0;
 
-        for (String[] linha : linhasCsv) {
+        for (
+                String[] linha
+                : linhasCsv
+        ) {
 
-            Aluno aluno = alunoDAO.buscarPorRm(linha[0]);
+            Aluno aluno =
+                    presencaService.buscarAlunoPorRm(
+                            linha[0]
+                    );
 
             if (aluno == null) {
+
                 falhas++;
+
                 continue;
             }
 
-            boolean sucesso = presencaDAO.registrarParticipacaoAtividade(
-                    aluno.getId(),
-                    atividade.id,
-                    "PRESENTE"
-            );
+            boolean sucesso =
+                    presencaService.registrarParticipacaoAtividade(
+                            aluno.getId(),
+                            atividade.getId(),
+                            "PRESENTE"
+                    );
 
             if (sucesso) {
+
                 importados++;
+
             } else {
+
                 falhas++;
             }
         }
 
-        mostrarResultado(importados, falhas);
+        mostrarResultado(
+                importados,
+                falhas
+        );
     }
 
-
     // =====================================================
-    // RESULTADO DA IMPORTAÇÃO
+    // RESULTADO
     // =====================================================
 
-    private void mostrarResultado(int importados, int falhas) {
+    private void mostrarResultado(
+            int importados,
+            int falhas
+    ) {
 
         JOptionPane.showMessageDialog(
                 this,
                 "Importação concluída!\n\n"
-                        + importados + " registro(s) gravado(s)\n"
-                        + falhas + " falha(s) / RM(s) não encontrado(s)",
+                        + importados
+                        + " registro(s) gravado(s)\n"
+                        + falhas
+                        + " falha(s) / RM(s) não encontrado(s)",
                 "Importação concluída",
                 JOptionPane.INFORMATION_MESSAGE
         );
     }
 
-
     // =====================================================
-    // BOTÃO PRINCIPAL (mesmo estilo do resto do app)
+    // BOTÃO PRINCIPAL
     // =====================================================
 
-    private JButton criarBotaoPrincipal(String texto) {
+    private JButton criarBotaoPrincipal(
+            String texto
+    ) {
 
-        JButton botao = new JButton(texto);
-        botao.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        JButton botao =
+                new JButton(texto);
+
+        botao.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        13
+                )
+        );
+
         botao.setForeground(Color.WHITE);
+
         botao.setBackground(AZUL);
+
         botao.setFocusPainted(false);
+
         botao.setBorderPainted(false);
-        botao.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        botao.setBorder(new EmptyBorder(10, 16, 10, 16));
+
+        botao.setCursor(
+                new Cursor(
+                        Cursor.HAND_CURSOR
+                )
+        );
+
+        botao.setBorder(
+                new EmptyBorder(
+                        10,
+                        16,
+                        10,
+                        16
+                )
+        );
 
         return botao;
+    }
+
+    // =====================================================
+    // AVISO
+    // =====================================================
+
+    private void mostrarAviso(
+            String mensagem
+    ) {
+
+        JOptionPane.showMessageDialog(
+                this,
+                mensagem,
+                "Aviso",
+                JOptionPane.WARNING_MESSAGE
+        );
+    }
+
+    // =====================================================
+    // ERRO
+    // =====================================================
+
+    private void mostrarErro(
+            String mensagem
+    ) {
+
+        JOptionPane.showMessageDialog(
+                this,
+                mensagem,
+                "Erro",
+                JOptionPane.ERROR_MESSAGE
+        );
+    }
+// =====================================================
+// VOLTAR PARA RELATÓRIOS
+// =====================================================
+
+    private void voltarParaRelatorios() {
+
+        Container pai = getParent();
+
+        while (pai != null) {
+
+            if (pai instanceof ResumoRelatoriosPage) {
+
+                ResumoRelatoriosPage pagina =
+                        (ResumoRelatoriosPage) pai;
+
+                pagina.mostrarListaRelatorios();
+
+                return;
+            }
+
+            pai = pai.getParent();
+        }
+    }
+
+    // =====================================================
+    // RENDERER
+    // =====================================================
+
+    private static class SituacaoRenderer
+            extends DefaultTableCellRenderer {
+
+        @Override
+        public Component getTableCellRendererComponent(
+                JTable table,
+                Object value,
+                boolean isSelected,
+                boolean hasFocus,
+                int row,
+                int column
+        ) {
+
+            Component componente =
+                    super.getTableCellRendererComponent(
+                            table,
+                            value,
+                            isSelected,
+                            hasFocus,
+                            row,
+                            column
+                    );
+
+            setBorder(
+                    new EmptyBorder(
+                            0,
+                            8,
+                            0,
+                            8
+                    )
+            );
+
+            if (!isSelected) {
+
+                String texto =
+                        value == null
+                                ? ""
+                                : value.toString();
+
+                if (
+                        texto.startsWith(
+                                "Encontrado:"
+                        )
+                ) {
+
+                    setForeground(VERDE);
+
+                } else {
+
+                    setForeground(VERMELHO);
+                }
+            }
+
+            return componente;
+        }
     }
 }

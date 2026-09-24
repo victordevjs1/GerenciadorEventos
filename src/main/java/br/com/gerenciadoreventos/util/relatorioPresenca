@@ -1,0 +1,15 @@
+      // -------------------------------------------------
+        // RELATÓRIO DE PRESENÇAS
+        // -------------------------------------------------
+
+        caixa.add(
+                criarLinhaRelatorio(
+                        "Relatório de Presenças",
+                        "Resumo mensal de frequência por turma.",
+                        "Exportar PDF",
+                        AZUL,
+                        this::exportarPresencas
+                )
+        );
+
+        caixa.add(separador());

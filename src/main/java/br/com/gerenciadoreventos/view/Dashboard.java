@@ -175,8 +175,8 @@ public class Dashboard extends JFrame {
         // Presença via CSV)
         // =================================================
         painelPaginas.add(
-                new RelatoriosPage(),
-                "relatorios"
+                new ResumoRelatoriosPage(),
+                "resumo"
         );
 
         // =================================================
@@ -304,7 +304,7 @@ public class Dashboard extends JFrame {
                 || pagina.equals("agentesExternos")
                 || pagina.equals("inscricoes")
                 || pagina.equals("comissoes")
-                || pagina.equals("relatorios");
+                || pagina.equals("resumo");
 
     }
     public void mostrarPagina(String pagina) {
