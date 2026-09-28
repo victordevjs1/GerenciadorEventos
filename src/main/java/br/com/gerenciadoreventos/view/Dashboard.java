@@ -335,8 +335,18 @@ public class Dashboard extends JFrame {
 
         SwingUtilities.invokeLater(() -> {
 
-            Usuario usuario =
-                    new Usuario();
+            try {
+
+                UIManager.setLookAndFeel(
+                        UIManager.getCrossPlatformLookAndFeelClassName()
+                );
+
+            } catch (Exception e) {
+
+                e.printStackTrace();
+            }
+
+            Usuario usuario = new Usuario();
 
             usuario.setId(1);
 
@@ -353,7 +363,6 @@ public class Dashboard extends JFrame {
             );
 
             usuario.setAtivo(true);
-
 
             Dashboard dashboard =
                     new Dashboard(usuario);

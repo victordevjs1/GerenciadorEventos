@@ -1279,6 +1279,10 @@ public class AgenteExternoPage extends JPanel {
                         : TEXTO
         );
 
+        botao.setOpaque(true);
+
+        botao.setContentAreaFilled(true);
+
         botao.setFocusPainted(false);
 
         botao.setBorder(

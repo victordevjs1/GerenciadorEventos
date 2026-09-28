@@ -616,14 +616,13 @@ public class Login extends JFrame {
             try {
 
                 UIManager.setLookAndFeel(
-                        UIManager.getSystemLookAndFeelClassName()
+                        UIManager.getCrossPlatformLookAndFeelClassName()
                 );
 
             } catch (Exception e) {
 
                 e.printStackTrace();
             }
-
 
             Login login = new Login();
 
