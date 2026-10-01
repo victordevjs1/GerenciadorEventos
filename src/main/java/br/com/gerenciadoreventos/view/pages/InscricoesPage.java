@@ -14,6 +14,7 @@ import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -580,7 +581,7 @@ public class InscricoesPage extends JPanel {
         card.setMaximumSize(
                 new Dimension(
                         Integer.MAX_VALUE,
-                        120
+                        140
                 )
         );
 
@@ -641,10 +642,10 @@ public class InscricoesPage extends JPanel {
                                 + valor(
                                 inscricao.getRm()
                         )
-                                + "   •   Turma: "
-                                + valor(
-                                inscricao.getTurma()
-                        )
+                                + "   •   Curso: "
+                                + valor(inscricao.getCurso())
+                                + "   •   Série: "
+                                + valor(inscricao.getSerie())
                 );
 
         dados.setFont(
@@ -677,6 +678,32 @@ public class InscricoesPage extends JPanel {
                         )
                 );
 
+        informacoes.add(evento);
+
+        informacoes.add(
+                Box.createVerticalStrut(4)
+        );
+
+        JLabel dataInscricao =
+                new JLabel(
+                        "Inscrição: "
+                                + formatarDataInscricao(
+                                inscricao.getDataInscricao()
+                        )
+                );
+
+        dataInscricao.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        12
+                )
+        );
+
+        dataInscricao.setForeground(CINZA_TEXTO);
+
+        informacoes.add(dataInscricao);
+
         evento.setFont(
                 new Font(
                         "Segoe UI",
@@ -686,8 +713,6 @@ public class InscricoesPage extends JPanel {
         );
 
         evento.setForeground(CINZA_TEXTO);
-
-        informacoes.add(evento);
 
         if (
                 inscricao.getCurso() != null
@@ -702,6 +727,8 @@ public class InscricoesPage extends JPanel {
                     new JLabel(
                             "Curso: "
                                     + inscricao.getCurso()
+                                    + "   •   Série: "
+                                    + valor(inscricao.getSerie())
                     );
 
             curso.setFont(
@@ -1831,6 +1858,15 @@ public class InscricoesPage extends JPanel {
     // =====================================================
     // UTIL
     // =====================================================
+
+    private String formatarDataInscricao(java.sql.Timestamp timestamp) {
+        if (timestamp == null) {
+            return "Não informada";
+        }
+
+        return timestamp.toLocalDateTime()
+                .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+    }
 
     private String valor(String texto) {
 

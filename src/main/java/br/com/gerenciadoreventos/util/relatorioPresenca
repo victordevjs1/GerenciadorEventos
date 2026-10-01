@@ -5,7 +5,7 @@
         caixa.add(
                 criarLinhaRelatorio(
                         "Relatório de Presenças",
-                        "Resumo mensal de frequência por turma.",
+                        "Resumo mensal de frequência por curso e série.",
                         "Exportar PDF",
                         AZUL,
                         this::exportarPresencas

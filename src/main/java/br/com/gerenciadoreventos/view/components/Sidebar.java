@@ -571,7 +571,10 @@ public class Sidebar extends JPanel {
                 pagina.equals("agentesExternos")
         );
 
-
+        atualizarBotao(
+                botaoResumo,
+                pagina.equals("resumo")
+        );
 
         atualizarBotao(
                 botaoConfiguracoes,

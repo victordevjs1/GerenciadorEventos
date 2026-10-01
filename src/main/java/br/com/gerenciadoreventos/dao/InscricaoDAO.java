@@ -31,8 +31,8 @@ public class InscricaoDAO {
                     i.id_evento,
                     a.rm,
                     a.nome AS nome_aluno,
-                    a.turma,
-                    a.curso,
+                    c.nome AS curso,
+                    s.nome AS serie,
                     e.nome AS nome_evento,
                     i.data_inscricao,
                     i.status,
@@ -40,6 +40,10 @@ public class InscricaoDAO {
                 FROM inscricao_evento i
                 INNER JOIN aluno a
                     ON a.id_aluno = i.id_aluno
+                LEFT JOIN curso c
+                    ON c.id_curso = a.id_curso
+                LEFT JOIN serie s
+                    ON s.id_serie = a.id_serie
                 INNER JOIN evento e
                     ON e.id_evento = i.id_evento
                 WHERE 1 = 1
@@ -144,8 +148,8 @@ public class InscricaoDAO {
                                 rs.getLong("id_evento"),
                                 rs.getString("rm"),
                                 rs.getString("nome_aluno"),
-                                rs.getString("turma"),
                                 rs.getString("curso"),
+                                rs.getString("serie"),
                                 rs.getString("nome_evento"),
                                 rs.getTimestamp("data_inscricao"),
                                 rs.getString("status"),
@@ -301,18 +305,20 @@ public class InscricaoDAO {
                     rm,
                     nome,
                     data_nascimento,
-                    turma,
-                    curso,
+                    c.nome AS curso,
+                    s.numero AS serie,
                     email,
                     telefone,
                     ativo
-                FROM aluno
-                WHERE ativo = TRUE
+                FROM aluno a
+                LEFT JOIN curso c ON c.id_curso = a.id_curso
+                LEFT JOIN serie s ON s.id_serie = a.id_serie
+                WHERE a.ativo = TRUE
                   AND (
                     LOWER(nome) LIKE ?
                     OR LOWER(rm) LIKE ?
                   )
-                ORDER BY nome
+                ORDER BY a.nome
                 LIMIT 30
                 """;
 
@@ -380,13 +386,14 @@ public class InscricaoDAO {
                 }
 
 
-                aluno.setTurma(
-                        rs.getString("turma")
-                );
-
                 aluno.setCurso(
                         rs.getString("curso")
                 );
+
+                int serie = rs.getInt("serie");
+                if (!rs.wasNull()) {
+                    aluno.setSerie(serie);
+                }
 
                 aluno.setEmail(
                         rs.getString("email")
@@ -600,9 +607,9 @@ public class InscricaoDAO {
 
         private String nomeAluno;
 
-        private String turma;
-
         private String curso;
+
+        private String serie;
 
         private String nomeEvento;
 
@@ -619,8 +626,8 @@ public class InscricaoDAO {
                 long idEvento,
                 String rm,
                 String nomeAluno,
-                String turma,
                 String curso,
+                String serie,
                 String nomeEvento,
                 Timestamp dataInscricao,
                 String status,
@@ -642,11 +649,11 @@ public class InscricaoDAO {
             this.nomeAluno =
                     nomeAluno;
 
-            this.turma =
-                    turma;
-
             this.curso =
                     curso;
+
+            this.serie =
+                    serie;
 
             this.nomeEvento =
                     nomeEvento;
@@ -687,13 +694,12 @@ public class InscricaoDAO {
         }
 
 
-        public String getTurma() {
-            return turma;
-        }
-
-
         public String getCurso() {
             return curso;
+        }
+
+        public String getSerie() {
+            return serie;
         }
 
 

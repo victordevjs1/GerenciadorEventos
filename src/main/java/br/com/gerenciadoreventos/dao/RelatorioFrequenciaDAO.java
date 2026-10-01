@@ -1,7 +1,7 @@
 package br.com.gerenciadoreventos.dao;
 
 import br.com.gerenciadoreventos.database.Conexao;
-import br.com.gerenciadoreventos.model.LinhaRelatorioTurma;
+import br.com.gerenciadoreventos.model.LinhaRelatorioCursoSerie;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -58,11 +58,11 @@ public class RelatorioFrequenciaDAO {
     }
 
     // =====================================================
-    // RELATÓRIO POR TURMA
+    // RELATÓRIO POR CURSO E SÉRIE
     //
     // O CSV importa somente os PRESENTES.
     //
-    // A turma é formada pelos alunos ativos que possuem
+    // O agrupamento é feito por curso e série a partir dos alunos ativos que possuem
     // inscrição em evento e que possuem registros de
     // presença no mês.
     //
@@ -70,18 +70,19 @@ public class RelatorioFrequenciaDAO {
     // total_presentes = registros PRESENTE
     // =====================================================
 
-    public List<LinhaRelatorioTurma>
-    gerarRelatorioPorTurma(
+    public List<LinhaRelatorioCursoSerie>
+    gerarRelatorioPorCursoSerie(
             int ano,
             int mes
     ) {
 
-        List<LinhaRelatorioTurma> linhas =
+        List<LinhaRelatorioCursoSerie> linhas =
                 new ArrayList<>();
 
         String sql = """
                 SELECT
-                    a.turma,
+                    c.nome AS curso,
+                    s.nome AS serie,
                     COUNT(DISTINCT a.id_aluno) AS matriculados,
                     COUNT(pe.id_presenca) AS total_registros,
                     COALESCE(
@@ -95,6 +96,10 @@ public class RelatorioFrequenciaDAO {
                         0
                     ) AS total_presentes
                 FROM aluno a
+                INNER JOIN curso c
+                    ON c.id_curso = a.id_curso
+                INNER JOIN serie s
+                    ON s.id_serie = a.id_serie
                 INNER JOIN inscricao_evento ie
                     ON ie.id_aluno = a.id_aluno
                 INNER JOIN presenca_evento pe
@@ -103,8 +108,8 @@ public class RelatorioFrequenciaDAO {
                   AND ie.status <> 'CANCELADO'
                   AND YEAR(pe.data_presenca) = ?
                   AND MONTH(pe.data_presenca) = ?
-                GROUP BY a.turma
-                ORDER BY a.turma ASC
+                GROUP BY c.id_curso, c.nome, s.id_serie, s.nome
+                ORDER BY c.nome ASC, s.numero ASC
                 """;
 
         try (
@@ -125,14 +130,11 @@ public class RelatorioFrequenciaDAO {
 
                 while (rs.next()) {
 
-                    LinhaRelatorioTurma linha =
-                            new LinhaRelatorioTurma();
+                    LinhaRelatorioCursoSerie linha =
+                            new LinhaRelatorioCursoSerie();
 
-                    linha.setTurma(
-                            rs.getString(
-                                    "turma"
-                            )
-                    );
+                    linha.setCurso(rs.getString("curso"));
+                    linha.setSerie(rs.getString("serie"));
 
                     linha.setMatriculados(
                             rs.getInt(
@@ -169,7 +171,7 @@ public class RelatorioFrequenciaDAO {
     // =====================================================
 
     public double calcularTaxaGlobal(
-            List<LinhaRelatorioTurma> linhas
+            List<LinhaRelatorioCursoSerie> linhas
     ) {
 
         int totalRegistros = 0;
@@ -177,7 +179,7 @@ public class RelatorioFrequenciaDAO {
         int totalPresentes = 0;
 
         for (
-                LinhaRelatorioTurma linha
+                LinhaRelatorioCursoSerie linha
                 : linhas
         ) {
 

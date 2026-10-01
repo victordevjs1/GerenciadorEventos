@@ -10,7 +10,6 @@ public class Inscricao {
 
     private String rm;
     private String aluno;
-    private String turma;
     private String evento;
 
     private Timestamp dataInscricao;
@@ -67,14 +66,6 @@ public class Inscricao {
         this.aluno = aluno;
     }
 
-
-    public String getTurma() {
-        return turma;
-    }
-
-    public void setTurma(String turma) {
-        this.turma = turma;
-    }
 
 
     public String getEvento() {

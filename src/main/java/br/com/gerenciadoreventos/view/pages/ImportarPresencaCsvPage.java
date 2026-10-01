@@ -80,6 +80,7 @@ public class ImportarPresencaCsvPage extends JPanel {
     /*
      * [0] = RM
      * [1] = Nome vindo do CSV
+     * [2] = Status (PRESENTE/AUSENTE), opcional
      */
     private final List<String[]> linhasCsv =
             new ArrayList<>();
@@ -774,6 +775,7 @@ public class ImportarPresencaCsvPage extends JPanel {
                         new Object[]{
                                 "RM",
                                 "Nome (CSV)",
+                                "Status",
                                 "Situação"
                         },
                         0
@@ -1029,14 +1031,14 @@ public class ImportarPresencaCsvPage extends JPanel {
                 return;
             }
 
-            String[] colunas =
-                    dividirLinhaCsv(
-                            removerBOM(cabecalho)
-                    );
+            cabecalho = removerBOM(cabecalho);
+            char delimitador = detectarDelimitador(cabecalho);
+            String[] colunas = dividirLinhaCsv(cabecalho, delimitador);
 
             int indiceRm = -1;
 
             int indiceNome = -1;
+            int indiceStatus = -1;
 
             for (
                     int i = 0;
@@ -1057,11 +1059,12 @@ public class ImportarPresencaCsvPage extends JPanel {
                     indiceRm = i;
                 }
 
-                if (
-                        coluna.contains("nome")
-                ) {
-
+                if (coluna.contains("nome")) {
                     indiceNome = i;
+                }
+
+                if (coluna.equals("status") || coluna.contains("presenca") || coluna.contains("presença")) {
+                    indiceStatus = i;
                 }
             }
 
@@ -1087,7 +1090,7 @@ public class ImportarPresencaCsvPage extends JPanel {
                 }
 
                 String[] valores =
-                        dividirLinhaCsv(linha);
+                        dividirLinhaCsv(linha, delimitador);
 
                 String rm =
                         indiceRm < valores.length
@@ -1097,14 +1100,12 @@ public class ImportarPresencaCsvPage extends JPanel {
                                 : "";
 
                 String nomeCsv =
-                        (
-                                indiceNome != -1
-                                        && indiceNome < valores.length
-                        )
-                                ? limparCampo(
-                                valores[indiceNome]
-                        )
-                                : "";
+                        (indiceNome != -1 && indiceNome < valores.length)
+                                ? limparCampo(valores[indiceNome]) : "";
+
+                String statusCsv =
+                        (indiceStatus != -1 && indiceStatus < valores.length)
+                                ? normalizarStatus(limparCampo(valores[indiceStatus])) : "PRESENTE";
 
                 if (rm.isBlank()) {
                     continue;
@@ -1113,7 +1114,8 @@ public class ImportarPresencaCsvPage extends JPanel {
                 linhasCsv.add(
                         new String[]{
                                 rm,
-                                nomeCsv
+                                nomeCsv,
+                                statusCsv
                         }
                 );
             }
@@ -1192,7 +1194,7 @@ public class ImportarPresencaCsvPage extends JPanel {
     // =====================================================
 
     private String[] dividirLinhaCsv(
-            String linha
+            String linha, char delimitador
     ) {
 
         List<String> campos =
@@ -1231,7 +1233,7 @@ public class ImportarPresencaCsvPage extends JPanel {
                 }
 
             } else if (
-                    c == ','
+                    c == delimitador
                             && !dentroAspas
             ) {
 
@@ -1254,6 +1256,38 @@ public class ImportarPresencaCsvPage extends JPanel {
         return campos.toArray(
                 new String[0]
         );
+    }
+
+    private char detectarDelimitador(String linha) {
+        int virgulas = contarDelimitador(linha, ',');
+        int pontoEVirgulas = contarDelimitador(linha, ';');
+        int tabs = contarDelimitador(linha, '\t');
+        if (tabs >= virgulas && tabs >= pontoEVirgulas && tabs > 0) return '\t';
+        return pontoEVirgulas > virgulas ? ';' : ',';
+    }
+
+    private int contarDelimitador(String linha, char delimitador) {
+        int total = 0; boolean aspas = false;
+        for (int i = 0; i < linha.length(); i++) {
+            char c = linha.charAt(i);
+            if (c == '"') aspas = !aspas;
+            else if (c == delimitador && !aspas) total++;
+        }
+        return total;
+    }
+
+    private String normalizarStatus(String status) {
+        if (status == null || status.isBlank()) return "PRESENTE";
+        String s = status.trim().toUpperCase();
+        if (s.equals("AUSENTE") || s.equals("AUSENCIA") || s.equals("AUSÊNCIA") ||
+                s.equals("FALTA") || s.equals("FALTANTE") || s.equals("NÃO") || s.equals("NAO") || s.equals("0")) {
+            return "AUSENTE";
+        }
+        if (s.equals("PRESENTE") || s.equals("PRESENÇA") || s.equals("PRESENCA") ||
+                s.equals("SIM") || s.equals("1") || s.equals("OK")) {
+            return "PRESENTE";
+        }
+        return "PRESENTE";
     }
 
     // =====================================================
@@ -1306,6 +1340,7 @@ public class ImportarPresencaCsvPage extends JPanel {
                     new Object[]{
                             rm,
                             nomeCsv,
+                            linha[2],
                             situacao
                     }
             );
@@ -1486,7 +1521,7 @@ public class ImportarPresencaCsvPage extends JPanel {
                             aluno.getId(),
                             evento.getId(),
                             data,
-                            "PRESENTE"
+                            linha.length > 2 ? linha[2] : "PRESENTE"
                     );
 
             if (sucesso) {
@@ -1568,7 +1603,7 @@ public class ImportarPresencaCsvPage extends JPanel {
                     presencaService.registrarParticipacaoAtividade(
                             aluno.getId(),
                             atividade.getId(),
-                            "PRESENTE"
+                            linha.length > 2 ? linha[2] : "PRESENTE"
                     );
 
             if (sucesso) {

@@ -1,6 +1,8 @@
 package br.com.gerenciadoreventos.view.pages;
 
 import br.com.gerenciadoreventos.model.Aluno;
+import br.com.gerenciadoreventos.dao.CursoDAO;
+import br.com.gerenciadoreventos.dao.SerieDAO;
 import br.com.gerenciadoreventos.service.AlunoService;
 
 import javax.swing.*;
@@ -65,6 +67,8 @@ public class AlunoPage extends JPanel {
     // =====================================================
 
     private final AlunoService alunoService;
+    private final CursoDAO cursoDAO = new CursoDAO();
+    private final SerieDAO serieDAO = new SerieDAO();
 
 
     // =====================================================
@@ -870,10 +874,10 @@ public class AlunoPage extends JPanel {
                                 + valor(
                                 aluno.getRm()
                         )
-                                + "   •   Turma: "
-                                + valor(
-                                aluno.getTurma()
-                        )
+                                + "   •   Curso: "
+                                + valor(aluno.getCurso())
+                                + "   •   Série: "
+                                + textoSerie(aluno.getSerie())
                 );
 
         dados.setFont(
@@ -1735,51 +1739,19 @@ public class AlunoPage extends JPanel {
 
 
         // =================================================
-        // TURMA
-        // =================================================
-
-        JTextField campoTurma =
-                new JTextField();
-
-        campoTurma.putClientProperty(
-                "JTextField.placeholderText",
-                "Ex.: 2º DS"
-        );
-
-        estilizarCampo(
-                campoTurma
-        );
-
-
-        adicionarCampo(
-                formulario,
-                gbc,
-                1,
-                "Turma",
-                campoTurma,
-                1
-        );
-
-
-        // =================================================
         // CURSO
         // =================================================
 
-        JTextField campoCurso =
-                new JTextField();
-
-        estilizarCampo(
-                campoCurso
-        );
-
+        JComboBox<String> campoCurso =
+                new JComboBox<>();
+        campoCurso.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        campoCurso.setPreferredSize(new Dimension(240, 38));
+        for (String curso : cursoDAO.listarNomesAtivos()) {
+            campoCurso.addItem(curso);
+        }
 
         adicionarCampo(
-                formulario,
-                gbc,
-                2,
-                "Curso",
-                campoCurso,
-                0
+                formulario, gbc, 1, "Curso", campoCurso, 1
         );
 
 
@@ -1825,7 +1797,7 @@ public class AlunoPage extends JPanel {
         adicionarCampo(
                 formulario,
                 gbc,
-                3,
+                2,
                 "Telefone",
                 campoTelefone,
                 0
@@ -1833,92 +1805,28 @@ public class AlunoPage extends JPanel {
 
 
         // =================================================
-        // SÉRIE (toggle 1º / 2º / 3º ano)
-        //
-        // Define a série atual do aluno. É usada para
-        // calcular o ano de conclusão do ensino médio e,
-        // a partir dele, desativar o aluno automaticamente
-        // quando ele se formar.
+        // SÉRIE — carregada do banco conforme o curso
         // =================================================
 
-        JToggleButton toggle1Ano =
-                new JToggleButton("1º Ano");
+        JComboBox<String> campoSerie = new JComboBox<>();
+        campoSerie.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        campoSerie.setPreferredSize(new Dimension(240, 38));
 
-        JToggleButton toggle2Ano =
-                new JToggleButton("2º Ano");
-
-        JToggleButton toggle3Ano =
-                new JToggleButton("3º Ano");
-
-        for (JToggleButton toggle : new JToggleButton[]{
-                toggle1Ano, toggle2Ano, toggle3Ano
-        }) {
-
-            toggle.setFont(
-                    new Font("Segoe UI", Font.BOLD, 13)
-            );
-
-            toggle.setFocusPainted(false);
-
-            toggle.setCursor(
-                    new Cursor(Cursor.HAND_CURSOR)
-            );
-
-            toggle.setBackground(Color.WHITE);
-
-            toggle.setForeground(TEXTO);
-
-            toggle.setBorder(
-                    BorderFactory.createCompoundBorder(
-                            BorderFactory.createLineBorder(BORDA),
-                            new EmptyBorder(8, 14, 8, 14)
-                    )
-            );
-
-            toggle.addItemListener(
-                    e -> {
-
-                        boolean selecionado =
-                                toggle.isSelected();
-
-                        toggle.setBackground(
-                                selecionado ? AZUL : Color.WHITE
-                        );
-
-                        toggle.setForeground(
-                                selecionado ? Color.WHITE : TEXTO
-                        );
-                    }
-            );
-        }
-
-        ButtonGroup grupoSerie =
-                new ButtonGroup();
-
-        grupoSerie.add(toggle1Ano);
-        grupoSerie.add(toggle2Ano);
-        grupoSerie.add(toggle3Ano);
-
-        JPanel painelSerie =
-                new JPanel(
-                        new FlowLayout(FlowLayout.LEFT, 8, 0)
-                );
-
-        painelSerie.setBackground(Color.WHITE);
-
-        painelSerie.add(toggle1Ano);
-        painelSerie.add(toggle2Ano);
-        painelSerie.add(toggle3Ano);
+        Runnable atualizarSeries = () -> {
+            String cursoSelecionado = (String) campoCurso.getSelectedItem();
+            campoSerie.removeAllItems();
+            if (cursoSelecionado != null) {
+                for (String serie : serieDAO.listarNomesAtivosPorCurso(cursoSelecionado)) {
+                    campoSerie.addItem(serie);
+                }
+            }
+        };
+        campoCurso.addActionListener(e -> atualizarSeries.run());
+        atualizarSeries.run();
 
         adicionarCampo(
-                formulario,
-                gbc,
-                3,
-                "Série",
-                painelSerie,
-                1
+                formulario, gbc, 3, "Série", campoSerie, 1
         );
-
 
         principal.add(
                 formulario,
@@ -2018,30 +1926,17 @@ public class AlunoPage extends JPanel {
                     // VALIDA SÉRIE
                     // =====================================
 
-                    int serieSelecionada;
+                    String cursoSelecionado = (String) campoCurso.getSelectedItem();
+                    String serieSelecionadaNome = (String) campoSerie.getSelectedItem();
 
-                    if (toggle1Ano.isSelected()) {
+                    if (cursoSelecionado == null || cursoSelecionado.isBlank()) {
+                        JOptionPane.showMessageDialog(dialog, "Selecione o curso do aluno.", "Campo obrigatório", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
 
-                        serieSelecionada = 1;
-
-                    } else if (toggle2Ano.isSelected()) {
-
-                        serieSelecionada = 2;
-
-                    } else if (toggle3Ano.isSelected()) {
-
-                        serieSelecionada = 3;
-
-                    } else {
-
-                        JOptionPane.showMessageDialog(
-                                dialog,
-                                "Selecione a série do aluno "
-                                        + "(1º, 2º ou 3º ano).",
-                                "Campo obrigatório",
-                                JOptionPane.WARNING_MESSAGE
-                        );
-
+                    Integer serieSelecionada = serieDAO.buscarNumeroPorCursoENome(cursoSelecionado, serieSelecionadaNome);
+                    if (serieSelecionada == null) {
+                        JOptionPane.showMessageDialog(dialog, "Selecione uma série válida para o curso escolhido.", "Campo obrigatório", JOptionPane.WARNING_MESSAGE);
                         return;
                     }
 
@@ -2110,25 +2005,10 @@ public class AlunoPage extends JPanel {
 
 
                         // =================================
-                        // TURMA
-                        // =================================
-
-                        aluno.setTurma(
-                                campoTurma
-                                        .getText()
-                                        .trim()
-                        );
-
-
-                        // =================================
                         // CURSO
                         // =================================
 
-                        aluno.setCurso(
-                                campoCurso
-                                        .getText()
-                                        .trim()
-                        );
+                        aluno.setCurso(cursoSelecionado);
 
 
                         // =================================

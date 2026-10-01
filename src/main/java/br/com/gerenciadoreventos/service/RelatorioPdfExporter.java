@@ -1,6 +1,6 @@
 package br.com.gerenciadoreventos.service;
 
-import br.com.gerenciadoreventos.model.LinhaRelatorioTurma;
+import br.com.gerenciadoreventos.model.LinhaRelatorioCursoSerie;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -39,7 +39,7 @@ public class RelatorioPdfExporter {
             int ano,
             int mes,
             int diasLetivos,
-            List<LinhaRelatorioTurma> linhas,
+            List<LinhaRelatorioCursoSerie> linhas,
             double taxaGlobal
     ) throws IOException {
 
@@ -211,7 +211,7 @@ public class RelatorioPdfExporter {
             PDPageContentStream pdf,
             float y,
             float largura,
-            List<LinhaRelatorioTurma> linhas
+            List<LinhaRelatorioCursoSerie> linhas
     ) throws IOException {
 
         float[] colunas = {
@@ -223,7 +223,7 @@ public class RelatorioPdfExporter {
         };
 
         String[] cabecalho = {
-                "Turma",
+                "Curso / Série",
                 "Alunos",
                 "Presenças",
                 "Faltas",
@@ -238,10 +238,10 @@ public class RelatorioPdfExporter {
                 true
         );
 
-        for (LinhaRelatorioTurma linha : linhas) {
+        for (LinhaRelatorioCursoSerie linha : linhas) {
 
             String[] dados = {
-                    linha.getTurma(),
+                    linha.getCurso() + " / " + linha.getSerie(),
                     String.valueOf(
                             linha.getMatriculados()
                     ),
@@ -390,7 +390,7 @@ public class RelatorioPdfExporter {
             int ano,
             int mes,
             double taxaGlobal,
-            List<LinhaRelatorioTurma> linhas
+            List<LinhaRelatorioCursoSerie> linhas
     ) throws IOException {
 
         pdf.beginText();
@@ -426,15 +426,15 @@ public class RelatorioPdfExporter {
         y = texto(
                 pdf,
                 y,
-                "Turmas analisadas: " + linhas.size(),
+                "Cursos/séries analisados: " + linhas.size(),
                 10,
                 false
         );
 
-        LinhaRelatorioTurma melhor =
+        LinhaRelatorioCursoSerie melhor =
                 encontrarMelhor(linhas);
 
-        LinhaRelatorioTurma pior =
+        LinhaRelatorioCursoSerie pior =
                 encontrarPior(linhas);
 
         if (melhor != null) {
@@ -443,7 +443,7 @@ public class RelatorioPdfExporter {
                     pdf,
                     y,
                     "Maior taxa: "
-                            + melhor.getTurma()
+                            + melhor.getCurso() + " / " + melhor.getSerie()
                             + " ("
                             + formatarPercentual(
                             melhor.taxaComparecimento()
@@ -460,7 +460,7 @@ public class RelatorioPdfExporter {
                     pdf,
                     y,
                     "Menor taxa: "
-                            + pior.getTurma()
+                            + pior.getCurso() + " / " + pior.getSerie()
                             + " ("
                             + formatarPercentual(
                             pior.taxaComparecimento()
@@ -472,13 +472,13 @@ public class RelatorioPdfExporter {
         }
     }
 
-    private LinhaRelatorioTurma encontrarMelhor(
-            List<LinhaRelatorioTurma> linhas
+    private LinhaRelatorioCursoSerie encontrarMelhor(
+            List<LinhaRelatorioCursoSerie> linhas
     ) {
 
-        LinhaRelatorioTurma resultado = null;
+        LinhaRelatorioCursoSerie resultado = null;
 
-        for (LinhaRelatorioTurma linha : linhas) {
+        for (LinhaRelatorioCursoSerie linha : linhas) {
 
             if (resultado == null
                     || linha.taxaComparecimento()
@@ -491,13 +491,13 @@ public class RelatorioPdfExporter {
         return resultado;
     }
 
-    private LinhaRelatorioTurma encontrarPior(
-            List<LinhaRelatorioTurma> linhas
+    private LinhaRelatorioCursoSerie encontrarPior(
+            List<LinhaRelatorioCursoSerie> linhas
     ) {
 
-        LinhaRelatorioTurma resultado = null;
+        LinhaRelatorioCursoSerie resultado = null;
 
-        for (LinhaRelatorioTurma linha : linhas) {
+        for (LinhaRelatorioCursoSerie linha : linhas) {
 
             if (resultado == null
                     || linha.taxaComparecimento()

@@ -102,7 +102,10 @@ public class RelatorioDesempenhoService {
             ) {
 
                 PDPage pagina =
-                        new PDPage(PDRectangle.A4);
+                        new PDPage(new PDRectangle(
+                                PDRectangle.A4.getHeight(),
+                                PDRectangle.A4.getWidth()
+                        ));
 
                 documento.addPage(pagina);
 
@@ -182,14 +185,18 @@ public class RelatorioDesempenhoService {
                     // =====================================
 
                     float[] larguras = {
-                            largura * 0.15f,
-                            largura * 0.55f,
-                            largura * 0.30f
+                            largura * 0.14f,
+                            largura * 0.34f,
+                            largura * 0.25f,
+                            largura * 0.13f,
+                            largura * 0.14f
                     };
 
                     String[] cabecalho = {
                             "RM",
                             "Aluno",
+                            "Curso",
+                            "Série",
                             "Status"
                     };
 
@@ -222,6 +229,8 @@ public class RelatorioDesempenhoService {
                         String[] valores = {
                                 aluno.rm,
                                 aluno.nome,
+                                aluno.curso,
+                                aluno.serie,
                                 aluno.status
                         };
 
@@ -1092,12 +1101,18 @@ public class RelatorioDesempenhoService {
                 SELECT
                     a.rm,
                     a.nome,
+                    c.nome AS curso,
+                    s.nome AS serie,
                     ie.status
                 FROM inscricao_evento ie
                 INNER JOIN aluno a
                     ON a.id_aluno = ie.id_aluno
+                LEFT JOIN curso c
+                    ON c.id_curso = a.id_curso
+                LEFT JOIN serie s
+                    ON s.id_serie = a.id_serie
                 WHERE ie.id_evento = ?
-                ORDER BY a.nome ASC
+                ORDER BY c.nome ASC, s.numero ASC, a.nome ASC
                 """;
 
         try (
@@ -1124,6 +1139,8 @@ public class RelatorioDesempenhoService {
                             new AlunoInscricaoPdf(
                                     rs.getString("rm"),
                                     rs.getString("nome"),
+                                    rs.getString("curso"),
+                                    rs.getString("serie"),
                                     rs.getString("status")
                             )
                     );
@@ -1443,11 +1460,17 @@ public class RelatorioDesempenhoService {
 
         private final String nome;
 
+        private final String curso;
+
+        private final String serie;
+
         private final String status;
 
         private AlunoInscricaoPdf(
                 String rm,
                 String nome,
+                String curso,
+                String serie,
                 String status
         ) {
 
@@ -1461,6 +1484,16 @@ public class RelatorioDesempenhoService {
 
                             ? ""
                             : nome;
+
+            this.curso =
+                    curso == null
+                            ? "Não informado"
+                            : curso;
+
+            this.serie =
+                    serie == null
+                            ? "Não informada"
+                            : serie;
 
             this.status =
                     status == null

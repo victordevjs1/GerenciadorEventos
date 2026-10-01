@@ -6,7 +6,6 @@ public class Aluno {
     private String rm;
     private String nome;
     private String dataNascimento;
-    private String turma;
     private String curso;
     private String email;
     private String telefone;
@@ -57,14 +56,6 @@ public class Aluno {
 
     public void setDataNascimento(String dataNascimento) {
         this.dataNascimento = dataNascimento;
-    }
-
-    public String getTurma() {
-        return turma;
-    }
-
-    public void setTurma(String turma) {
-        this.turma = turma;
     }
 
     public String getCurso() {

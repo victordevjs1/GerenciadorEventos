@@ -1128,7 +1128,7 @@ public class ResumoRelatoriosPage extends JPanel {
 
         List<?> dados =
                 frequenciaService
-                        .gerarRelatorioPorTurma(
+                        .gerarRelatorioPorCursoSerie(
                                 anoSelecionado,
                                 mesSelecionado
                         );

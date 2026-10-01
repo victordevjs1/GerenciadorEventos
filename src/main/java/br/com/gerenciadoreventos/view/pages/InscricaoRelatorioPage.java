@@ -5,7 +5,6 @@ public class InscricaoRelatorioPage {
     private long idAluno;
     private String nome;
     private String rm;
-    private String turma;
     private String status;
 
     public InscricaoRelatorioPage() {
@@ -15,13 +14,11 @@ public class InscricaoRelatorioPage {
             long idAluno,
             String nome,
             String rm,
-            String turma,
             String status
     ) {
         this.idAluno = idAluno;
         this.nome = nome;
         this.rm = rm;
-        this.turma = turma;
         this.status = status;
     }
 
@@ -47,14 +44,6 @@ public class InscricaoRelatorioPage {
 
     public void setRm(String rm) {
         this.rm = rm;
-    }
-
-    public String getTurma() {
-        return turma;
-    }
-
-    public void setTurma(String turma) {
-        this.turma = turma;
     }
 
     public String getStatus() {

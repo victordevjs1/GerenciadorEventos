@@ -1,7 +1,7 @@
 package br.com.gerenciadoreventos.service;
 
 import br.com.gerenciadoreventos.dao.RelatorioFrequenciaDAO;
-import br.com.gerenciadoreventos.model.LinhaRelatorioTurma;
+import br.com.gerenciadoreventos.model.LinhaRelatorioCursoSerie;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,15 +17,15 @@ public class RelatorioFrequenciaService {
         exporter = new RelatorioPdfExporter();
     }
 
-    public List<LinhaRelatorioTurma> gerarRelatorioPorTurma(int ano, int mes) {
-        return dao.gerarRelatorioPorTurma(ano, mes);
+    public List<LinhaRelatorioCursoSerie> gerarRelatorioPorCursoSerie(int ano, int mes) {
+        return dao.gerarRelatorioPorCursoSerie(ano, mes);
     }
 
     public int contarDiasLetivos(int ano, int mes) {
         return dao.contarDiasLetivos(ano, mes);
     }
 
-    public double calcularTaxaGlobal(List<LinhaRelatorioTurma> linhas) {
+    public double calcularTaxaGlobal(List<LinhaRelatorioCursoSerie> linhas) {
         return dao.calcularTaxaGlobal(linhas);
     }
 
@@ -36,8 +36,8 @@ public class RelatorioFrequenciaService {
             int mes
     ) throws IOException {
 
-        List<LinhaRelatorioTurma> linhas =
-                gerarRelatorioPorTurma(ano, mes);
+        List<LinhaRelatorioCursoSerie> linhas =
+                gerarRelatorioPorCursoSerie(ano, mes);
 
         int diasLetivos = contarDiasLetivos(ano, mes);
 
