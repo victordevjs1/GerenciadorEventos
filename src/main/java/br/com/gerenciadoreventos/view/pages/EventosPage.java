@@ -1197,7 +1197,9 @@ public class EventosPage extends JPanel {
         JPanel painel =
                 new JPanel(
                         new FlowLayout(
-                                FlowLayout.RIGHT
+                                FlowLayout.RIGHT,
+                                10,
+                                5
                         )
                 );
 
@@ -1212,7 +1214,19 @@ public class EventosPage extends JPanel {
                 e -> dialog.dispose()
         );
 
+        JButton salvar =
+                (JButton)
+                        dialog
+                                .getRootPane()
+                                .getClientProperty(
+                                        "botaoSalvarEvento"
+                                );
+
         painel.add(fechar);
+
+        if (salvar != null) {
+            painel.add(salvar);
+        }
 
         return painel;
     }
@@ -1562,25 +1576,12 @@ public class EventosPage extends JPanel {
                 )
         );
 
-        JPanel painelSalvar =
-                new JPanel(
-                        new FlowLayout(
-                                FlowLayout.RIGHT
-                        )
+        dialog
+                .getRootPane()
+                .putClientProperty(
+                        "botaoSalvarEvento",
+                        salvar
                 );
-
-        painelSalvar.setBackground(
-                Color.WHITE
-        );
-
-        painelSalvar.add(
-                salvar
-        );
-
-        formulario.add(
-                painelSalvar,
-                gbc
-        );
 
         JScrollPane scroll =
                 new JScrollPane(
