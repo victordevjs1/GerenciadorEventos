@@ -194,8 +194,30 @@ public class InscricoesPage extends JPanel {
                 e -> abrirNovaInscricao()
         );
 
+        JButton importarCsv =
+                criarBotaoSecundario(
+                        "Importar CSV"
+                );
+
+        importarCsv.addActionListener(
+                e -> abrirImportadorCsv()
+        );
+
+        JPanel acoesCabecalho =
+                new JPanel(
+                        new FlowLayout(
+                                FlowLayout.RIGHT,
+                                10,
+                                0
+                        )
+                );
+
+        acoesCabecalho.setBackground(FUNDO);
+        acoesCabecalho.add(importarCsv);
+        acoesCabecalho.add(novaInscricao);
+
         linhaSuperior.add(
-                novaInscricao,
+                acoesCabecalho,
                 BorderLayout.EAST
         );
 
@@ -861,6 +883,25 @@ public class InscricoesPage extends JPanel {
     }
 
     // =====================================================
+    // IMPORTAR INSCRIÇÕES POR CSV
+    // =====================================================
+
+    private void abrirImportadorCsv() {
+
+        Evento eventoInicial =
+                (Evento) comboEvento.getSelectedItem();
+
+        ImportarInscricoesCsvDialog dialog =
+                new ImportarInscricoesCsvDialog(
+                        SwingUtilities.getWindowAncestor(this),
+                        eventoInicial,
+                        this::carregarInscricoes
+                );
+
+        dialog.setVisible(true);
+    }
+
+    // =====================================================
     // NOVA INSCRIÇÃO
     // =====================================================
 
@@ -1459,6 +1500,21 @@ public class InscricoesPage extends JPanel {
                             Aluno aluno :
                             alunosSelecionados
                     ) {
+
+                        if (!inscricaoDAO.alunoPertenceAoPublicoEvento(
+                                aluno.getId(),
+                                evento.getId()
+                        )) {
+                            erros++;
+                            continue;
+                        }
+
+                        if (evento.getCapacidade() > 0
+                                && inscricaoDAO.contarInscricoesAtivasEvento(evento.getId())
+                                >= evento.getCapacidade()) {
+                            erros++;
+                            continue;
+                        }
 
                         if (
                                 inscricaoDAO.alunoJaInscrito(

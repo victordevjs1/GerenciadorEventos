@@ -333,6 +333,44 @@ public class PresencaImportDAO {
 
 
     // =====================================================
+    // OBTER INSCRIÇÃO ATIVA EXISTENTE
+    // =====================================================
+
+    public Long obterInscricaoAtiva(
+            long idAluno,
+            long idEvento
+    ) {
+
+        String sql = """
+                SELECT id_inscricao
+                FROM inscricao_evento
+                WHERE id_aluno = ?
+                  AND id_evento = ?
+                  AND status <> 'CANCELADO'
+                LIMIT 1
+                """;
+
+        try (
+                Connection conn = Conexao.conectar();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+            stmt.setLong(1, idAluno);
+            stmt.setLong(2, idEvento);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getLong("id_inscricao");
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    // =====================================================
     // LISTAR INSCRIÇÕES ATIVAS DO PÚBLICO DO EVENTO
     //
     // Mesmo que o banco tenha alguma inscrição antiga ou

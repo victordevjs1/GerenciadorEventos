@@ -58,6 +58,13 @@ public class PresencaImportService {
         );
     }
 
+    public boolean alunoInscritoNoEvento(
+            long idAluno,
+            long idEvento
+    ) {
+        return presencaDAO.obterInscricaoAtiva(idAluno, idEvento) != null;
+    }
+
     public int sincronizarInscricoesPublicoEvento(long idEvento) {
         return presencaDAO.sincronizarInscricoesPublicoEvento(idEvento);
     }
@@ -74,7 +81,7 @@ public class PresencaImportService {
             String status
     ) {
 
-        Long idInscricao = presencaDAO.obterOuCriarInscricao(idAluno, idEvento);
+        Long idInscricao = presencaDAO.obterInscricaoAtiva(idAluno, idEvento);
 
         if (idInscricao == null) {
             return false;

@@ -552,6 +552,165 @@ public class InscricaoDAO {
 
 
     // =====================================================
+    // VERIFICAR PÚBLICO DO EVENTO
+    // =====================================================
+
+    public boolean alunoPertenceAoPublicoEvento(
+            long idAluno,
+            long idEvento
+    ) {
+
+        String sql = """
+                SELECT 1
+                FROM aluno a
+                WHERE a.id_aluno = ?
+                  AND a.ativo = TRUE
+                  AND EXISTS (
+                      SELECT 1
+                      FROM evento_publico ep
+                      WHERE ep.id_evento = ?
+                        AND (
+                            ep.publico_todos = TRUE
+                            OR (
+                                ep.publico_todos = FALSE
+                                AND ep.id_curso = a.id_curso
+                                AND (
+                                    ep.id_serie IS NULL
+                                    OR ep.id_serie = a.id_serie
+                                )
+                            )
+                        )
+                  )
+                LIMIT 1
+                """;
+
+        try (
+                Connection conexao = Conexao.conectar();
+                PreparedStatement stmt = conexao.prepareStatement(sql)
+        ) {
+            stmt.setLong(1, idAluno);
+            stmt.setLong(2, idEvento);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // =====================================================
+    // STATUS DE UMA INSCRIÇÃO EXISTENTE
+    // =====================================================
+
+    public String buscarStatusInscricao(
+            long idAluno,
+            long idEvento
+    ) {
+
+        String sql = """
+                SELECT status
+                FROM inscricao_evento
+                WHERE id_aluno = ?
+                  AND id_evento = ?
+                LIMIT 1
+                """;
+
+        try (
+                Connection conexao = Conexao.conectar();
+                PreparedStatement stmt = conexao.prepareStatement(sql)
+        ) {
+            stmt.setLong(1, idAluno);
+            stmt.setLong(2, idEvento);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("status");
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    // =====================================================
+    // CONTAR INSCRIÇÕES ATIVAS DO EVENTO
+    // =====================================================
+
+    public int contarInscricoesAtivasEvento(long idEvento) {
+
+        String sql = """
+                SELECT COUNT(*)
+                FROM inscricao_evento
+                WHERE id_evento = ?
+                  AND status <> 'CANCELADO'
+                """;
+
+        try (
+                Connection conexao = Conexao.conectar();
+                PreparedStatement stmt = conexao.prepareStatement(sql)
+        ) {
+            stmt.setLong(1, idEvento);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
+    // =====================================================
+    // CADASTRAR OU REATIVAR INSCRIÇÃO VIA CSV
+    // =====================================================
+
+    public boolean cadastrarOuReativarInscricao(
+            long idAluno,
+            long idEvento,
+            String observacao
+    ) {
+
+        String sql = """
+                INSERT INTO inscricao_evento
+                (
+                    id_aluno,
+                    id_evento,
+                    status,
+                    observacao
+                )
+                VALUES (?, ?, 'INSCRITO', ?)
+                ON DUPLICATE KEY UPDATE
+                    status = 'INSCRITO',
+                    data_inscricao = CURRENT_TIMESTAMP,
+                    observacao = VALUES(observacao)
+                """;
+
+        try (
+                Connection conexao = Conexao.conectar();
+                PreparedStatement stmt = conexao.prepareStatement(sql)
+        ) {
+            stmt.setLong(1, idAluno);
+            stmt.setLong(2, idEvento);
+            stmt.setString(3, observacao);
+            return stmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // =====================================================
     // CANCELAR INSCRIÇÃO
     // =====================================================
 

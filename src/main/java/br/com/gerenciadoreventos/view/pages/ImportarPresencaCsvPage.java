@@ -1401,6 +1401,7 @@ public class ImportarPresencaCsvPage extends JPanel {
         int encontrados = 0;
         int naoEncontrados = 0;
         int foraDoPublico = 0;
+        int naoInscritos = 0;
 
         EventoOpcao eventoSelecionado = null;
 
@@ -1439,6 +1440,16 @@ public class ImportarPresencaCsvPage extends JPanel {
                 situacao = "Aluno fora do público deste evento";
                 foraDoPublico++;
 
+            } else if (!modoAtividade
+                    && eventoSelecionado != null
+                    && !presencaService.alunoInscritoNoEvento(
+                            aluno.getId(),
+                            eventoSelecionado.getId()
+                    )) {
+
+                situacao = "Aluno não está inscrito neste evento";
+                naoInscritos++;
+
             } else {
 
                 situacao = "Encontrado: " + aluno.getNome();
@@ -1466,7 +1477,10 @@ public class ImportarPresencaCsvPage extends JPanel {
         if (!modoAtividade) {
             resumo += "  •  "
                     + foraDoPublico
-                    + " fora do público";
+                    + " fora do público"
+                    + "  •  "
+                    + naoInscritos
+                    + " não inscrito(s)";
         }
 
         labelResumo.setText(resumo);
@@ -1604,10 +1618,9 @@ public class ImportarPresencaCsvPage extends JPanel {
                         "Deseja importar "
                                 + linhasCsv.size()
                                 + " resposta(s) do Forms para o evento?\n\n"
-                                + "O sistema criará as inscrições que faltarem para todos os\n"
-                                + "alunos ativos do público configurado no evento.\n\n"
+                                + "Somente alunos já inscritos neste evento serão considerados.\n\n"
                                 + "Quem respondeu será PRESENTE.\n"
-                                + "Quem pertence ao público e não respondeu será AUSENTE.\n\n"
+                                + "Quem está inscrito e não respondeu será AUSENTE.\n\n"
                                 + evento
                                 + "\n"
                                 + "Data: "
@@ -1623,15 +1636,6 @@ public class ImportarPresencaCsvPage extends JPanel {
         ) {
             return;
         }
-
-        // Antes de calcular presença/ausência, garante que todos os
-        // alunos pertencentes ao público do evento possuam inscrição.
-        // Assim os não respondentes também existem em inscricao_evento
-        // e podem ser corretamente marcados como AUSENTE.
-        int inscricoesCriadas =
-                presencaService.sincronizarInscricoesPublicoEvento(
-                        evento.getId()
-                );
 
         int presentesImportados = 0;
         int falhas = 0;
@@ -1668,7 +1672,17 @@ public class ImportarPresencaCsvPage extends JPanel {
                 continue;
             }
 
-            // Quem respondeu o Forms e pertence ao público é PRESENTE.
+            // A presença não cria inscrição. O aluno precisa ter se
+            // inscrito previamente (manual ou por CSV/Formulário).
+            if (!presencaService.alunoInscritoNoEvento(
+                    aluno.getId(),
+                    evento.getId()
+            )) {
+                falhas++;
+                continue;
+            }
+
+            // Quem respondeu o Forms e já está inscrito é PRESENTE.
             rmsPresentes.add(rmNormalizado);
 
             boolean sucesso =
@@ -1699,7 +1713,6 @@ public class ImportarPresencaCsvPage extends JPanel {
         mostrarResultadoEvento(
                 presentesImportados,
                 ausentesRegistrados,
-                inscricoesCriadas,
                 falhas
         );
     }
@@ -1793,7 +1806,6 @@ public class ImportarPresencaCsvPage extends JPanel {
     private void mostrarResultadoEvento(
             int presentes,
             int ausentes,
-            int inscricoesCriadas,
             int falhas
     ) {
 
@@ -1801,13 +1813,11 @@ public class ImportarPresencaCsvPage extends JPanel {
                 this,
                 "Importação concluída!\n\n"
                         + presentes
-                        + " presente(s) — responderam o Forms\n"
+                        + " presente(s) — inscritos que responderam o Forms\n"
                         + ausentes
-                        + " ausente(s) — público do evento que não respondeu\n"
-                        + inscricoesCriadas
-                        + " inscrição(ões) criada(s) automaticamente pelo público\n"
+                        + " ausente(s) — inscritos que não responderam\n"
                         + falhas
-                        + " ignorado(s) — RM inexistente ou fora do público",
+                        + " ignorado(s) — RM inexistente, fora do público ou não inscrito",
                 "Importação concluída",
                 JOptionPane.INFORMATION_MESSAGE
         );
