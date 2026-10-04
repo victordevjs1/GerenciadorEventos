@@ -7,9 +7,13 @@ import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.swing.FontIcon;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URL;
 
 public class Sidebar extends JPanel {
 
@@ -37,6 +41,9 @@ public class Sidebar extends JPanel {
                     Font.PLAIN,
                     13
             );
+
+    private static final int LOGO_MAX_LARGURA = 165;
+    private static final int LOGO_MAX_ALTURA = 42;
 
     // =====================================================
     // BOTÕES
@@ -118,27 +125,15 @@ public class Sidebar extends JPanel {
                 )
         );
 
-        JLabel logo =
-                labelIcone(
-                        "Eventos",
-                        FontAwesomeSolid.CALENDAR_ALT,
-                        BRANCO,
-                        new Font(
-                                "Segoe UI",
-                                Font.BOLD,
-                                20
-                        )
-                );
+        JLabel logo = criarLabelLogo();
+        logo.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel subtitulo =
                 new JLabel(
-                        "Gerenciador Escolar"
+                        "Gerenciador de Eventos Escolares"
                 );
 
-        subtitulo.setForeground(
-                new Color(148, 163, 184)
-        );
-
+        subtitulo.setForeground(ICONE);
         subtitulo.setFont(
                 new Font(
                         "Segoe UI",
@@ -146,16 +141,120 @@ public class Sidebar extends JPanel {
                         11
                 )
         );
+        subtitulo.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         painel.add(logo);
-
-        painel.add(
-                Box.createVerticalStrut(4)
-        );
-
+        painel.add(Box.createVerticalStrut(6));
         painel.add(subtitulo);
 
         return painel;
+    }
+
+    private JLabel criarLabelLogo() {
+
+        try {
+            URL caminhoLogo = localizarLogo();
+
+            if (caminhoLogo != null) {
+                BufferedImage imagemOriginal = ImageIO.read(caminhoLogo);
+
+                if (imagemOriginal != null) {
+                    BufferedImage imagemRecortada = recortarBordasTransparentes(imagemOriginal);
+                    Image imagemRedimensionada = redimensionarProporcional(
+                            imagemRecortada,
+                            LOGO_MAX_LARGURA,
+                            LOGO_MAX_ALTURA
+                    );
+
+                    return new JLabel(new ImageIcon(imagemRedimensionada));
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        JLabel logoTexto = new JLabel("e-task");
+        logoTexto.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        logoTexto.setForeground(BRANCO);
+        return logoTexto;
+    }
+
+    private URL localizarLogo() {
+        String[] caminhos = {
+                "/images/logoBranco.png",
+                "../../images/logoBranco.png",
+                "../../../images/logoBranco.png"
+        };
+
+        for (String caminho : caminhos) {
+            URL url = getClass().getResource(caminho);
+            if (url != null) {
+                return url;
+            }
+        }
+
+        System.out.println("Logo não encontrada em nenhum dos caminhos esperados.");
+        return null;
+    }
+
+    private BufferedImage recortarBordasTransparentes(BufferedImage imagem) {
+
+        int largura = imagem.getWidth();
+        int altura = imagem.getHeight();
+
+        int minX = largura;
+        int minY = altura;
+        int maxX = -1;
+        int maxY = -1;
+
+        for (int y = 0; y < altura; y++) {
+            for (int x = 0; x < largura; x++) {
+                int pixel = imagem.getRGB(x, y);
+                int alpha = (pixel >> 24) & 0xff;
+
+                if (alpha > 10) {
+                    minX = Math.min(minX, x);
+                    minY = Math.min(minY, y);
+                    maxX = Math.max(maxX, x);
+                    maxY = Math.max(maxY, y);
+                }
+            }
+        }
+
+        if (maxX < minX || maxY < minY) {
+            return imagem;
+        }
+
+        return imagem.getSubimage(
+                minX,
+                minY,
+                (maxX - minX) + 1,
+                (maxY - minY) + 1
+        );
+    }
+
+    private Image redimensionarProporcional(
+            BufferedImage imagem,
+            int maxLargura,
+            int maxAltura
+    ) {
+
+        int larguraOriginal = imagem.getWidth();
+        int alturaOriginal = imagem.getHeight();
+
+        double escala = Math.min(
+                (double) maxLargura / larguraOriginal,
+                (double) maxAltura / alturaOriginal
+        );
+
+        int novaLargura = Math.max(1, (int) Math.round(larguraOriginal * escala));
+        int novaAltura = Math.max(1, (int) Math.round(alturaOriginal * escala));
+
+        return imagem.getScaledInstance(
+                novaLargura,
+                novaAltura,
+                Image.SCALE_SMOOTH
+        );
     }
 
     // =====================================================
@@ -188,10 +287,6 @@ public class Sidebar extends JPanel {
                 )
         );
 
-        // =================================================
-        // DASHBOARD
-        // =================================================
-
         botaoDashboard =
                 item(
                         FontAwesomeSolid.TH_LARGE,
@@ -213,10 +308,6 @@ public class Sidebar extends JPanel {
                 Box.createVerticalStrut(18)
         );
 
-        // =================================================
-        // EVENTOS
-        // =================================================
-
         botaoEventos =
                 item(
                         FontAwesomeSolid.CALENDAR_ALT,
@@ -227,10 +318,6 @@ public class Sidebar extends JPanel {
         botaoEventos.addActionListener(e ->
                 dashboard.mostrarPagina("eventos")
         );
-
-        // =================================================
-        // ALUNOS
-        // =================================================
 
         botaoAlunos =
                 item(
@@ -243,10 +330,6 @@ public class Sidebar extends JPanel {
                 dashboard.mostrarPagina("alunos")
         );
 
-        // =================================================
-        // INSCRIÇÕES
-        // =================================================
-
         botaoInscricoes =
                 item(
                         FontAwesomeSolid.CHECK,
@@ -257,14 +340,6 @@ public class Sidebar extends JPanel {
         botaoInscricoes.addActionListener(e ->
                 dashboard.mostrarPagina("inscricoes")
         );
-
-
-
-
-
-        // =================================================
-        // PROFESSORES
-        // =================================================
 
         botaoProfessores =
                 item(
@@ -277,10 +352,6 @@ public class Sidebar extends JPanel {
                 dashboard.mostrarPagina("professores")
         );
 
-        // =================================================
-        // COMISSÕES
-        // =================================================
-
         botaoComissoes =
                 item(
                         FontAwesomeSolid.USERS,
@@ -291,10 +362,6 @@ public class Sidebar extends JPanel {
         botaoComissoes.addActionListener(e ->
                 dashboard.mostrarPagina("comissoes")
         );
-
-        // =================================================
-        // AGENTES EXTERNOS
-        // =================================================
 
         botaoAgentesExternos =
                 item(
@@ -323,13 +390,6 @@ public class Sidebar extends JPanel {
                 Box.createVerticalStrut(18)
         );
 
-        // =================================================
-        // RELATÓRIOS
-        // (a importação de presença via CSV vive dentro
-        // desta página, como uma aba)
-        // =================================================
-
-
         botaoResumo =
                 item(
                         FontAwesomeSolid.CHART_BAR,
@@ -351,10 +411,6 @@ public class Sidebar extends JPanel {
                 Box.createVerticalStrut(18)
         );
 
-        // =================================================
-        // CONFIGURAÇÕES
-        // =================================================
-
         botaoConfiguracoes =
                 item(
                         FontAwesomeSolid.COG,
@@ -374,10 +430,6 @@ public class Sidebar extends JPanel {
 
         return menu;
     }
-
-    // =====================================================
-    // SEÇÃO
-    // =====================================================
 
     private void adicionarSecao(
             JPanel menu,
@@ -416,10 +468,6 @@ public class Sidebar extends JPanel {
         }
     }
 
-    // =====================================================
-    // BOTÃO DO MENU
-    // =====================================================
-
     private JButton item(
             Ikon icone,
             String texto,
@@ -451,6 +499,7 @@ public class Sidebar extends JPanel {
         botao.setFocusPainted(false);
         botao.setBorderPainted(false);
         botao.setOpaque(true);
+        botao.setContentAreaFilled(true);
 
         botao.setCursor(
                 new Cursor(
@@ -458,15 +507,10 @@ public class Sidebar extends JPanel {
                 )
         );
 
-        // Guarda se está ativo
         botao.putClientProperty(
                 "ativo",
                 ativo
         );
-
-        // =================================================
-        // CORES
-        // =================================================
 
         Color corTexto =
                 ativo
@@ -478,10 +522,6 @@ public class Sidebar extends JPanel {
                         ? BRANCO
                         : ICONE;
 
-        // =================================================
-        // LABEL
-        // =================================================
-
         JLabel label =
                 labelIcone(
                         texto,
@@ -492,7 +532,6 @@ public class Sidebar extends JPanel {
 
         label.setIconTextGap(10);
 
-        // Cria o ícone que será usado no JLabel
         FontIcon icon =
                 FontIcon.of(icone);
 
@@ -501,7 +540,6 @@ public class Sidebar extends JPanel {
 
         label.setIcon(icon);
 
-        // Guarda referências para podermos atualizar depois
         botao.putClientProperty(
                 "label",
                 label
@@ -514,10 +552,6 @@ public class Sidebar extends JPanel {
 
         botao.add(label);
 
-        // =================================================
-        // FUNDO
-        // =================================================
-
         botao.setBackground(
                 ativo
                         ? AZUL
@@ -527,10 +561,6 @@ public class Sidebar extends JPanel {
         return botao;
 
     }
-
-    // =====================================================
-    // ATUALIZAR PÁGINA ATIVA
-    // =====================================================
 
     public void atualizarPaginaAtiva(
             String pagina
@@ -582,11 +612,6 @@ public class Sidebar extends JPanel {
         );
     }
 
-
-    // =====================================================
-    // ATUALIZAR UM BOTÃO
-    // =====================================================
-
     private void atualizarBotao(
             JButton botao,
             boolean ativo
@@ -601,14 +626,12 @@ public class Sidebar extends JPanel {
                 ativo
         );
 
-        // Fundo
         botao.setBackground(
                 ativo
                         ? AZUL
                         : SIDEBAR
         );
 
-        // Texto
         JLabel label =
                 (JLabel) botao.getClientProperty(
                         "label"
@@ -623,7 +646,6 @@ public class Sidebar extends JPanel {
             );
         }
 
-        // Ícone
         FontIcon icon =
                 (FontIcon) botao.getClientProperty(
                         "icone"
@@ -638,10 +660,6 @@ public class Sidebar extends JPanel {
             );
         }
     }
-
-    // =====================================================
-    // SAIR
-    // =====================================================
 
     private JPanel criarSair(
             Dashboard dashboard
@@ -681,10 +699,6 @@ public class Sidebar extends JPanel {
 
         return painel;
     }
-
-    // =====================================================
-    // LABEL COM ÍCONE
-    // =====================================================
 
     private JLabel labelIcone(
             String texto,

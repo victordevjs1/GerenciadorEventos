@@ -1,16 +1,21 @@
 package br.com.gerenciadoreventos.view.pages;
 
 import br.com.gerenciadoreventos.model.Aluno;
+import br.com.gerenciadoreventos.model.AlunoCsvImportacao;
 import br.com.gerenciadoreventos.dao.CursoDAO;
 import br.com.gerenciadoreventos.dao.SerieDAO;
 import br.com.gerenciadoreventos.service.AlunoService;
+import br.com.gerenciadoreventos.service.AlunoCsvImportService;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.MaskFormatter;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.io.File;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -261,8 +266,30 @@ public class AlunoPage extends JPanel {
         );
 
 
+        JButton importarCsv =
+                criarBotaoSecundario(
+                        "Importar CSV"
+                );
+
+        importarCsv.addActionListener(
+                e -> abrirImportadorCsv()
+        );
+
+        JPanel acoesCabecalho =
+                new JPanel(
+                        new FlowLayout(
+                                FlowLayout.RIGHT,
+                                10,
+                                0
+                        )
+                );
+
+        acoesCabecalho.setBackground(FUNDO);
+        acoesCabecalho.add(importarCsv);
+        acoesCabecalho.add(novoAluno);
+
         linhaSuperior.add(
-                novoAluno,
+                acoesCabecalho,
                 BorderLayout.EAST
         );
 
@@ -2109,6 +2136,278 @@ public class AlunoPage extends JPanel {
         dialog.setVisible(true);
     }
 
+
+    // =====================================================
+    // IMPORTAÇÃO DE ALUNOS POR CSV
+    // =====================================================
+
+    private void abrirImportadorCsv() {
+
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("Selecionar arquivo CSV de alunos");
+        chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        chooser.setAcceptAllFileFilterUsed(true);
+
+        int retorno = chooser.showOpenDialog(this);
+
+        if (retorno != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+
+        File arquivo = chooser.getSelectedFile();
+
+        if (arquivo == null || !arquivo.getName().toLowerCase().endsWith(".csv")) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Selecione um arquivo no formato .csv.",
+                    "Arquivo inválido",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        try {
+            AlunoCsvImportService importService = new AlunoCsvImportService();
+            List<AlunoCsvImportacao> linhas = importService.analisar(arquivo);
+
+            if (linhas.isEmpty()) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "O CSV não possui alunos para importar.",
+                        "Arquivo vazio",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+                return;
+            }
+
+            abrirPreviewImportacaoCsv(arquivo, linhas, importService);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    ex.getMessage() != null
+                            ? ex.getMessage()
+                            : "Não foi possível ler o arquivo CSV.",
+                    "Erro ao importar CSV",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+    private void abrirPreviewImportacaoCsv(
+            File arquivo,
+            List<AlunoCsvImportacao> linhas,
+            AlunoCsvImportService importService
+    ) {
+
+        JDialog dialog = new JDialog(
+                SwingUtilities.getWindowAncestor(this),
+                "Importar alunos por CSV",
+                Dialog.ModalityType.APPLICATION_MODAL
+        );
+
+        dialog.setSize(980, 650);
+        dialog.setMinimumSize(new Dimension(850, 560));
+        dialog.setLocationRelativeTo(this);
+
+        JPanel principal = new JPanel(new BorderLayout(0, 18));
+        principal.setBackground(FUNDO);
+        principal.setBorder(new EmptyBorder(22, 24, 22, 24));
+
+        JPanel topo = new JPanel();
+        topo.setLayout(new BoxLayout(topo, BoxLayout.Y_AXIS));
+        topo.setBackground(FUNDO);
+
+        JLabel titulo = new JLabel("Pré-visualização da importação");
+        titulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        titulo.setForeground(TEXTO);
+        titulo.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel arquivoLabel = new JLabel("Arquivo: " + arquivo.getName());
+        arquivoLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        arquivoLabel.setForeground(CINZA_TEXTO);
+        arquivoLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel dica = new JLabel(
+                "Colunas obrigatórias: RM, Nome, Curso e Série. " +
+                        "Data de Nascimento, E-mail e Telefone são opcionais."
+        );
+        dica.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        dica.setForeground(CINZA_TEXTO);
+        dica.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        topo.add(titulo);
+        topo.add(Box.createVerticalStrut(5));
+        topo.add(arquivoLabel);
+        topo.add(Box.createVerticalStrut(5));
+        topo.add(dica);
+
+        principal.add(topo, BorderLayout.NORTH);
+
+        String[] colunas = {
+                "Linha",
+                "RM",
+                "Nome",
+                "Curso",
+                "Série",
+                "Situação"
+        };
+
+        DefaultTableModel modelo = new DefaultTableModel(colunas, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        int validos = 0;
+        int invalidos = 0;
+
+        for (AlunoCsvImportacao linha : linhas) {
+            Aluno aluno = linha.getAluno();
+
+            if (linha.isValido()) validos++;
+            else invalidos++;
+
+            modelo.addRow(new Object[]{
+                    linha.getLinha(),
+                    aluno.getRm(),
+                    aluno.getNome(),
+                    aluno.getCurso(),
+                    aluno.getSerie() != null ? aluno.getSerie() + "ª" : "-",
+                    linha.getSituacao()
+            });
+        }
+
+        JTable tabela = new JTable(modelo);
+        tabela.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        tabela.setRowHeight(30);
+        tabela.setFillsViewportHeight(true);
+        tabela.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
+        tabela.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        final Color VERMELHO_TEXTO = new Color(185, 28, 28);
+        final Color VERDE_TEXTO = new Color(22, 101, 52);
+
+        DefaultTableCellRenderer rendererSituacao = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(
+                    JTable table,
+                    Object value,
+                    boolean isSelected,
+                    boolean hasFocus,
+                    int row,
+                    int column
+            ) {
+                Component c = super.getTableCellRendererComponent(
+                        table, value, isSelected, hasFocus, row, column
+                );
+
+                if (!isSelected) {
+                    boolean valido = linhas.get(row).isValido();
+                    c.setForeground(valido ? VERDE_TEXTO : VERMELHO_TEXTO);
+                }
+                return c;
+            }
+        };
+
+        tabela.getColumnModel().getColumn(5).setCellRenderer(rendererSituacao);
+        tabela.getColumnModel().getColumn(0).setPreferredWidth(55);
+        tabela.getColumnModel().getColumn(1).setPreferredWidth(85);
+        tabela.getColumnModel().getColumn(2).setPreferredWidth(200);
+        tabela.getColumnModel().getColumn(3).setPreferredWidth(220);
+        tabela.getColumnModel().getColumn(4).setPreferredWidth(70);
+        tabela.getColumnModel().getColumn(5).setPreferredWidth(210);
+
+        JScrollPane scroll = new JScrollPane(tabela);
+        scroll.setBorder(BorderFactory.createLineBorder(BORDA));
+        principal.add(scroll, BorderLayout.CENTER);
+
+        JPanel rodape = new JPanel(new BorderLayout());
+        rodape.setBackground(FUNDO);
+
+        JLabel resumo = new JLabel(
+                linhas.size() + " linha(s) • "
+                        + validos + " pronta(s) para importar • "
+                        + invalidos + " ignorada(s)"
+        );
+        resumo.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        resumo.setForeground(CINZA_TEXTO);
+
+        JPanel botoes = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        botoes.setBackground(FUNDO);
+
+        JButton cancelar = criarBotaoSecundario("Cancelar");
+        cancelar.addActionListener(e -> dialog.dispose());
+
+        JButton importar = criarBotaoPrincipal("Importar alunos");
+        importar.setEnabled(validos > 0);
+
+        final int totalValidos = validos;
+
+        importar.addActionListener(e -> {
+            int confirmacao = JOptionPane.showConfirmDialog(
+                    dialog,
+                    "Serão cadastrados " + totalValidos + " aluno(s).\n\nDeseja continuar?",
+                    "Confirmar importação",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            if (confirmacao != JOptionPane.YES_OPTION) {
+                return;
+            }
+
+            importar.setEnabled(false);
+            importar.setText("Importando...");
+
+            try {
+                int importados = importService.importar(linhas);
+
+                JOptionPane.showMessageDialog(
+                        dialog,
+                        importados + " aluno(s) cadastrado(s) com sucesso."
+                                + (importados < totalValidos
+                                ? "\n\nAlguns registros não puderam ser gravados."
+                                : ""),
+                        "Importação concluída",
+                        importados == totalValidos
+                                ? JOptionPane.INFORMATION_MESSAGE
+                                : JOptionPane.WARNING_MESSAGE
+                );
+
+                dialog.dispose();
+                mostrandoAtivos = true;
+                atualizarBotoesFiltro();
+                carregarAlunos();
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                importar.setEnabled(true);
+                importar.setText("Importar alunos");
+
+                JOptionPane.showMessageDialog(
+                        dialog,
+                        "Ocorreu um erro durante a importação.\n\n" + ex.getMessage(),
+                        "Erro",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
+        });
+
+        botoes.add(cancelar);
+        botoes.add(importar);
+
+        rodape.add(resumo, BorderLayout.WEST);
+        rodape.add(botoes, BorderLayout.EAST);
+
+        principal.add(rodape, BorderLayout.SOUTH);
+
+        dialog.setContentPane(principal);
+        dialog.setVisible(true);
+    }
 
     // =====================================================
     // CAMPO DATA

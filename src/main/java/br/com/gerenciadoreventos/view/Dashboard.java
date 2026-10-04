@@ -47,6 +47,14 @@ public class Dashboard extends JFrame {
 
         setTitle("Gerenciamento de eventos");
 
+        ImageIcon icone = new ImageIcon(
+                getClass().getResource("/images/icon.png")
+        );
+
+        setIconImage(
+                icone.getImage()
+        );
+
         setSize(
                 1200,
                 750

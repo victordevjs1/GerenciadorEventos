@@ -9,7 +9,9 @@ import br.com.gerenciadoreventos.model.EventoOpcao;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PresencaImportDAO {
 
@@ -120,12 +122,132 @@ public class PresencaImportDAO {
 
 
     // =====================================================
+    // VERIFICAR PÚBLICO DO EVENTO
+    // =====================================================
+
+    public boolean alunoPertenceAoPublicoEvento(
+            long idAluno,
+            long idEvento
+    ) {
+
+        String sql = """
+                SELECT 1
+                FROM aluno a
+                WHERE a.id_aluno = ?
+                  AND a.ativo = TRUE
+                  AND EXISTS (
+                      SELECT 1
+                      FROM evento_publico ep
+                      WHERE ep.id_evento = ?
+                        AND (
+                            ep.publico_todos = TRUE
+                            OR (
+                                ep.publico_todos = FALSE
+                                AND ep.id_curso = a.id_curso
+                                AND (
+                                    ep.id_serie IS NULL
+                                    OR ep.id_serie = a.id_serie
+                                )
+                            )
+                        )
+                  )
+                LIMIT 1
+                """;
+
+        try (
+                Connection conn = Conexao.conectar();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+
+            stmt.setLong(1, idAluno);
+            stmt.setLong(2, idEvento);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
+    // =====================================================
+    // SINCRONIZAR INSCRIÇÕES COM O PÚBLICO DO EVENTO
+    //
+    // O Forms contém somente quem compareceu. Para ser
+    // possível descobrir os AUSENTES, primeiro garantimos
+    // uma inscrição para TODOS os alunos ativos que fazem
+    // parte do público configurado em evento_publico.
+    //
+    // Não reativa inscrições canceladas: se já existir uma
+    // inscrição, ela é preservada exatamente como está.
+    // =====================================================
+
+    public int sincronizarInscricoesPublicoEvento(long idEvento) {
+
+        String sql = """
+                INSERT INTO inscricao_evento (
+                    id_aluno,
+                    id_evento,
+                    status
+                )
+                SELECT
+                    a.id_aluno,
+                    ?,
+                    'INSCRITO'
+                FROM aluno a
+                WHERE a.ativo = TRUE
+                  AND EXISTS (
+                      SELECT 1
+                      FROM evento_publico ep
+                      WHERE ep.id_evento = ?
+                        AND (
+                            ep.publico_todos = TRUE
+                            OR (
+                                ep.publico_todos = FALSE
+                                AND ep.id_curso = a.id_curso
+                                AND (
+                                    ep.id_serie IS NULL
+                                    OR ep.id_serie = a.id_serie
+                                )
+                            )
+                        )
+                  )
+                  AND NOT EXISTS (
+                      SELECT 1
+                      FROM inscricao_evento i
+                      WHERE i.id_aluno = a.id_aluno
+                        AND i.id_evento = ?
+                  )
+                """;
+
+        try (
+                Connection conn = Conexao.conectar();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+
+            stmt.setLong(1, idEvento);
+            stmt.setLong(2, idEvento);
+            stmt.setLong(3, idEvento);
+
+            return stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+
+    // =====================================================
     // OBTER OU CRIAR INSCRIÇÃO
     //
-    // Se o aluno já está inscrito no evento, retorna o
-    // id_inscricao existente. Se não estiver (ex.: só
-    // respondeu o formulário e nunca tinha se inscrito),
-    // cria a inscrição na hora.
+    // Só permite inscrição automática quando o aluno faz
+    // parte do público definido para o evento. Assim um RM
+    // de outro curso/série nunca é inserido só porque apareceu
+    // no CSV.
     // =====================================================
 
     public Long obterOuCriarInscricao(
@@ -133,10 +255,17 @@ public class PresencaImportDAO {
             long idEvento
     ) {
 
+        if (!alunoPertenceAoPublicoEvento(idAluno, idEvento)) {
+            return null;
+        }
+
         String selecionar = """
-                SELECT id_inscricao
+                SELECT
+                    id_inscricao,
+                    status
                 FROM inscricao_evento
-                WHERE id_aluno = ? AND id_evento = ?
+                WHERE id_aluno = ?
+                  AND id_evento = ?
                 """;
 
         try (
@@ -154,6 +283,12 @@ public class PresencaImportDAO {
                 try (ResultSet rs = stmt.executeQuery()) {
 
                     if (rs.next()) {
+                        String status = rs.getString("status");
+
+                        if ("CANCELADO".equalsIgnoreCase(status)) {
+                            return null;
+                        }
+
                         return rs.getLong("id_inscricao");
                     }
                 }
@@ -194,6 +329,72 @@ public class PresencaImportDAO {
         }
 
         return null;
+    }
+
+
+    // =====================================================
+    // LISTAR INSCRIÇÕES ATIVAS DO PÚBLICO DO EVENTO
+    //
+    // Mesmo que o banco tenha alguma inscrição antiga ou
+    // incorreta, somente alunos que ainda pertencem ao
+    // público do evento entram no cálculo de ausência.
+    // =====================================================
+
+    public Map<String, Long> listarInscricoesAtivasEvento(long idEvento) {
+
+        Map<String, Long> inscricoes = new LinkedHashMap<>();
+
+        String sql = """
+                SELECT
+                    a.rm,
+                    i.id_inscricao
+                FROM inscricao_evento i
+                INNER JOIN aluno a
+                    ON a.id_aluno = i.id_aluno
+                WHERE i.id_evento = ?
+                  AND i.status <> 'CANCELADO'
+                  AND a.ativo = TRUE
+                  AND EXISTS (
+                      SELECT 1
+                      FROM evento_publico ep
+                      WHERE ep.id_evento = i.id_evento
+                        AND (
+                            ep.publico_todos = TRUE
+                            OR (
+                                ep.publico_todos = FALSE
+                                AND ep.id_curso = a.id_curso
+                                AND (
+                                    ep.id_serie IS NULL
+                                    OR ep.id_serie = a.id_serie
+                                )
+                            )
+                        )
+                  )
+                """;
+
+        try (
+                Connection conn = Conexao.conectar();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+
+            stmt.setLong(1, idEvento);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    String rm = rs.getString("rm");
+                    long idInscricao = rs.getLong("id_inscricao");
+
+                    if (rm != null && !rm.isBlank()) {
+                        inscricoes.put(rm.trim().toUpperCase(), idInscricao);
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return inscricoes;
     }
 
 

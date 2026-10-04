@@ -42,11 +42,40 @@ public class Login extends JFrame {
         setLocationRelativeTo(null);
 
         setResizable(false);
-
+configurarJanela();
         criarInterface();
     }
 
+    private void configurarJanela() {
 
+        setTitle("Gerenciamento de eventos");
+
+        ImageIcon icone = new ImageIcon(
+                getClass().getResource("/images/icon.png")
+        );
+
+        setIconImage(
+                icone.getImage()
+        );
+
+        setSize(
+                1200,
+                750
+        );
+
+        setMinimumSize(
+                new Dimension(
+                        1000,
+                        650
+                )
+        );
+
+        setDefaultCloseOperation(
+                EXIT_ON_CLOSE
+        );
+
+        setLocationRelativeTo(null);
+    }
     // =====================================================
     // CRIAR INTERFACE
     // =====================================================

@@ -17,7 +17,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ImportarPresencaCsvPage extends JPanel {
 
@@ -80,10 +82,16 @@ public class ImportarPresencaCsvPage extends JPanel {
     /*
      * [0] = RM
      * [1] = Nome vindo do CSV
-     * [2] = Status (PRESENTE/AUSENTE), opcional
+     * [2] = Status. No modo Evento, toda linha do CSV é PRESENTE.
+     *       Os AUSENTES são descobertos comparando o CSV com os inscritos.
      */
     private final List<String[]> linhasCsv =
             new ArrayList<>();
+
+    // Quando o CSV tiver uma coluna ID_EVENTO / Código do evento,
+    // o sistema usa esse valor para selecionar e validar automaticamente
+    // o evento da importação. Se não houver, continua valendo a seleção manual.
+    private Long idEventoCsv;
 
     private final PresencaImportService presencaService =
             new PresencaImportService();
@@ -557,6 +565,14 @@ public class ImportarPresencaCsvPage extends JPanel {
                 )
         );
 
+        // Ao trocar o evento, revalida o CSV já carregado para
+        // conferir se cada aluno pertence ao público desse evento.
+        comboContexto.addActionListener(e -> {
+            if (!linhasCsv.isEmpty()) {
+                validarLinhas();
+            }
+        });
+
         painel.add(labelContexto);
 
         painel.add(
@@ -736,6 +752,7 @@ public class ImportarPresencaCsvPage extends JPanel {
         carregarContexto();
 
         linhasCsv.clear();
+        idEventoCsv = null;
 
         modeloTabela.setRowCount(0);
 
@@ -1006,6 +1023,7 @@ public class ImportarPresencaCsvPage extends JPanel {
     ) {
 
         linhasCsv.clear();
+        idEventoCsv = null;
 
         modeloTabela.setRowCount(0);
 
@@ -1039,6 +1057,7 @@ public class ImportarPresencaCsvPage extends JPanel {
 
             int indiceNome = -1;
             int indiceStatus = -1;
+            int indiceIdEvento = -1;
 
             for (
                     int i = 0;
@@ -1065,6 +1084,18 @@ public class ImportarPresencaCsvPage extends JPanel {
 
                 if (coluna.equals("status") || coluna.contains("presenca") || coluna.contains("presença")) {
                     indiceStatus = i;
+                }
+
+                String colunaNormalizada = coluna
+                        .replace("_", " ")
+                        .replace("-", " ")
+                        .replace("  ", " ")
+                        .trim();
+
+                if (colunaNormalizada.equals("id evento")
+                        || colunaNormalizada.equals("codigo evento")
+                        || colunaNormalizada.equals("código evento")) {
+                    indiceIdEvento = i;
                 }
             }
 
@@ -1103,9 +1134,52 @@ public class ImportarPresencaCsvPage extends JPanel {
                         (indiceNome != -1 && indiceNome < valores.length)
                                 ? limparCampo(valores[indiceNome]) : "";
 
-                String statusCsv =
-                        (indiceStatus != -1 && indiceStatus < valores.length)
-                                ? normalizarStatus(limparCampo(valores[indiceStatus])) : "PRESENTE";
+                if (!modoAtividade
+                        && indiceIdEvento != -1
+                        && indiceIdEvento < valores.length) {
+
+                    String valorIdEvento = limparCampo(valores[indiceIdEvento]);
+
+                    if (!valorIdEvento.isBlank()) {
+                        try {
+                            long idLido = Long.parseLong(valorIdEvento);
+
+                            if (idEventoCsv == null) {
+                                idEventoCsv = idLido;
+                            } else if (idEventoCsv != idLido) {
+                                mostrarErro(
+                                        "O CSV contém mais de um ID de evento.\n\n"
+                                                + "Todas as respostas do mesmo arquivo devem pertencer ao mesmo evento."
+                                );
+                                linhasCsv.clear();
+                                modeloTabela.setRowCount(0);
+                                botaoImportar.setEnabled(false);
+                                return;
+                            }
+                        } catch (NumberFormatException ex) {
+                            mostrarErro(
+                                    "ID de evento inválido no CSV: " + valorIdEvento
+                            );
+                            linhasCsv.clear();
+                            modeloTabela.setRowCount(0);
+                            botaoImportar.setEnabled(false);
+                            return;
+                        }
+                    }
+                }
+
+                String statusCsv;
+
+                if (modoAtividade) {
+                    statusCsv =
+                            (indiceStatus != -1 && indiceStatus < valores.length)
+                                    ? normalizarStatus(limparCampo(valores[indiceStatus]))
+                                    : "PRESENTE";
+                } else {
+                    // Google Forms: se existe uma linha para o RM,
+                    // significa que o aluno respondeu e está presente.
+                    statusCsv = "PRESENTE";
+                }
 
                 if (rm.isBlank()) {
                     continue;
@@ -1130,7 +1204,33 @@ public class ImportarPresencaCsvPage extends JPanel {
             return;
         }
 
+        if (!modoAtividade && idEventoCsv != null) {
+            if (!selecionarEventoDoCsv(idEventoCsv)) {
+                mostrarErro(
+                        "O CSV informa o evento ID " + idEventoCsv
+                                + ", mas esse evento não foi encontrado no banco."
+                );
+                botaoImportar.setEnabled(false);
+                return;
+            }
+        }
+
         validarLinhas();
+    }
+
+    private boolean selecionarEventoDoCsv(long idEvento) {
+
+        for (int i = 0; i < comboContexto.getItemCount(); i++) {
+            Object item = comboContexto.getItemAt(i);
+
+            if (item instanceof EventoOpcao evento
+                    && evento.getId() == idEvento) {
+                comboContexto.setSelectedIndex(i);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // =====================================================
@@ -1299,19 +1399,23 @@ public class ImportarPresencaCsvPage extends JPanel {
         modeloTabela.setRowCount(0);
 
         int encontrados = 0;
-
         int naoEncontrados = 0;
+        int foraDoPublico = 0;
+
+        EventoOpcao eventoSelecionado = null;
+
+        if (!modoAtividade
+                && comboContexto.getSelectedItem() instanceof EventoOpcao evento) {
+            eventoSelecionado = evento;
+        }
 
         for (
                 String[] linha
                 : linhasCsv
         ) {
 
-            String rm =
-                    linha[0];
-
-            String nomeCsv =
-                    linha[1];
+            String rm = linha[0];
+            String nomeCsv = linha[1];
 
             Aluno aluno =
                     presencaService.buscarAlunoPorRm(
@@ -1320,20 +1424,25 @@ public class ImportarPresencaCsvPage extends JPanel {
 
             String situacao;
 
-            if (aluno != null) {
+            if (aluno == null) {
 
-                situacao =
-                        "Encontrado: "
-                                + aluno.getNome();
+                situacao = "RM não encontrado no cadastro";
+                naoEncontrados++;
 
-                encontrados++;
+            } else if (!modoAtividade
+                    && eventoSelecionado != null
+                    && !presencaService.alunoPertenceAoPublicoEvento(
+                            aluno.getId(),
+                            eventoSelecionado.getId()
+                    )) {
+
+                situacao = "Aluno fora do público deste evento";
+                foraDoPublico++;
 
             } else {
 
-                situacao =
-                        "RM não encontrado no cadastro";
-
-                naoEncontrados++;
+                situacao = "Encontrado: " + aluno.getNome();
+                encontrados++;
             }
 
             modeloTabela.addRow(
@@ -1346,14 +1455,21 @@ public class ImportarPresencaCsvPage extends JPanel {
             );
         }
 
-        labelResumo.setText(
+        String resumo =
                 linhasCsv.size()
                         + " linha(s) lida(s)  •  "
                         + encontrados
-                        + " encontrado(s)  •  "
+                        + " válido(s)  •  "
                         + naoEncontrados
-                        + " não encontrado(s)"
-        );
+                        + " não encontrado(s)";
+
+        if (!modoAtividade) {
+            resumo += "  •  "
+                    + foraDoPublico
+                    + " fora do público";
+        }
+
+        labelResumo.setText(resumo);
 
         botaoImportar.setEnabled(
                 encontrados > 0
@@ -1401,6 +1517,15 @@ public class ImportarPresencaCsvPage extends JPanel {
                     "Selecione um evento."
             );
 
+            return;
+        }
+
+        if (idEventoCsv != null && evento.getId() != idEventoCsv) {
+            mostrarErro(
+                    "O evento selecionado não corresponde ao evento informado no CSV.\n\n"
+                            + "CSV: ID " + idEventoCsv + "\n"
+                            + "Selecionado: ID " + evento.getId() + " - " + evento.getNome()
+            );
             return;
         }
 
@@ -1478,7 +1603,11 @@ public class ImportarPresencaCsvPage extends JPanel {
                         this,
                         "Deseja importar "
                                 + linhasCsv.size()
-                                + " linha(s) para o evento?\n\n"
+                                + " resposta(s) do Forms para o evento?\n\n"
+                                + "O sistema criará as inscrições que faltarem para todos os\n"
+                                + "alunos ativos do público configurado no evento.\n\n"
+                                + "Quem respondeu será PRESENTE.\n"
+                                + "Quem pertence ao público e não respondeu será AUSENTE.\n\n"
                                 + evento
                                 + "\n"
                                 + "Data: "
@@ -1495,14 +1624,29 @@ public class ImportarPresencaCsvPage extends JPanel {
             return;
         }
 
-        int importados = 0;
+        // Antes de calcular presença/ausência, garante que todos os
+        // alunos pertencentes ao público do evento possuam inscrição.
+        // Assim os não respondentes também existem em inscricao_evento
+        // e podem ser corretamente marcados como AUSENTE.
+        int inscricoesCriadas =
+                presencaService.sincronizarInscricoesPublicoEvento(
+                        evento.getId()
+                );
 
+        int presentesImportados = 0;
         int falhas = 0;
 
-        for (
-                String[] linha
-                : linhasCsv
-        ) {
+        // Evita processar duas vezes a mesma resposta/RM.
+        Set<String> rmsPresentes = new HashSet<>();
+
+        for (String[] linha : linhasCsv) {
+
+            String rmNormalizado =
+                    linha[0].trim().toUpperCase();
+
+            if (rmsPresentes.contains(rmNormalizado)) {
+                continue;
+            }
 
             Aluno aluno =
                     presencaService.buscarAlunoPorRm(
@@ -1510,32 +1654,52 @@ public class ImportarPresencaCsvPage extends JPanel {
                     );
 
             if (aluno == null) {
-
                 falhas++;
-
                 continue;
             }
+
+            // Um aluno de outro curso/série não pode ser inscrito nem
+            // receber presença apenas porque seu RM apareceu no CSV.
+            if (!presencaService.alunoPertenceAoPublicoEvento(
+                    aluno.getId(),
+                    evento.getId()
+            )) {
+                falhas++;
+                continue;
+            }
+
+            // Quem respondeu o Forms e pertence ao público é PRESENTE.
+            rmsPresentes.add(rmNormalizado);
 
             boolean sucesso =
                     presencaService.registrarPresencaEvento(
                             aluno.getId(),
                             evento.getId(),
                             data,
-                            linha.length > 2 ? linha[2] : "PRESENTE"
+                            "PRESENTE"
                     );
 
             if (sucesso) {
-
-                importados++;
-
+                presentesImportados++;
             } else {
-
                 falhas++;
             }
         }
 
-        mostrarResultado(
-                importados,
+        // Depois de registrar quem respondeu, o sistema compara
+        // somente com as inscrições ativas que pertencem ao público
+        // configurado do evento. Quem não respondeu é AUSENTE.
+        int ausentesRegistrados =
+                presencaService.registrarAusenciasEvento(
+                        evento.getId(),
+                        data,
+                        rmsPresentes
+                );
+
+        mostrarResultadoEvento(
+                presentesImportados,
+                ausentesRegistrados,
+                inscricoesCriadas,
                 falhas
         );
     }
@@ -1621,6 +1785,34 @@ public class ImportarPresencaCsvPage extends JPanel {
                 falhas
         );
     }
+
+    // =====================================================
+    // RESULTADO DA IMPORTAÇÃO DO EVENTO
+    // =====================================================
+
+    private void mostrarResultadoEvento(
+            int presentes,
+            int ausentes,
+            int inscricoesCriadas,
+            int falhas
+    ) {
+
+        JOptionPane.showMessageDialog(
+                this,
+                "Importação concluída!\n\n"
+                        + presentes
+                        + " presente(s) — responderam o Forms\n"
+                        + ausentes
+                        + " ausente(s) — público do evento que não respondeu\n"
+                        + inscricoesCriadas
+                        + " inscrição(ões) criada(s) automaticamente pelo público\n"
+                        + falhas
+                        + " ignorado(s) — RM inexistente ou fora do público",
+                "Importação concluída",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+    }
+
 
     // =====================================================
     // RESULTADO

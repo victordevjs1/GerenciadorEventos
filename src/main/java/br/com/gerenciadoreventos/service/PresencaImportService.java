@@ -8,6 +8,8 @@ import br.com.gerenciadoreventos.model.EventoOpcao;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class PresencaImportService {
 
@@ -43,6 +45,25 @@ public class PresencaImportService {
 
 
     // =====================================================
+    // PÚBLICO / INSCRIÇÕES DO EVENTO
+    // =====================================================
+
+    public boolean alunoPertenceAoPublicoEvento(
+            long idAluno,
+            long idEvento
+    ) {
+        return presencaDAO.alunoPertenceAoPublicoEvento(
+                idAluno,
+                idEvento
+        );
+    }
+
+    public int sincronizarInscricoesPublicoEvento(long idEvento) {
+        return presencaDAO.sincronizarInscricoesPublicoEvento(idEvento);
+    }
+
+
+    // =====================================================
     // PRESENÇA EM EVENTO
     // =====================================================
 
@@ -60,6 +81,49 @@ public class PresencaImportService {
         }
 
         return presencaDAO.registrarPresenca(idInscricao, data, status);
+    }
+
+
+    // =====================================================
+    // MARCAR AUSENTES DO EVENTO
+    //
+    // O CSV do Google Forms contém somente quem respondeu.
+    // Antes desta etapa, as inscrições são sincronizadas com
+    // evento_publico. Assim, somente alunos do curso/série
+    // correto entram no cálculo de AUSENTE.
+    // =====================================================
+
+    public int registrarAusenciasEvento(
+            long idEvento,
+            LocalDate data,
+            Set<String> rmsPresentes
+    ) {
+
+        Map<String, Long> inscricoes =
+                presencaDAO.listarInscricoesAtivasEvento(idEvento);
+
+        int ausentesRegistrados = 0;
+
+        for (Map.Entry<String, Long> entrada : inscricoes.entrySet()) {
+
+            String rm = entrada.getKey();
+
+            if (rmsPresentes.contains(rm)) {
+                continue;
+            }
+
+            boolean sucesso = presencaDAO.registrarPresenca(
+                    entrada.getValue(),
+                    data,
+                    "AUSENTE"
+            );
+
+            if (sucesso) {
+                ausentesRegistrados++;
+            }
+        }
+
+        return ausentesRegistrados;
     }
 
 
