@@ -257,7 +257,7 @@ public class RelatorioDesempenhoService {
                             8,
                             margem,
                             30,
-                            "Documento gerado pelo sistema de gerenciamento de eventos."
+                            "Documento gerado por e-task"
                     );
 
                     escreverTexto(
@@ -480,7 +480,7 @@ public class RelatorioDesempenhoService {
                     8,
                     margem,
                     30,
-                    "Documento gerado pelo sistema de gerenciamento de eventos."
+                    "Documento gerado por e-task."
             );
 
             escreverTexto(
@@ -1056,7 +1056,7 @@ public class RelatorioDesempenhoService {
                         8,
                         margem,
                         30,
-                        "Documento gerado pelo sistema de gerenciamento de eventos."
+                        "Documento gerado por e-task."
                 );
 
                 escreverTexto(
