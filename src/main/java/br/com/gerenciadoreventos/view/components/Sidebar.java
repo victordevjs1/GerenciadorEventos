@@ -69,6 +69,9 @@ public class Sidebar extends JPanel {
             String paginaAtiva
     ) {
 
+        // A sidebar mantém a identidade visual escura em ambos os temas.
+        putClientProperty("theme.ignore", true);
+
         setPreferredSize(
                 new Dimension(240, 0)
         );

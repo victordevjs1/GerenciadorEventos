@@ -8,6 +8,10 @@ import java.awt.*;
 
 public class DashboardHeader extends JPanel {
 
+    private JLabel nomeLabel;
+    private JLabel tipoLabel;
+    private JLabel avatar;
+
     private static final Color FUNDO =
             new Color(246, 248, 252);
 
@@ -128,13 +132,13 @@ public class DashboardHeader extends JPanel {
         String tipo =
                 obterTipo(usuario);
 
-        JLabel nomeLabel =
+        nomeLabel =
                 new JLabel(nome);
 
         nomeLabel.setFont(MEDIUM);
         nomeLabel.setForeground(TEXTO);
 
-        JLabel tipoLabel =
+        tipoLabel =
                 new JLabel(tipo);
 
         tipoLabel.setFont(
@@ -161,7 +165,7 @@ public class DashboardHeader extends JPanel {
         info.add(nomeLabel);
         info.add(tipoLabel);
 
-        JLabel avatar =
+        avatar =
                 new JLabel(
                         obterInicial(nome)
                 );
@@ -187,6 +191,24 @@ public class DashboardHeader extends JPanel {
         painel.add(avatar);
 
         return painel;
+    }
+
+    public void atualizarUsuario(Usuario usuario) {
+        String nome = obterNome(usuario);
+        String tipo = obterTipo(usuario);
+
+        if (nomeLabel != null) {
+            nomeLabel.setText(nome);
+        }
+        if (tipoLabel != null) {
+            tipoLabel.setText(tipo);
+        }
+        if (avatar != null) {
+            avatar.setText(obterInicial(nome));
+        }
+
+        revalidate();
+        repaint();
     }
 
     private String obterNome(

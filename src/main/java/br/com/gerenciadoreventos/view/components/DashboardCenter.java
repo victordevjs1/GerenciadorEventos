@@ -1,5 +1,7 @@
 package br.com.gerenciadoreventos.view.components;
 
+import br.com.gerenciadoreventos.theme.ThemeManager;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -19,7 +21,7 @@ public class DashboardCenter extends JPanel {
                 )
         );
 
-        setBackground(FUNDO);
+        setBackground(ThemeManager.getFundo());
 
         setMaximumSize(
                 new Dimension(

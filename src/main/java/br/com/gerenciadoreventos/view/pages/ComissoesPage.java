@@ -1,5 +1,7 @@
 package br.com.gerenciadoreventos.view.pages;
 
+
+import br.com.gerenciadoreventos.theme.ThemeManager;
 import br.com.gerenciadoreventos.model.Comissao;
 import br.com.gerenciadoreventos.service.ComissaoService;
 
@@ -123,7 +125,7 @@ public class ComissoesPage extends JPanel {
                 )
         );
 
-        lblTitulo.setForeground(TEXTO);
+        lblTitulo.setForeground(ThemeManager.getTexto());
 
         JLabel lblSubtitulo =
                 new JLabel(
@@ -138,7 +140,7 @@ public class ComissoesPage extends JPanel {
                 )
         );
 
-        lblSubtitulo.setForeground(CINZA);
+        lblSubtitulo.setForeground(ThemeManager.getTextoSecundario());
 
         titulo.add(lblTitulo);
 
@@ -312,7 +314,7 @@ public class ComissoesPage extends JPanel {
                 )
         );
 
-        tabela.setForeground(TEXTO);
+        tabela.setForeground(ThemeManager.getTexto());
 
         tabela.setSelectionBackground(
                 new Color(
@@ -343,9 +345,7 @@ public class ComissoesPage extends JPanel {
                 )
         );
 
-        tabela.getTableHeader().setForeground(
-                CINZA
-        );
+        tabela.getTableHeader().setForeground(ThemeManager.getTextoSecundario());
 
         tabela.getTableHeader().setBackground(
                 new Color(
@@ -404,9 +404,7 @@ public class ComissoesPage extends JPanel {
                 )
         );
 
-        scroll.getViewport().setBackground(
-                Color.WHITE
-        );
+        scroll.getViewport().setBackground(ThemeManager.getPainel());
 
         painel.add(
                 scroll,

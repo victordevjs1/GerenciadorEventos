@@ -1,5 +1,7 @@
 package br.com.gerenciadoreventos.view.pages;
 
+
+import br.com.gerenciadoreventos.theme.ThemeManager;
 import br.com.gerenciadoreventos.model.AgenteExterno;
 import br.com.gerenciadoreventos.service.AgenteExternoService;
 
@@ -84,7 +86,7 @@ public class AgenteExternoPage extends JPanel {
         JPanel painel =
                 new JPanel(new BorderLayout());
 
-        painel.setBackground(FUNDO);
+        painel.setBackground(ThemeManager.getFundo());
 
         painel.setBorder(
                 BorderFactory.createEmptyBorder(
@@ -124,12 +126,12 @@ public class AgenteExternoPage extends JPanel {
                 )
         );
 
-        cabecalho.setBackground(FUNDO);
+        cabecalho.setBackground(ThemeManager.getFundo());
 
         JPanel linhaSuperior =
                 new JPanel(new BorderLayout());
 
-        linhaSuperior.setBackground(FUNDO);
+        linhaSuperior.setBackground(ThemeManager.getFundo());
 
         JPanel textos =
                 new JPanel();
@@ -141,7 +143,7 @@ public class AgenteExternoPage extends JPanel {
                 )
         );
 
-        textos.setBackground(FUNDO);
+        textos.setBackground(ThemeManager.getFundo());
 
         JLabel titulo =
                 criarLabel(
@@ -205,7 +207,7 @@ public class AgenteExternoPage extends JPanel {
                         )
                 );
 
-        abas.setBackground(FUNDO);
+        abas.setBackground(ThemeManager.getFundo());
 
         botaoAtivos =
                 criarBotaoAba(
@@ -313,7 +315,7 @@ public class AgenteExternoPage extends JPanel {
                 )
         );
 
-        painelAgentes.setBackground(FUNDO);
+        painelAgentes.setBackground(ThemeManager.getFundo());
 
         painelAgentes.setBorder(
                 new EmptyBorder(
@@ -394,6 +396,7 @@ public class AgenteExternoPage extends JPanel {
 
         painelAgentes.revalidate();
         painelAgentes.repaint();
+        SwingUtilities.invokeLater(() -> ThemeManager.aplicarTema(AgenteExternoPage.this));
     }
 
     // =====================================================
@@ -409,7 +412,7 @@ public class AgenteExternoPage extends JPanel {
                         new BorderLayout(20, 0)
                 );
 
-        card.setBackground(Color.WHITE);
+        card.setBackground(ThemeManager.getPainel());
 
         card.setMaximumSize(
                 new Dimension(
@@ -446,7 +449,7 @@ public class AgenteExternoPage extends JPanel {
                 )
         );
 
-        informacoes.setBackground(Color.WHITE);
+        informacoes.setBackground(ThemeManager.getPainel());
 
         JLabel nome =
                 criarLabel(
@@ -554,7 +557,7 @@ public class AgenteExternoPage extends JPanel {
                 )
         );
 
-        painelBotoes.setBackground(Color.WHITE);
+        painelBotoes.setBackground(ThemeManager.getPainel());
 
         JButton editar =
                 criarBotaoSecundario(
@@ -629,8 +632,8 @@ public class AgenteExternoPage extends JPanel {
                 );
 
         dialog.setSize(
-                650,
-                650
+                700,
+                740
         );
 
         dialog.setLocationRelativeTo(this);
@@ -642,7 +645,7 @@ public class AgenteExternoPage extends JPanel {
                         new BorderLayout()
                 );
 
-        principal.setBackground(FUNDO);
+        principal.setBackground(ThemeManager.getFundo());
 
         principal.setBorder(
                 new EmptyBorder(
@@ -667,7 +670,7 @@ public class AgenteExternoPage extends JPanel {
                 )
         );
 
-        cabecalho.setBackground(FUNDO);
+        cabecalho.setBackground(ThemeManager.getFundo());
 
         JLabel titulo =
                 criarLabel(
@@ -709,7 +712,7 @@ public class AgenteExternoPage extends JPanel {
                         new GridBagLayout()
                 );
 
-        formulario.setBackground(Color.WHITE);
+        formulario.setBackground(ThemeManager.getPainel());
 
         formulario.setBorder(
                 BorderFactory.createCompoundBorder(
@@ -889,7 +892,7 @@ public class AgenteExternoPage extends JPanel {
                         )
                 );
 
-        botoes.setBackground(FUNDO);
+        botoes.setBackground(ThemeManager.getFundo());
 
         JButton cancelar =
                 criarBotaoSecundario(
@@ -1019,6 +1022,7 @@ public class AgenteExternoPage extends JPanel {
         );
 
         dialog.setContentPane(principal);
+        ThemeManager.aplicarTema(dialog);
         dialog.setVisible(true);
     }
 
@@ -1223,7 +1227,7 @@ public class AgenteExternoPage extends JPanel {
                 )
         );
 
-        container.setBackground(Color.WHITE);
+        container.setBackground(ThemeManager.getPainel());
 
         JLabel label =
                 criarLabel(
@@ -1233,18 +1237,27 @@ public class AgenteExternoPage extends JPanel {
                         TEXTO
                 );
 
+        // BoxLayout centraliza componentes quando o alignmentX não é definido.
+        // Mantemos rótulo e campo alinhados à esquerda e com a mesma largura.
+        label.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        if (campo instanceof JComponent componente) {
+            componente.setAlignmentX(Component.LEFT_ALIGNMENT);
+            Dimension pref = componente.getPreferredSize();
+            int altura = campo instanceof JScrollPane ? 92 : Math.max(38, pref.height);
+            componente.setPreferredSize(new Dimension(540, altura));
+            componente.setMaximumSize(new Dimension(Integer.MAX_VALUE, altura));
+        }
+
+        container.setAlignmentX(Component.LEFT_ALIGNMENT);
+        container.setMaximumSize(new Dimension(Integer.MAX_VALUE,
+                campo instanceof JScrollPane ? 125 : 72));
+
         container.add(label);
-
-        container.add(
-                Box.createVerticalStrut(5)
-        );
-
+        container.add(Box.createVerticalStrut(5));
         container.add(campo);
 
-        painel.add(
-                container,
-                gbc
-        );
+        painel.add(container, gbc);
     }
 
     // =====================================================
@@ -1387,8 +1400,8 @@ public class AgenteExternoPage extends JPanel {
                 )
         );
 
-        botao.setForeground(TEXTO);
-        botao.setBackground(Color.WHITE);
+        botao.setForeground(ThemeManager.getTexto());
+        botao.setBackground(ThemeManager.getPainel());
 
         botao.setFocusPainted(false);
 
@@ -1478,7 +1491,7 @@ public class AgenteExternoPage extends JPanel {
                         new GridBagLayout()
                 );
 
-        painel.setBackground(Color.WHITE);
+        painel.setBackground(ThemeManager.getPainel());
 
         painel.setMaximumSize(
                 new Dimension(

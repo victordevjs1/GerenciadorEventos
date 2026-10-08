@@ -1,5 +1,7 @@
 package br.com.gerenciadoreventos.view.pages;
 
+
+import br.com.gerenciadoreventos.theme.ThemeManager;
 import br.com.gerenciadoreventos.model.Aluno;
 import br.com.gerenciadoreventos.model.AlunoCsvImportacao;
 import br.com.gerenciadoreventos.dao.CursoDAO;
@@ -132,7 +134,7 @@ public class AlunoPage extends JPanel {
                         new BorderLayout()
                 );
 
-        painel.setBackground(FUNDO);
+        painel.setBackground(ThemeManager.getFundo());
 
         painel.setBorder(
                 new EmptyBorder(
@@ -173,7 +175,7 @@ public class AlunoPage extends JPanel {
                 )
         );
 
-        cabecalho.setBackground(FUNDO);
+        cabecalho.setBackground(ThemeManager.getFundo());
 
 
         // =================================================
@@ -185,7 +187,7 @@ public class AlunoPage extends JPanel {
                         new BorderLayout()
                 );
 
-        linhaSuperior.setBackground(FUNDO);
+        linhaSuperior.setBackground(ThemeManager.getFundo());
 
 
         // =================================================
@@ -202,7 +204,7 @@ public class AlunoPage extends JPanel {
                 )
         );
 
-        textos.setBackground(FUNDO);
+        textos.setBackground(ThemeManager.getFundo());
 
 
         JLabel titulo =
@@ -216,7 +218,7 @@ public class AlunoPage extends JPanel {
                 )
         );
 
-        titulo.setForeground(TEXTO);
+        titulo.setForeground(ThemeManager.getTexto());
 
 
         JLabel subtitulo =
@@ -232,9 +234,7 @@ public class AlunoPage extends JPanel {
                 )
         );
 
-        subtitulo.setForeground(
-                CINZA_TEXTO
-        );
+        subtitulo.setForeground(ThemeManager.getTextoSecundario());
 
 
         textos.add(titulo);
@@ -284,7 +284,7 @@ public class AlunoPage extends JPanel {
                         )
                 );
 
-        acoesCabecalho.setBackground(FUNDO);
+        acoesCabecalho.setBackground(ThemeManager.getFundo());
         acoesCabecalho.add(importarCsv);
         acoesCabecalho.add(novoAluno);
 
@@ -317,7 +317,7 @@ public class AlunoPage extends JPanel {
                         )
                 );
 
-        painelFiltros.setBackground(FUNDO);
+        painelFiltros.setBackground(ThemeManager.getFundo());
 
 
         botaoAtivados =
@@ -533,25 +533,17 @@ public class AlunoPage extends JPanel {
 
             // DESATIVADOS
 
-            botaoDesativados.setBackground(
-                    Color.WHITE
-            );
+            botaoDesativados.setBackground(ThemeManager.getPainel());
 
-            botaoDesativados.setForeground(
-                    TEXTO
-            );
+            botaoDesativados.setForeground(ThemeManager.getTexto());
 
         } else {
 
             // ATIVADOS
 
-            botaoAtivados.setBackground(
-                    Color.WHITE
-            );
+            botaoAtivados.setBackground(ThemeManager.getPainel());
 
-            botaoAtivados.setForeground(
-                    TEXTO
-            );
+            botaoAtivados.setForeground(ThemeManager.getTexto());
 
 
             // DESATIVADOS SELECIONADO
@@ -583,7 +575,7 @@ public class AlunoPage extends JPanel {
                 )
         );
 
-        painelAlunos.setBackground(FUNDO);
+        painelAlunos.setBackground(ThemeManager.getFundo());
 
         painelAlunos.setBorder(
                 new EmptyBorder(
@@ -657,9 +649,7 @@ public class AlunoPage extends JPanel {
                     )
             );
 
-            vazio.setForeground(
-                    CINZA_TEXTO
-            );
+            vazio.setForeground(ThemeManager.getTextoSecundario());
 
             vazio.setAlignmentX(
                     Component.CENTER_ALIGNMENT
@@ -692,6 +682,7 @@ public class AlunoPage extends JPanel {
         painelAlunos.revalidate();
 
         painelAlunos.repaint();
+        SwingUtilities.invokeLater(() -> ThemeManager.aplicarTema(AlunoPage.this));
     }
 
 
@@ -775,9 +766,7 @@ public class AlunoPage extends JPanel {
                     )
             );
 
-            vazio.setForeground(
-                    CINZA_TEXTO
-            );
+            vazio.setForeground(ThemeManager.getTextoSecundario());
 
             vazio.setAlignmentX(
                     Component.CENTER_ALIGNMENT
@@ -797,6 +786,7 @@ public class AlunoPage extends JPanel {
         painelAlunos.revalidate();
 
         painelAlunos.repaint();
+        SwingUtilities.invokeLater(() -> ThemeManager.aplicarTema(AlunoPage.this));
     }
 
 
@@ -816,9 +806,7 @@ public class AlunoPage extends JPanel {
                         )
                 );
 
-        card.setBackground(
-                Color.WHITE
-        );
+        card.setBackground(ThemeManager.getPainel());
 
 
         card.setMaximumSize(
@@ -862,9 +850,7 @@ public class AlunoPage extends JPanel {
                 )
         );
 
-        informacoes.setBackground(
-                Color.WHITE
-        );
+        informacoes.setBackground(ThemeManager.getPainel());
 
 
         JLabel nome =
@@ -882,9 +868,7 @@ public class AlunoPage extends JPanel {
                 )
         );
 
-        nome.setForeground(
-                TEXTO
-        );
+        nome.setForeground(ThemeManager.getTexto());
 
 
         informacoes.add(nome);
@@ -1039,9 +1023,7 @@ public class AlunoPage extends JPanel {
                 )
         );
 
-        lateral.setBackground(
-                Color.WHITE
-        );
+        lateral.setBackground(ThemeManager.getPainel());
 
 
         JLabel status =
@@ -1206,9 +1188,7 @@ public class AlunoPage extends JPanel {
                         )
                 );
 
-        linha.setBackground(
-                Color.WHITE
-        );
+        linha.setBackground(ThemeManager.getPainel());
 
 
         // TODO: quando o RelatorioService existir, trocar por:
@@ -1295,7 +1275,7 @@ public class AlunoPage extends JPanel {
                         new BorderLayout()
                 );
 
-        principal.setBackground(FUNDO);
+        principal.setBackground(ThemeManager.getFundo());
 
         principal.setBorder(
                 new EmptyBorder(
@@ -1320,9 +1300,7 @@ public class AlunoPage extends JPanel {
                 )
         );
 
-        titulo.setForeground(
-                TEXTO
-        );
+        titulo.setForeground(ThemeManager.getTexto());
 
 
         principal.add(
@@ -1355,9 +1333,7 @@ public class AlunoPage extends JPanel {
                 )
         );
 
-        corpo.setBackground(
-                Color.WHITE
-        );
+        corpo.setBackground(ThemeManager.getPainel());
 
         corpo.setBorder(
                 BorderFactory.createCompoundBorder(
@@ -1389,9 +1365,7 @@ public class AlunoPage extends JPanel {
                 )
         );
 
-        aviso.setForeground(
-                CINZA_TEXTO
-        );
+        aviso.setForeground(ThemeManager.getTextoSecundario());
 
 
         corpo.add(
@@ -1424,9 +1398,7 @@ public class AlunoPage extends JPanel {
                         )
                 );
 
-        botoes.setBackground(
-                FUNDO
-        );
+        botoes.setBackground(ThemeManager.getFundo());
 
 
         JButton fechar =
@@ -1453,6 +1425,7 @@ public class AlunoPage extends JPanel {
                 principal
         );
 
+        ThemeManager.aplicarTema(dialog);
         dialog.setVisible(true);
     }
 
@@ -1564,7 +1537,7 @@ public class AlunoPage extends JPanel {
                         new BorderLayout()
                 );
 
-        principal.setBackground(FUNDO);
+        principal.setBackground(ThemeManager.getFundo());
 
         principal.setBorder(
                 new EmptyBorder(
@@ -1590,7 +1563,7 @@ public class AlunoPage extends JPanel {
                 )
         );
 
-        cabecalho.setBackground(FUNDO);
+        cabecalho.setBackground(ThemeManager.getFundo());
 
 
         JLabel titulo =
@@ -1606,9 +1579,7 @@ public class AlunoPage extends JPanel {
                 )
         );
 
-        titulo.setForeground(
-                TEXTO
-        );
+        titulo.setForeground(ThemeManager.getTexto());
 
 
         JLabel descricao =
@@ -1624,9 +1595,7 @@ public class AlunoPage extends JPanel {
                 )
         );
 
-        descricao.setForeground(
-                CINZA_TEXTO
-        );
+        descricao.setForeground(ThemeManager.getTextoSecundario());
 
 
         cabecalho.add(
@@ -1657,9 +1626,7 @@ public class AlunoPage extends JPanel {
                         new GridBagLayout()
                 );
 
-        formulario.setBackground(
-                Color.WHITE
-        );
+        formulario.setBackground(ThemeManager.getPainel());
 
 
         formulario.setBorder(
@@ -1874,9 +1841,7 @@ public class AlunoPage extends JPanel {
                         )
                 );
 
-        botoes.setBackground(
-                FUNDO
-        );
+        botoes.setBackground(ThemeManager.getFundo());
 
 
         JButton cancelar =
@@ -2133,6 +2098,7 @@ public class AlunoPage extends JPanel {
         );
 
 
+        ThemeManager.aplicarTema(dialog);
         dialog.setVisible(true);
     }
 
@@ -2213,21 +2179,21 @@ public class AlunoPage extends JPanel {
         dialog.setLocationRelativeTo(this);
 
         JPanel principal = new JPanel(new BorderLayout(0, 18));
-        principal.setBackground(FUNDO);
+        principal.setBackground(ThemeManager.getFundo());
         principal.setBorder(new EmptyBorder(22, 24, 22, 24));
 
         JPanel topo = new JPanel();
         topo.setLayout(new BoxLayout(topo, BoxLayout.Y_AXIS));
-        topo.setBackground(FUNDO);
+        topo.setBackground(ThemeManager.getFundo());
 
         JLabel titulo = new JLabel("Pré-visualização da importação");
         titulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        titulo.setForeground(TEXTO);
+        titulo.setForeground(ThemeManager.getTexto());
         titulo.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel arquivoLabel = new JLabel("Arquivo: " + arquivo.getName());
         arquivoLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        arquivoLabel.setForeground(CINZA_TEXTO);
+        arquivoLabel.setForeground(ThemeManager.getTextoSecundario());
         arquivoLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel dica = new JLabel(
@@ -2235,7 +2201,7 @@ public class AlunoPage extends JPanel {
                         "Data de Nascimento, E-mail e Telefone são opcionais."
         );
         dica.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        dica.setForeground(CINZA_TEXTO);
+        dica.setForeground(ThemeManager.getTextoSecundario());
         dica.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         topo.add(titulo);
@@ -2326,7 +2292,7 @@ public class AlunoPage extends JPanel {
         principal.add(scroll, BorderLayout.CENTER);
 
         JPanel rodape = new JPanel(new BorderLayout());
-        rodape.setBackground(FUNDO);
+        rodape.setBackground(ThemeManager.getFundo());
 
         JLabel resumo = new JLabel(
                 linhas.size() + " linha(s) • "
@@ -2334,10 +2300,10 @@ public class AlunoPage extends JPanel {
                         + invalidos + " ignorada(s)"
         );
         resumo.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        resumo.setForeground(CINZA_TEXTO);
+        resumo.setForeground(ThemeManager.getTextoSecundario());
 
         JPanel botoes = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
-        botoes.setBackground(FUNDO);
+        botoes.setBackground(ThemeManager.getFundo());
 
         JButton cancelar = criarBotaoSecundario("Cancelar");
         cancelar.addActionListener(e -> dialog.dispose());
@@ -2406,6 +2372,7 @@ public class AlunoPage extends JPanel {
         principal.add(rodape, BorderLayout.SOUTH);
 
         dialog.setContentPane(principal);
+        ThemeManager.aplicarTema(dialog);
         dialog.setVisible(true);
     }
 
@@ -2543,9 +2510,7 @@ public class AlunoPage extends JPanel {
         );
 
 
-        container.setBackground(
-                Color.WHITE
-        );
+        container.setBackground(ThemeManager.getPainel());
 
 
         JLabel label =
@@ -2563,9 +2528,7 @@ public class AlunoPage extends JPanel {
         );
 
 
-        label.setForeground(
-                TEXTO
-        );
+        label.setForeground(ThemeManager.getTexto());
 
 
         container.add(
@@ -2757,14 +2720,10 @@ public class AlunoPage extends JPanel {
         );
 
 
-        botao.setForeground(
-                TEXTO
-        );
+        botao.setForeground(ThemeManager.getTexto());
 
 
-        botao.setBackground(
-                Color.WHITE
-        );
+        botao.setBackground(ThemeManager.getPainel());
 
 
         botao.setFocusPainted(
@@ -2821,9 +2780,7 @@ public class AlunoPage extends JPanel {
                 AZUL
         );
 
-        botao.setBackground(
-                Color.WHITE
-        );
+        botao.setBackground(ThemeManager.getPainel());
 
         botao.setFocusPainted(
                 false
@@ -2883,9 +2840,7 @@ public class AlunoPage extends JPanel {
         );
 
 
-        botao.setBackground(
-                Color.WHITE
-        );
+        botao.setBackground(ThemeManager.getPainel());
 
 
         botao.setFocusPainted(

@@ -37,7 +37,7 @@
                             <transformers>
 
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>br.com.gerenciadoreventos.view.Login</mainClass>
+                                    <mainClass>br.com.gerenciadoreventos.Main</mainClass>
                                 </transformer>
 
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>

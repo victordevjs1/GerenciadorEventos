@@ -1,5 +1,7 @@
 package br.com.gerenciadoreventos.view.pages;
 
+
+import br.com.gerenciadoreventos.theme.ThemeManager;
 import br.com.gerenciadoreventos.dao.InscricaoDAO;
 import br.com.gerenciadoreventos.model.Aluno;
 import br.com.gerenciadoreventos.model.Evento;
@@ -68,7 +70,7 @@ public class ImportarInscricoesCsvDialog extends JDialog {
 
     private void montarInterface() {
         JPanel principal = new JPanel(new BorderLayout(0, 18));
-        principal.setBackground(FUNDO);
+        principal.setBackground(ThemeManager.getFundo());
         principal.setBorder(new EmptyBorder(24, 28, 24, 28));
 
         principal.add(criarCabecalho(), BorderLayout.NORTH);
@@ -81,17 +83,17 @@ public class ImportarInscricoesCsvDialog extends JDialog {
     private JPanel criarCabecalho() {
         JPanel cabecalho = new JPanel();
         cabecalho.setLayout(new BoxLayout(cabecalho, BoxLayout.Y_AXIS));
-        cabecalho.setBackground(FUNDO);
+        cabecalho.setBackground(ThemeManager.getFundo());
 
         JLabel titulo = new JLabel("Importar inscrições por CSV");
         titulo.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        titulo.setForeground(TEXTO);
+        titulo.setForeground(ThemeManager.getTexto());
 
         JLabel descricao = new JLabel(
                 "Selecione o evento e importe as respostas do formulário de inscrição."
         );
         descricao.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        descricao.setForeground(CINZA_TEXTO);
+        descricao.setForeground(ThemeManager.getTextoSecundario());
 
         cabecalho.add(titulo);
         cabecalho.add(Box.createVerticalStrut(4));
@@ -99,7 +101,7 @@ public class ImportarInscricoesCsvDialog extends JDialog {
         cabecalho.add(Box.createVerticalStrut(18));
 
         JPanel selecao = new JPanel(new GridBagLayout());
-        selecao.setBackground(Color.WHITE);
+        selecao.setBackground(ThemeManager.getPainel());
         selecao.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(226, 232, 240)),
                 new EmptyBorder(16, 16, 16, 16)
@@ -112,7 +114,7 @@ public class ImportarInscricoesCsvDialog extends JDialog {
 
         JLabel labelEvento = new JLabel("Evento");
         labelEvento.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        labelEvento.setForeground(TEXTO);
+        labelEvento.setForeground(ThemeManager.getTexto());
 
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -136,9 +138,9 @@ public class ImportarInscricoesCsvDialog extends JDialog {
         selecionarCsv.addActionListener(e -> escolherArquivo());
 
         JPanel arquivoPanel = new JPanel(new BorderLayout(10, 0));
-        arquivoPanel.setBackground(Color.WHITE);
+        arquivoPanel.setBackground(ThemeManager.getPainel());
         labelArquivo.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        labelArquivo.setForeground(CINZA_TEXTO);
+        labelArquivo.setForeground(ThemeManager.getTextoSecundario());
         arquivoPanel.add(selecionarCsv, BorderLayout.WEST);
         arquivoPanel.add(labelArquivo, BorderLayout.CENTER);
 
@@ -153,7 +155,7 @@ public class ImportarInscricoesCsvDialog extends JDialog {
 
     private JPanel criarCentro() {
         JPanel centro = new JPanel(new BorderLayout());
-        centro.setBackground(FUNDO);
+        centro.setBackground(ThemeManager.getFundo());
 
         JTable tabela = new JTable(modeloTabela);
         tabela.setFont(new Font("Segoe UI", Font.PLAIN, 13));
@@ -200,13 +202,13 @@ public class ImportarInscricoesCsvDialog extends JDialog {
 
     private JPanel criarRodape() {
         JPanel rodape = new JPanel(new BorderLayout());
-        rodape.setBackground(FUNDO);
+        rodape.setBackground(ThemeManager.getFundo());
 
         labelResumo.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        labelResumo.setForeground(CINZA_TEXTO);
+        labelResumo.setForeground(ThemeManager.getTextoSecundario());
 
         JPanel botoes = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
-        botoes.setBackground(FUNDO);
+        botoes.setBackground(ThemeManager.getFundo());
 
         JButton cancelar = criarBotaoSecundario("Cancelar");
         cancelar.addActionListener(e -> dispose());
@@ -405,8 +407,8 @@ public class ImportarInscricoesCsvDialog extends JDialog {
     private JButton criarBotaoSecundario(String texto) {
         JButton botao = new JButton(texto);
         botao.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        botao.setForeground(TEXTO);
-        botao.setBackground(Color.WHITE);
+        botao.setForeground(ThemeManager.getTexto());
+        botao.setBackground(ThemeManager.getPainel());
         botao.setOpaque(true);
         botao.setContentAreaFilled(true);
         botao.setFocusPainted(false);

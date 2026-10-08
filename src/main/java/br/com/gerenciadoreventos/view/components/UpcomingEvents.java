@@ -2,6 +2,7 @@ package br.com.gerenciadoreventos.view.components;
 
 import br.com.gerenciadoreventos.model.Evento;
 import br.com.gerenciadoreventos.service.DashboardService;
+import br.com.gerenciadoreventos.theme.ThemeManager;
 
 import org.kordamp.ikonli.swing.FontIcon;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
@@ -16,11 +17,11 @@ public class UpcomingEvents extends JPanel {
 
     private final DashboardService service = new DashboardService();
 
-    private final Color FUNDO = new Color(255, 255, 255);
-    private final Color AZUL = new Color(122, 162, 247);
-    private final Color TEXTO = new Color(35, 35, 45);
-    private final Color CINZA = new Color(110, 110, 120);
-    private final Color BORDA = new Color(235, 236, 240);
+    private static final Color FUNDO = Color.WHITE;
+    private static final Color AZUL = new Color(122, 162, 247);
+    private static final Color TEXTO = new Color(35, 35, 45);
+    private static final Color CINZA = new Color(110, 110, 120);
+    private static final Color BORDA = new Color(235, 236, 240);
 
     private final DateTimeFormatter formatoData =
             DateTimeFormatter.ofPattern("dd 'de' MMMM", new java.util.Locale("pt", "BR"));
@@ -123,7 +124,7 @@ public class UpcomingEvents extends JPanel {
                 new BorderLayout(14, 0)
         );
 
-        card.setBackground(Color.WHITE);
+        card.setBackground(ThemeManager.getPainel());
 
         card.setBorder(
                 BorderFactory.createCompoundBorder(
@@ -217,7 +218,7 @@ public class UpcomingEvents extends JPanel {
                 )
         );
 
-        informacoes.setBackground(Color.WHITE);
+        informacoes.setBackground(ThemeManager.getPainel());
 
         JLabel nome = new JLabel(
                 evento.getNome()
@@ -364,7 +365,11 @@ public class UpcomingEvents extends JPanel {
                     RenderingHints.VALUE_ANTIALIAS_ON
             );
 
-            g2.setColor(cor);
+            g2.setColor(
+                    ThemeManager.isModoEscuro()
+                            ? ThemeManager.getBorda()
+                            : cor
+            );
 
             g2.drawRoundRect(
                     x,

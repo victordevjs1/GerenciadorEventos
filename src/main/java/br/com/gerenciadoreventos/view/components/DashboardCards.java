@@ -1,6 +1,7 @@
 package br.com.gerenciadoreventos.view.components;
 
 import br.com.gerenciadoreventos.service.DashboardService;
+import br.com.gerenciadoreventos.theme.ThemeManager;
 import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.swing.FontIcon;
@@ -43,7 +44,7 @@ public class DashboardCards extends JPanel {
                 )
         );
 
-        setBackground(FUNDO);
+        setBackground(ThemeManager.getFundo());
 
         setMaximumSize(
                 new Dimension(
@@ -123,13 +124,10 @@ public class DashboardCards extends JPanel {
                         new BorderLayout()
                 );
 
-        card.setBackground(BRANCO);
+        card.setBackground(ThemeManager.getPainel());
 
         card.setBorder(
-                new RoundedBorder(
-                        14,
-                        BORDA
-                )
+                new RoundedBorder(14)
         );
 
         card.setPreferredSize(
@@ -141,7 +139,7 @@ public class DashboardCards extends JPanel {
                         new BorderLayout()
                 );
 
-        conteudo.setBackground(BRANCO);
+        conteudo.setBackground(ThemeManager.getPainel());
 
         conteudo.setBorder(
                 new EmptyBorder(
@@ -161,9 +159,8 @@ public class DashboardCards extends JPanel {
                 new Dimension(42, 42)
         );
 
-        iconePanel.setBackground(
-                fundoIcone
-        );
+        // Sem quadrado claro atrás do ícone no modo escuro.
+        iconePanel.setOpaque(false);
 
         FontIcon icon =
                 FontIcon.of(icone);
@@ -185,7 +182,7 @@ public class DashboardCards extends JPanel {
                 )
         );
 
-        textos.setBackground(BRANCO);
+        textos.setBackground(ThemeManager.getPainel());
 
         textos.setBorder(
                 new EmptyBorder(
@@ -208,7 +205,7 @@ public class DashboardCards extends JPanel {
         );
 
         lblTitulo.setForeground(
-                SECUNDARIO
+                ThemeManager.getTextoSecundario()
         );
 
         JLabel lblValor =
@@ -224,7 +221,7 @@ public class DashboardCards extends JPanel {
                 )
         );
 
-        lblValor.setForeground(TEXTO);
+        lblValor.setForeground(ThemeManager.getTexto());
 
         textos.add(lblTitulo);
 
@@ -253,14 +250,9 @@ public class DashboardCards extends JPanel {
             extends javax.swing.border.AbstractBorder {
 
         private final int raio;
-        private final Color cor;
 
-        RoundedBorder(
-                int raio,
-                Color cor
-        ) {
+        RoundedBorder(int raio) {
             this.raio = raio;
-            this.cor = cor;
         }
 
         @Override
@@ -281,7 +273,11 @@ public class DashboardCards extends JPanel {
                     RenderingHints.VALUE_ANTIALIAS_ON
             );
 
-            g2.setColor(cor);
+            g2.setColor(
+                    ThemeManager.isModoEscuro()
+                            ? ThemeManager.getBorda()
+                            : BORDA
+            );
 
             g2.drawRoundRect(
                     x,

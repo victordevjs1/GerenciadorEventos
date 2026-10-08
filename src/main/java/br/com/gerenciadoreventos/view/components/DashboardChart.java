@@ -1,6 +1,7 @@
 package br.com.gerenciadoreventos.view.components;
 
 import br.com.gerenciadoreventos.service.DashboardService;
+import br.com.gerenciadoreventos.theme.ThemeManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,7 +14,7 @@ public class DashboardChart extends JPanel {
     public DashboardChart() {
 
         setLayout(new BorderLayout());
-        setBackground(Color.WHITE);
+        setBackground(ThemeManager.getPainel());
         setBorder(BorderFactory.createCompoundBorder(
                 new RoundedBorder(12),
                 BorderFactory.createEmptyBorder(20, 20, 20, 20)
@@ -22,7 +23,7 @@ public class DashboardChart extends JPanel {
         JLabel titulo = new JLabel("Eventos por mês");
 
         titulo.setFont(new Font("Arial", Font.BOLD, 16));
-        titulo.setForeground(new Color(40, 40, 40));
+        titulo.setForeground(ThemeManager.getTexto());
 
         add(titulo, BorderLayout.NORTH);
 
@@ -54,7 +55,7 @@ public class DashboardChart extends JPanel {
 
             this.eventosPorMes = eventosPorMes;
 
-            setBackground(Color.WHITE);
+            setBackground(ThemeManager.getPainel());
 
             setPreferredSize(new Dimension(700, 250));
         }
@@ -111,7 +112,9 @@ public class DashboardChart extends JPanel {
             // LINHAS HORIZONTAIS
             // =================================================
 
-            g2.setColor(new Color(230, 230, 230));
+            g2.setColor(ThemeManager.isModoEscuro()
+                    ? new Color(51, 65, 85)
+                    : new Color(230, 230, 230));
             g2.setStroke(new BasicStroke(1));
 
             int quantidadeLinhas = 5;
@@ -135,7 +138,9 @@ public class DashboardChart extends JPanel {
             // EIXO INFERIOR
             // =================================================
 
-            g2.setColor(new Color(180, 180, 180));
+            g2.setColor(ThemeManager.isModoEscuro()
+                    ? new Color(100, 116, 139)
+                    : new Color(180, 180, 180));
 
             int baseY =
                     margemSuperior + alturaGrafico;
@@ -197,7 +202,7 @@ public class DashboardChart extends JPanel {
 
                 if (quantidade > 0) {
 
-                    g2.setColor(new Color(70, 70, 70));
+                    g2.setColor(ThemeManager.getTexto());
 
                     g2.setFont(
                             new Font(
@@ -232,7 +237,7 @@ public class DashboardChart extends JPanel {
                 // NOME DO MÊS
                 // =================================================
 
-                g2.setColor(new Color(100, 100, 100));
+                g2.setColor(ThemeManager.getTextoSecundario());
 
                 g2.setFont(
                         new Font(
@@ -309,7 +314,11 @@ public class DashboardChart extends JPanel {
                     RenderingHints.VALUE_ANTIALIAS_ON
             );
 
-            g2.setColor(new Color(225, 225, 225));
+            g2.setColor(
+                    ThemeManager.isModoEscuro()
+                            ? ThemeManager.getBorda()
+                            : new Color(225, 225, 225)
+            );
 
             g2.drawRoundRect(
                     x,

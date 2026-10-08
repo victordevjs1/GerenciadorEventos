@@ -1,5 +1,7 @@
 package br.com.gerenciadoreventos.view.components;
 
+import br.com.gerenciadoreventos.theme.ThemeManager;
+
 import br.com.gerenciadoreventos.model.Evento;
 import br.com.gerenciadoreventos.service.DashboardService;
 
@@ -38,13 +40,10 @@ public class RecentEventsTable extends JPanel {
                 new BorderLayout()
         );
 
-        setBackground(BRANCO);
+        setBackground(ThemeManager.getPainel());
 
         setBorder(
-                new RoundedBorder(
-                        14,
-                        BORDA
-                )
+                new RoundedBorder(14)
         );
 
         add(
@@ -176,7 +175,7 @@ public class RecentEventsTable extends JPanel {
 
         tabela.setForeground(TEXTO);
 
-        tabela.setBackground(BRANCO);
+        tabela.setBackground(ThemeManager.getPainel());
 
         tabela.setGridColor(BORDA);
 
@@ -257,16 +256,8 @@ public class RecentEventsTable extends JPanel {
 
         private final int raio;
 
-        private final Color cor;
-
-
-        RoundedBorder(
-                int raio,
-                Color cor
-        ) {
-
+        RoundedBorder(int raio) {
             this.raio = raio;
-            this.cor = cor;
         }
 
 
@@ -290,7 +281,11 @@ public class RecentEventsTable extends JPanel {
             );
 
 
-            g2.setColor(cor);
+            g2.setColor(
+                    ThemeManager.isModoEscuro()
+                            ? ThemeManager.getBorda()
+                            : BORDA
+            );
 
 
             g2.drawRoundRect(

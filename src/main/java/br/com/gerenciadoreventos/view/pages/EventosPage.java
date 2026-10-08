@@ -1,13 +1,20 @@
 package br.com.gerenciadoreventos.view.pages;
 
+import br.com.gerenciadoreventos.dao.EventoDetalhesDAO;
+import br.com.gerenciadoreventos.model.AgenteExterno;
+import br.com.gerenciadoreventos.model.Aluno;
+import br.com.gerenciadoreventos.model.Comissao;
 import br.com.gerenciadoreventos.model.Evento;
 import br.com.gerenciadoreventos.model.EventoPublico;
+import br.com.gerenciadoreventos.model.Professor;
 import br.com.gerenciadoreventos.model.Usuario;
 import br.com.gerenciadoreventos.service.EventoService;
+import br.com.gerenciadoreventos.theme.ThemeManager;
 
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.text.MaskFormatter;
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -49,6 +56,7 @@ public class EventosPage extends JPanel {
 
     private final Usuario usuarioLogado;
     private final EventoService eventoService;
+    private final EventoDetalhesDAO detalhesDAO = new EventoDetalhesDAO();
 
     private JPanel painelEventos;
 
@@ -108,7 +116,7 @@ public class EventosPage extends JPanel {
                         new BorderLayout()
                 );
 
-        painel.setBackground(FUNDO);
+        painel.setBackground(ThemeManager.getFundo());
 
         painel.setBorder(
                 BorderFactory.createEmptyBorder(
@@ -148,7 +156,7 @@ public class EventosPage extends JPanel {
                 )
         );
 
-        cabecalho.setBackground(FUNDO);
+        cabecalho.setBackground(ThemeManager.getFundo());
 
         cabecalho.add(
                 criarLinhaSuperior()
@@ -176,7 +184,7 @@ public class EventosPage extends JPanel {
                         new BorderLayout()
                 );
 
-        linha.setBackground(FUNDO);
+        linha.setBackground(ThemeManager.getFundo());
 
         JPanel textos =
                 new JPanel();
@@ -188,7 +196,7 @@ public class EventosPage extends JPanel {
                 )
         );
 
-        textos.setBackground(FUNDO);
+        textos.setBackground(ThemeManager.getFundo());
 
         textos.add(
                 criarLabel(
@@ -250,7 +258,7 @@ public class EventosPage extends JPanel {
                         )
                 );
 
-        painel.setBackground(FUNDO);
+        painel.setBackground(ThemeManager.getFundo());
 
         campoBusca =
                 new JTextField();
@@ -386,7 +394,7 @@ public class EventosPage extends JPanel {
                 )
         );
 
-        painelEventos.setBackground(FUNDO);
+        painelEventos.setBackground(ThemeManager.getFundo());
 
         painelEventos.setBorder(
                 new EmptyBorder(
@@ -511,6 +519,7 @@ public class EventosPage extends JPanel {
 
         painelEventos.revalidate();
         painelEventos.repaint();
+        SwingUtilities.invokeLater(() -> ThemeManager.aplicarTema(EventosPage.this));
     }
 
     // =====================================================
@@ -654,7 +663,7 @@ public class EventosPage extends JPanel {
                         )
                 );
 
-        card.setBackground(Color.WHITE);
+        card.setBackground(ThemeManager.getPainel());
 
         card.setMaximumSize(
                 new Dimension(
@@ -691,9 +700,7 @@ public class EventosPage extends JPanel {
                 )
         );
 
-        informacoes.setBackground(
-                Color.WHITE
-        );
+        informacoes.setBackground(ThemeManager.getPainel());
 
         informacoes.add(
                 criarLabel(
@@ -763,9 +770,7 @@ public class EventosPage extends JPanel {
                         new GridBagLayout()
                 );
 
-        botao.setBackground(
-                Color.WHITE
-        );
+        botao.setBackground(ThemeManager.getPainel());
 
         botao.add(ver);
 
@@ -899,9 +904,7 @@ public class EventosPage extends JPanel {
                         new GridBagLayout()
                 );
 
-        painel.setBackground(
-                Color.WHITE
-        );
+        painel.setBackground(ThemeManager.getPainel());
 
         painel.setBorder(
                 BorderFactory.createLineBorder(
@@ -1007,9 +1010,7 @@ public class EventosPage extends JPanel {
                         new BorderLayout()
                 );
 
-        principal.setBackground(
-                FUNDO
-        );
+        principal.setBackground(ThemeManager.getFundo());
 
         principal.setBorder(
                 new EmptyBorder(
@@ -1048,6 +1049,7 @@ public class EventosPage extends JPanel {
                 principal
         );
 
+        ThemeManager.aplicarTema(dialog);
         dialog.setVisible(true);
     }
 
@@ -1066,7 +1068,7 @@ public class EventosPage extends JPanel {
                 )
         );
 
-        painel.setBackground(FUNDO);
+        painel.setBackground(ThemeManager.getFundo());
 
         painel.add(
                 criarLabel(
@@ -1103,92 +1105,151 @@ public class EventosPage extends JPanel {
             JDialog dialog
     ) {
 
-        JTabbedPane abas =
-                new JTabbedPane();
+        JTabbedPane abas = new JTabbedPane();
 
         abas.addTab(
                 "Dados do evento",
-                criarAbaDados(
-                        evento,
-                        dialog,
-                        novo
-                )
+                criarAbaDados(evento, dialog, novo)
         );
 
         if (!novo) {
-
-            abas.addTab(
-                    "Comissões",
-                    criarAbaInformacao(
-                            "Comissões do evento",
-                            "Aqui ficarão as comissões deste evento.",
-                            "+ Nova comissão",
-                            e -> mensagem(
-                                    "Nova comissão",
-                                    "Aqui será criada uma comissão para o evento."
-                            )
-                    )
-            );
-
-            abas.addTab(
-                    "Professores",
-                    criarAbaInformacao(
-                            "Professores participantes",
-                            "Professores vinculados ao evento aparecerão aqui.",
-                            "+ Adicionar professor",
-                            e -> mensagem(
-                                    "Adicionar professor",
-                                    "Aqui será aberta a seleção dos professores."
-                            )
-                    )
-            );
-
-            abas.addTab(
-                    "Alunos",
-                    criarAbaInformacao(
-                            "Alunos inscritos",
-                            "Os alunos inscritos neste evento aparecerão aqui.",
-                            null,
-                            null
-                    )
-            );
-
-            abas.addTab(
-                    "Agentes externos",
-                    criarAbaInformacao(
-                            "Agentes externos",
-                            "Palestrantes, convidados e especialistas vinculados ao evento.",
-                            "+ Adicionar agente externo",
-                            e -> mensagem(
-                                    "Agente externo",
-                                    "Aqui será aberta a seleção do agente externo."
-                            )
-                    )
-            );
-
-            abas.addTab(
-                    "Atividades",
-                    criarAbaInformacao(
-                            "Atividades",
-                            "As atividades do evento aparecerão aqui.",
-                            null,
-                            null
-                    )
-            );
-
-            abas.addTab(
-                    "Responsabilidades",
-                    criarAbaInformacao(
-                            "Responsabilidades",
-                            "As responsabilidades específicas deste evento aparecerão aqui.",
-                            null,
-                            null
-                    )
-            );
+            abas.addTab("Comissões", criarAbaComissoes(evento));
+            abas.addTab("Professores", criarAbaProfessores(evento));
+            abas.addTab("Alunos", criarAbaAlunos(evento));
+            abas.addTab("Agentes externos", criarAbaAgentes(evento));
+            abas.addTab("Atividades", criarAbaAtividades(evento));
+            abas.addTab("Responsabilidades", criarAbaResponsabilidades(evento));
         }
 
+        ThemeManager.aplicarTema(abas);
         return abas;
     }
+
+
+
+    private String valor(String texto) { return texto == null ? "" : texto; }
+
+    // =====================================================
+    // ABAS FUNCIONAIS DO EVENTO
+    // =====================================================
+
+    private JPanel criarAbaComissoes(Evento evento) {
+        String[] colunas = {"Nome", "Descrição", "Status"};
+        JTable tabela = criarTabelaDetalhes(colunas);
+        JPanel painel = criarPainelGerenciamento("Comissões do evento", tabela);
+        JButton novo = criarBotaoPrincipal("+ Nova comissão");
+        JButton editar = criarBotaoSecundario("Editar");
+        JButton excluir = criarBotaoSecundario("Excluir");
+        JPanel barra = barraAcoes(novo, editar, excluir);
+        painel.add(barra, BorderLayout.SOUTH);
+
+        final java.util.List<Comissao>[] dados = new java.util.List[]{java.util.List.of()};
+        Runnable recarregar = () -> {
+            dados[0] = detalhesDAO.listarComissoes(evento.getId());
+            DefaultTableModel m = (DefaultTableModel) tabela.getModel();
+            m.setRowCount(0);
+            for (Comissao c : dados[0]) m.addRow(new Object[]{c.getNome(), valor(c.getDescricao()), c.isAtivo() ? "ATIVA" : "INATIVA"});
+            ThemeManager.aplicarTema(painel);
+        };
+        novo.addActionListener(e -> { if (editarComissao(evento, null)) recarregar.run(); });
+        editar.addActionListener(e -> {
+            int i=tabela.getSelectedRow(); if(i<0){mensagem("Comissões","Selecione uma comissão para editar.");return;}
+            if(editarComissao(evento,dados[0].get(i))) recarregar.run();
+        });
+        excluir.addActionListener(e -> {
+            int i=tabela.getSelectedRow(); if(i<0){mensagem("Comissões","Selecione uma comissão para excluir.");return;}
+            if(confirmar("Excluir comissão", "Excluir a comissão selecionada?")){detalhesDAO.excluirComissao(evento.getId(),dados[0].get(i).getIdComissao());recarregar.run();}
+        });
+        recarregar.run(); return painel;
+    }
+
+    private boolean editarComissao(Evento evento, Comissao atual) {
+        JTextField nome = campoDialogo(); JTextArea desc = areaDialogo(); JCheckBox ativa = new JCheckBox("Comissão ativa", atual==null || atual.isAtivo());
+        if(atual!=null){nome.setText(valor(atual.getNome()));desc.setText(valor(atual.getDescricao()));}
+        JPanel p=formularioVertical(); adicionarLinhaFormulario(p,"Nome *",nome); adicionarLinhaFormulario(p,"Descrição",new JScrollPane(desc)); p.add(ativa);
+        ThemeManager.aplicarTema(p);
+        if(JOptionPane.showConfirmDialog(this,p,atual==null?"Nova comissão":"Editar comissão",JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE)!=JOptionPane.OK_OPTION)return false;
+        if(nome.getText().trim().isEmpty()){mensagem("Comissão","Informe o nome da comissão.");return false;}
+        Comissao c=atual==null?new Comissao():atual;c.setIdEvento(evento.getId());c.setNome(nome.getText().trim());c.setDescricao(desc.getText().trim());c.setAtivo(ativa.isSelected());detalhesDAO.salvarComissao(c);return true;
+    }
+
+    private JPanel criarAbaProfessores(Evento evento) {
+        JTable tabela=criarTabelaDetalhes(new String[]{"Professor","Área de atuação","E-mail"}); JPanel painel=criarPainelGerenciamento("Professores participantes",tabela);
+        JButton add=criarBotaoPrincipal("+ Adicionar professor"), remover=criarBotaoSecundario("Remover"); painel.add(barraAcoes(add,remover),BorderLayout.SOUTH);
+        final java.util.List<Professor>[] dados=new java.util.List[]{java.util.List.of()};
+        Runnable recarregar=()->{dados[0]=detalhesDAO.listarProfessoresVinculados(evento.getId());DefaultTableModel m=(DefaultTableModel)tabela.getModel();m.setRowCount(0);for(Professor p:dados[0])m.addRow(new Object[]{p.getNome(),valor(p.getAreaAtuacao()),valor(p.getEmail())});ThemeManager.aplicarTema(painel);};
+        add.addActionListener(e->{java.util.List<Professor> op=detalhesDAO.listarProfessoresDisponiveis(evento.getId());Professor p=escolherProfessor(op);if(p!=null){int r=JOptionPane.showConfirmDialog(this,"Definir "+p.getNome()+" como professor principal?","Professor",JOptionPane.YES_NO_CANCEL_OPTION);if(r!=JOptionPane.CANCEL_OPTION&&r!=JOptionPane.CLOSED_OPTION){detalhesDAO.vincularProfessor(evento.getId(),p.getId(),r==JOptionPane.YES_OPTION);recarregar.run();}}});
+        remover.addActionListener(e->{int i=tabela.getSelectedRow();if(i<0){mensagem("Professores","Selecione um professor.");return;}if(confirmar("Remover professor","Remover este professor do evento?")){detalhesDAO.removerProfessor(evento.getId(),dados[0].get(i).getId());recarregar.run();}});
+        recarregar.run();return painel;
+    }
+
+    private JPanel criarAbaAlunos(Evento evento) {
+        JTable tabela=criarTabelaDetalhes(new String[]{"RM","Aluno","Curso","Série"}); JPanel painel=criarPainelGerenciamento("Alunos inscritos",tabela);
+        JButton add=criarBotaoPrincipal("+ Adicionar aluno"), cancelar=criarBotaoSecundario("Cancelar inscrição"); painel.add(barraAcoes(add,cancelar),BorderLayout.SOUTH);
+        final java.util.List<Aluno>[] dados=new java.util.List[]{java.util.List.of()};
+        Runnable recarregar=()->{dados[0]=detalhesDAO.listarAlunosInscritos(evento.getId());DefaultTableModel m=(DefaultTableModel)tabela.getModel();m.setRowCount(0);for(Aluno a:dados[0])m.addRow(new Object[]{a.getRm(),a.getNome(),valor(a.getCurso()),a.getSerie()==null?"":a.getSerie()+"º Ano"});ThemeManager.aplicarTema(painel);};
+        add.addActionListener(e->{Aluno a=escolherAluno(detalhesDAO.listarAlunosDisponiveis(evento.getId()));if(a!=null){detalhesDAO.inscreverAluno(evento.getId(),a.getId());recarregar.run();}});
+        cancelar.addActionListener(e->{int i=tabela.getSelectedRow();if(i<0){mensagem("Alunos","Selecione um aluno.");return;}if(confirmar("Cancelar inscrição","Cancelar a inscrição de "+dados[0].get(i).getNome()+"?")){detalhesDAO.cancelarInscricao(evento.getId(),dados[0].get(i).getId());recarregar.run();}});
+        recarregar.run();return painel;
+    }
+
+    private JPanel criarAbaAgentes(Evento evento) {
+        JTable tabela=criarTabelaDetalhes(new String[]{"Agente","Participação","Tema","Empresa"}); JPanel painel=criarPainelGerenciamento("Agentes externos vinculados",tabela);
+        JButton add=criarBotaoPrincipal("+ Adicionar agente"), editar=criarBotaoSecundario("Editar vínculo"), remover=criarBotaoSecundario("Remover"); painel.add(barraAcoes(add,editar,remover),BorderLayout.SOUTH);
+        final java.util.List<EventoDetalhesDAO.AgenteVinculo>[] dados=new java.util.List[]{java.util.List.of()};
+        Runnable recarregar=()->{dados[0]=detalhesDAO.listarAgentesVinculados(evento.getId());DefaultTableModel m=(DefaultTableModel)tabela.getModel();m.setRowCount(0);for(EventoDetalhesDAO.AgenteVinculo v:dados[0])m.addRow(new Object[]{v.agente.getNome(),v.tipoParticipacao,valor(v.tema),valor(v.agente.getEmpresa())});ThemeManager.aplicarTema(painel);};
+        add.addActionListener(e->{AgenteExterno a=escolherAgente(detalhesDAO.listarAgentesDisponiveis(evento.getId()));if(a!=null&&editarVinculoAgente(evento,a,null))recarregar.run();});
+        editar.addActionListener(e->{int i=tabela.getSelectedRow();if(i<0){mensagem("Agentes externos","Selecione um agente.");return;}EventoDetalhesDAO.AgenteVinculo v=dados[0].get(i);if(editarVinculoAgente(evento,v.agente,v))recarregar.run();});
+        remover.addActionListener(e->{int i=tabela.getSelectedRow();if(i<0){mensagem("Agentes externos","Selecione um agente.");return;}if(confirmar("Remover agente","Remover o agente externo deste evento?")){detalhesDAO.removerAgente(evento.getId(),dados[0].get(i).agente.getId());recarregar.run();}});
+        recarregar.run();return painel;
+    }
+
+    private boolean editarVinculoAgente(Evento evento,AgenteExterno a,EventoDetalhesDAO.AgenteVinculo atual){
+        JComboBox<String> tipo=new JComboBox<>(new String[]{"PALESTRANTE","CONVIDADO","ESPECIALISTA","AVALIADOR","OUTRO"});JTextField tema=campoDialogo();JTextArea obs=areaDialogo();if(atual!=null){tipo.setSelectedItem(atual.tipoParticipacao);tema.setText(valor(atual.tema));obs.setText(valor(atual.observacao));}
+        JPanel p=formularioVertical();adicionarLinhaFormulario(p,"Agente",new JLabel(a.getNome()));adicionarLinhaFormulario(p,"Tipo de participação",tipo);adicionarLinhaFormulario(p,"Tema",tema);adicionarLinhaFormulario(p,"Observação",new JScrollPane(obs));ThemeManager.aplicarTema(p);
+        if(JOptionPane.showConfirmDialog(this,p,"Vínculo do agente externo",JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE)!=JOptionPane.OK_OPTION)return false;
+        detalhesDAO.vincularAgente(evento.getId(),a.getId(),String.valueOf(tipo.getSelectedItem()),tema.getText().trim(),obs.getText().trim());return true;
+    }
+
+    private JPanel criarAbaAtividades(Evento evento){
+        JTable tabela=criarTabelaDetalhes(new String[]{"Atividade","Início","Local","Status"});JPanel painel=criarPainelGerenciamento("Atividades do evento",tabela);JButton novo=criarBotaoPrincipal("+ Nova atividade"),editar=criarBotaoSecundario("Editar"),excluir=criarBotaoSecundario("Excluir");painel.add(barraAcoes(novo,editar,excluir),BorderLayout.SOUTH);
+        final java.util.List<EventoDetalhesDAO.AtividadeItem>[] dados=new java.util.List[]{java.util.List.of()};Runnable recarregar=()->{dados[0]=detalhesDAO.listarAtividades(evento.getId());DefaultTableModel m=(DefaultTableModel)tabela.getModel();m.setRowCount(0);for(EventoDetalhesDAO.AtividadeItem a:dados[0])m.addRow(new Object[]{a.nome,a.inicio==null?"":a.inicio.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),valor(a.local),a.status});ThemeManager.aplicarTema(painel);};
+        novo.addActionListener(e->{if(editarAtividade(evento,null))recarregar.run();});editar.addActionListener(e->{int i=tabela.getSelectedRow();if(i<0){mensagem("Atividades","Selecione uma atividade.");return;}if(editarAtividade(evento,dados[0].get(i)))recarregar.run();});excluir.addActionListener(e->{int i=tabela.getSelectedRow();if(i<0){mensagem("Atividades","Selecione uma atividade.");return;}if(confirmar("Excluir atividade","Excluir a atividade selecionada?")){detalhesDAO.excluirAtividade(evento.getId(),dados[0].get(i).id);recarregar.run();}});recarregar.run();return painel;
+    }
+
+    private boolean editarAtividade(Evento evento,EventoDetalhesDAO.AtividadeItem atual){
+        JTextField nome=campoDialogo(),data=campoDialogo(),inicio=campoDialogo(),fim=campoDialogo(),local=campoDialogo(),cap=campoDialogo();JTextArea desc=areaDialogo();JComboBox<String> status=new JComboBox<>(new String[]{"PLANEJADA","ABERTA","EM_ANDAMENTO","CONCLUIDA","CANCELADA"});
+        LocalDateTime base=atual!=null&&atual.inicio!=null?atual.inicio:evento.getDataInicio();if(base==null)base=LocalDateTime.now();data.setText(base.toLocalDate().format(DATA));inicio.setText(base.toLocalTime().format(HORA));if(atual!=null){nome.setText(valor(atual.nome));desc.setText(valor(atual.descricao));local.setText(valor(atual.local));if(atual.capacidade!=null)cap.setText(String.valueOf(atual.capacidade));status.setSelectedItem(atual.status);if(atual.fim!=null)fim.setText(atual.fim.toLocalTime().format(HORA));}
+        JPanel p=formularioVertical();adicionarLinhaFormulario(p,"Nome *",nome);adicionarLinhaFormulario(p,"Descrição",new JScrollPane(desc));adicionarLinhaFormulario(p,"Data (dd/MM/yyyy)",data);adicionarLinhaFormulario(p,"Horário de início (HH:mm)",inicio);adicionarLinhaFormulario(p,"Horário de término (HH:mm)",fim);adicionarLinhaFormulario(p,"Local",local);adicionarLinhaFormulario(p,"Capacidade",cap);adicionarLinhaFormulario(p,"Status",status);ThemeManager.aplicarTema(p);
+        if(JOptionPane.showConfirmDialog(this,p,atual==null?"Nova atividade":"Editar atividade",JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE)!=JOptionPane.OK_OPTION)return false;
+        try{EventoDetalhesDAO.AtividadeItem a=atual==null?new EventoDetalhesDAO.AtividadeItem():atual;a.nome=nome.getText().trim();if(a.nome.isEmpty())throw new IllegalArgumentException("Informe o nome da atividade.");a.descricao=desc.getText().trim();LocalDate d=LocalDate.parse(data.getText().trim(),DATA);LocalTime hi=LocalTime.parse(inicio.getText().trim(),HORA);a.inicio=LocalDateTime.of(d,hi);a.fim=fim.getText().trim().isEmpty()?null:LocalDateTime.of(d,LocalTime.parse(fim.getText().trim(),HORA));a.local=local.getText().trim();a.capacidade=cap.getText().trim().isEmpty()?null:Integer.parseInt(cap.getText().trim());a.status=String.valueOf(status.getSelectedItem());detalhesDAO.salvarAtividade(evento.getId(),a);return true;}catch(Exception ex){mensagem("Atividade",ex.getMessage()==null?"Dados inválidos.":ex.getMessage());return false;}
+    }
+
+    private JPanel criarAbaResponsabilidades(Evento evento){
+        JTable tabela=criarTabelaDetalhes(new String[]{"Responsabilidade","Comissão","Status","Observação"});JPanel painel=criarPainelGerenciamento("Responsabilidades do evento",tabela);JButton novo=criarBotaoPrincipal("+ Nova responsabilidade"),editar=criarBotaoSecundario("Editar"),excluir=criarBotaoSecundario("Excluir");painel.add(barraAcoes(novo,editar,excluir),BorderLayout.SOUTH);
+        final java.util.List<EventoDetalhesDAO.ResponsabilidadeItem>[] dados=new java.util.List[]{java.util.List.of()};Runnable recarregar=()->{dados[0]=detalhesDAO.listarResponsabilidades(evento.getId());DefaultTableModel m=(DefaultTableModel)tabela.getModel();m.setRowCount(0);for(EventoDetalhesDAO.ResponsabilidadeItem r:dados[0])m.addRow(new Object[]{r.nome,valor(r.comissao),r.status,valor(r.observacao)});ThemeManager.aplicarTema(painel);};
+        novo.addActionListener(e->{if(editarResponsabilidade(evento,null))recarregar.run();});editar.addActionListener(e->{int i=tabela.getSelectedRow();if(i<0){mensagem("Responsabilidades","Selecione uma responsabilidade.");return;}if(editarResponsabilidade(evento,dados[0].get(i)))recarregar.run();});excluir.addActionListener(e->{int i=tabela.getSelectedRow();if(i<0){mensagem("Responsabilidades","Selecione uma responsabilidade.");return;}if(confirmar("Excluir responsabilidade","Excluir a responsabilidade selecionada?")){detalhesDAO.excluirResponsabilidade(evento.getId(),dados[0].get(i).id);recarregar.run();}});recarregar.run();return painel;
+    }
+
+    private boolean editarResponsabilidade(Evento evento,EventoDetalhesDAO.ResponsabilidadeItem atual){
+        JTextField nome=campoDialogo();JTextArea desc=areaDialogo(),obs=areaDialogo();JComboBox<String> status=new JComboBox<>(new String[]{"PENDENTE","EM_ANDAMENTO","CONCLUIDA","CANCELADA"});java.util.List<Comissao> comissoes=detalhesDAO.listarComissoes(evento.getId());JComboBox<Object> comissao=new JComboBox<>();comissao.addItem("Sem comissão");for(Comissao c:comissoes)comissao.addItem(c);comissao.setRenderer(new DefaultListCellRenderer(){@Override public Component getListCellRendererComponent(JList<?> l,Object v,int i,boolean s,boolean f){JLabel x=(JLabel)super.getListCellRendererComponent(l,v,i,s,f);if(v instanceof Comissao c)x.setText(c.getNome());return x;}});
+        if(atual!=null){nome.setText(valor(atual.nome));desc.setText(valor(atual.descricao));obs.setText(valor(atual.observacao));status.setSelectedItem(atual.status);if(atual.idComissao!=null)for(int i=1;i<comissao.getItemCount();i++){Comissao c=(Comissao)comissao.getItemAt(i);if(c.getIdComissao().equals(atual.idComissao)){comissao.setSelectedIndex(i);break;}}}
+        JPanel p=formularioVertical();adicionarLinhaFormulario(p,"Nome *",nome);adicionarLinhaFormulario(p,"Descrição",new JScrollPane(desc));adicionarLinhaFormulario(p,"Status",status);adicionarLinhaFormulario(p,"Comissão responsável",comissao);adicionarLinhaFormulario(p,"Observação",new JScrollPane(obs));ThemeManager.aplicarTema(p);
+        if(JOptionPane.showConfirmDialog(this,p,atual==null?"Nova responsabilidade":"Editar responsabilidade",JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE)!=JOptionPane.OK_OPTION)return false;if(nome.getText().trim().isEmpty()){mensagem("Responsabilidade","Informe o nome.");return false;}EventoDetalhesDAO.ResponsabilidadeItem r=atual==null?new EventoDetalhesDAO.ResponsabilidadeItem():atual;r.nome=nome.getText().trim();r.descricao=desc.getText().trim();r.status=String.valueOf(status.getSelectedItem());r.observacao=obs.getText().trim();Object sel=comissao.getSelectedItem();r.idComissao=sel instanceof Comissao c?c.getIdComissao():null;detalhesDAO.salvarResponsabilidade(evento.getId(),r);return true;
+    }
+
+    private JTable criarTabelaDetalhes(String[] colunas){DefaultTableModel m=new DefaultTableModel(colunas,0){@Override public boolean isCellEditable(int r,int c){return false;}};JTable t=new JTable(m);t.setRowHeight(30);t.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);return t;}
+    private JPanel criarPainelGerenciamento(String titulo,JTable tabela){JPanel p=new JPanel(new BorderLayout(10,12));p.setBackground(ThemeManager.getFundo());p.setBorder(new EmptyBorder(15,8,10,8));JLabel l=criarLabel(titulo,18,Font.BOLD,TEXTO);p.add(l,BorderLayout.NORTH);JScrollPane sp=new JScrollPane(tabela);sp.setBorder(BorderFactory.createLineBorder(ThemeManager.getBorda()));p.add(sp,BorderLayout.CENTER);return p;}
+    private JPanel barraAcoes(JButton...b){JPanel p=new JPanel(new FlowLayout(FlowLayout.RIGHT,10,6));p.setBackground(ThemeManager.getFundo());for(JButton x:b)p.add(x);return p;}
+    private JPanel formularioVertical(){JPanel p=new JPanel();p.setLayout(new BoxLayout(p,BoxLayout.Y_AXIS));p.setBorder(new EmptyBorder(10,10,10,10));p.setBackground(ThemeManager.getPainel());return p;}
+    private void adicionarLinhaFormulario(JPanel p,String rotulo,JComponent c){JLabel l=new JLabel(rotulo);l.setFont(new Font("Segoe UI",Font.BOLD,12));l.setForeground(ThemeManager.getTexto());l.setAlignmentX(Component.LEFT_ALIGNMENT);c.setAlignmentX(Component.LEFT_ALIGNMENT);c.setMaximumSize(new Dimension(Integer.MAX_VALUE,c instanceof JScrollPane?90:38));p.add(l);p.add(Box.createVerticalStrut(4));p.add(c);p.add(Box.createVerticalStrut(10));}
+    private JTextField campoDialogo(){JTextField f=new JTextField();f.setPreferredSize(new Dimension(420,36));return f;}
+    private JTextArea areaDialogo(){JTextArea a=new JTextArea(3,30);a.setLineWrap(true);a.setWrapStyleWord(true);return a;}
+    private boolean confirmar(String titulo,String texto){return JOptionPane.showConfirmDialog(this,texto,titulo,JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE)==JOptionPane.YES_OPTION;}
+    private Professor escolherProfessor(java.util.List<Professor> lista){if(lista.isEmpty()){mensagem("Professores","Não há professores disponíveis para vincular.");return null;}JComboBox<Professor> c=new JComboBox<>(lista.toArray(new Professor[0]));c.setRenderer(rendererNome());ThemeManager.aplicarTema(c);return JOptionPane.showConfirmDialog(this,c,"Selecionar professor",JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE)==JOptionPane.OK_OPTION?(Professor)c.getSelectedItem():null;}
+    private Aluno escolherAluno(java.util.List<Aluno> lista){if(lista.isEmpty()){mensagem("Alunos","Não há alunos disponíveis para inscrever.");return null;}JComboBox<Aluno> c=new JComboBox<>(lista.toArray(new Aluno[0]));c.setRenderer(new DefaultListCellRenderer(){@Override public Component getListCellRendererComponent(JList<?> l,Object v,int i,boolean s,boolean f){JLabel x=(JLabel)super.getListCellRendererComponent(l,v,i,s,f);if(v instanceof Aluno a)x.setText(a.getRm()+" — "+a.getNome()+" — "+valor(a.getCurso()));return x;}});ThemeManager.aplicarTema(c);return JOptionPane.showConfirmDialog(this,c,"Selecionar aluno",JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE)==JOptionPane.OK_OPTION?(Aluno)c.getSelectedItem():null;}
+    private AgenteExterno escolherAgente(java.util.List<AgenteExterno> lista){if(lista.isEmpty()){mensagem("Agentes externos","Não há agentes disponíveis para vincular.");return null;}JComboBox<AgenteExterno> c=new JComboBox<>(lista.toArray(new AgenteExterno[0]));c.setRenderer(new DefaultListCellRenderer(){@Override public Component getListCellRendererComponent(JList<?> l,Object v,int i,boolean s,boolean f){JLabel x=(JLabel)super.getListCellRendererComponent(l,v,i,s,f);if(v instanceof AgenteExterno a)x.setText(a.getNome()+(a.getEmpresa()==null||a.getEmpresa().isBlank()?"":" — "+a.getEmpresa()));return x;}});ThemeManager.aplicarTema(c);return JOptionPane.showConfirmDialog(this,c,"Selecionar agente externo",JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE)==JOptionPane.OK_OPTION?(AgenteExterno)c.getSelectedItem():null;}
+    private DefaultListCellRenderer rendererNome(){return new DefaultListCellRenderer(){@Override public Component getListCellRendererComponent(JList<?> l,Object v,int i,boolean s,boolean f){JLabel x=(JLabel)super.getListCellRendererComponent(l,v,i,s,f);if(v instanceof Professor p)x.setText(p.getNome()+" — "+valor(p.getAreaAtuacao()));return x;}};}
 
     private JPanel criarBotoesEditor(
             JDialog dialog
@@ -1203,7 +1264,7 @@ public class EventosPage extends JPanel {
                         )
                 );
 
-        painel.setBackground(FUNDO);
+        painel.setBackground(ThemeManager.getFundo());
 
         JButton fechar =
                 criarBotaoSecundario(
@@ -1246,16 +1307,14 @@ public class EventosPage extends JPanel {
                         new BorderLayout()
                 );
 
-        principal.setBackground(FUNDO);
+        principal.setBackground(ThemeManager.getFundo());
 
         JPanel formulario =
                 new JPanel(
                         new GridBagLayout()
                 );
 
-        formulario.setBackground(
-                Color.WHITE
-        );
+        formulario.setBackground(ThemeManager.getPainel());
 
         formulario.setBorder(
                 new EmptyBorder(
@@ -1623,9 +1682,7 @@ public class EventosPage extends JPanel {
                         )
                 );
 
-        painel.setBackground(
-                Color.WHITE
-        );
+        painel.setBackground(ThemeManager.getPainel());
 
         painel.setBorder(
                 BorderFactory.createCompoundBorder(
@@ -1664,13 +1721,9 @@ public class EventosPage extends JPanel {
                         "Selecionar cursos e/ou séries"
                 );
 
-        todas.setBackground(
-                Color.WHITE
-        );
+        todas.setBackground(ThemeManager.getPainel());
 
-        especificas.setBackground(
-                Color.WHITE
-        );
+        especificas.setBackground(ThemeManager.getPainel());
 
         ButtonGroup grupo =
                 new ButtonGroup();
@@ -1715,9 +1768,7 @@ public class EventosPage extends JPanel {
                 )
         );
 
-        lista.setBackground(
-                Color.WHITE
-        );
+        lista.setBackground(ThemeManager.getPainel());
 
         lista.setCellRenderer(
                 new DefaultListCellRenderer() {
@@ -1818,9 +1869,7 @@ public class EventosPage extends JPanel {
                 )
         );
 
-        opcoes.setBackground(
-                Color.WHITE
-        );
+        opcoes.setBackground(ThemeManager.getPainel());
 
         opcoes.add(todas);
         opcoes.add(especificas);
@@ -2317,9 +2366,7 @@ public class EventosPage extends JPanel {
                         )
                 );
 
-        painel.setBackground(
-                FUNDO
-        );
+        painel.setBackground(ThemeManager.getFundo());
 
         painel.setBorder(
                 new EmptyBorder(
@@ -2365,13 +2412,9 @@ public class EventosPage extends JPanel {
                 )
         );
 
-        area.setForeground(
-                TEXTO
-        );
+        area.setForeground(ThemeManager.getTexto());
 
-        area.setBackground(
-                Color.WHITE
-        );
+        area.setBackground(ThemeManager.getPainel());
 
         area.setBorder(
                 new EmptyBorder(
@@ -2401,9 +2444,7 @@ public class EventosPage extends JPanel {
                             )
                     );
 
-            botoes.setBackground(
-                    FUNDO
-            );
+            botoes.setBackground(ThemeManager.getFundo());
 
             JButton botao =
                     criarBotaoPrincipal(
@@ -2597,9 +2638,7 @@ public class EventosPage extends JPanel {
                 )
         );
 
-        container.setBackground(
-                Color.WHITE
-        );
+        container.setBackground(ThemeManager.getPainel());
 
         container.add(
                 criarLabel(
@@ -2688,13 +2727,9 @@ public class EventosPage extends JPanel {
                 )
         );
 
-        area.setForeground(
-                TEXTO
-        );
+        area.setForeground(ThemeManager.getTexto());
 
-        area.setBackground(
-                Color.WHITE
-        );
+        area.setBackground(ThemeManager.getPainel());
 
         area.setMargin(
                 new Insets(
@@ -2718,13 +2753,9 @@ public class EventosPage extends JPanel {
                 )
         );
 
-        combo.setBackground(
-                Color.WHITE
-        );
+        combo.setBackground(ThemeManager.getPainel());
 
-        combo.setForeground(
-                TEXTO
-        );
+        combo.setForeground(ThemeManager.getTexto());
 
         combo.setBorder(
                 BorderFactory.createLineBorder(
@@ -2834,13 +2865,9 @@ public class EventosPage extends JPanel {
                 )
         );
 
-        botao.setForeground(
-                TEXTO
-        );
+        botao.setForeground(ThemeManager.getTexto());
 
-        botao.setBackground(
-                Color.WHITE
-        );
+        botao.setBackground(ThemeManager.getPainel());
 
         botao.setFocusPainted(
                 false
@@ -2908,11 +2935,9 @@ public class EventosPage extends JPanel {
                 texto,
                 14,
                 Font.PLAIN,
-                new Color(
-                        71,
-                        85,
-                        105
-                )
+                ThemeManager.isModoEscuro()
+                        ? ThemeManager.getTexto()
+                        : new Color(71, 85, 105)
         );
     }
 

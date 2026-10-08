@@ -55,4 +55,58 @@ public class UsuarioDAO {
         return null;
     }
 
+    public boolean emailEmUsoPorOutroUsuario(String email, long idUsuario) {
+
+        String sql = """
+            SELECT 1
+            FROM usuario
+            WHERE email = ?
+              AND id_usuario <> ?
+            LIMIT 1
+            """;
+
+        try (
+                Connection conn = Conexao.conectar();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+            stmt.setString(1, email);
+            stmt.setLong(2, idUsuario);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Erro ao verificar e-mail do usuário.", e);
+        }
+    }
+
+    public void atualizarPerfil(long idUsuario, String nome, String email, String senhaHash) {
+
+        String sql = """
+            UPDATE usuario
+            SET nome = ?, email = ?, senha = ?
+            WHERE id_usuario = ?
+              AND ativo = TRUE
+            """;
+
+        try (
+                Connection conn = Conexao.conectar();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+            stmt.setString(1, nome);
+            stmt.setString(2, email);
+            stmt.setString(3, senhaHash);
+            stmt.setLong(4, idUsuario);
+
+            int alterados = stmt.executeUpdate();
+            if (alterados == 0) {
+                throw new RuntimeException("Usuário não encontrado ou inativo.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Erro ao atualizar perfil do usuário.", e);
+        }
+    }
+
 }

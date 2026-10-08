@@ -8,6 +8,7 @@ import br.com.gerenciadoreventos.model.ResumoGeral;
 import br.com.gerenciadoreventos.service.PresencaImportService;
 import br.com.gerenciadoreventos.service.RelatorioDesempenhoService;
 import br.com.gerenciadoreventos.service.RelatorioFrequenciaService;
+import br.com.gerenciadoreventos.theme.ThemeManager;
 
 
 import javax.swing.*;
@@ -139,7 +140,7 @@ public class ResumoRelatoriosPage extends JPanel {
         setLayout(new BorderLayout());
         setBackground(FUNDO);
 
-        conteudo.setBackground(FUNDO);
+        conteudo.setBackground(ThemeManager.getFundo());
 
         conteudo.add(
                 criarLista(),
@@ -177,7 +178,7 @@ public class ResumoRelatoriosPage extends JPanel {
         JPanel painel =
                 new JPanel(new BorderLayout(0, 24));
 
-        painel.setBackground(FUNDO);
+        painel.setBackground(ThemeManager.getFundo());
 
         painel.setBorder(
                 new EmptyBorder(
@@ -213,7 +214,7 @@ public class ResumoRelatoriosPage extends JPanel {
                 )
         );
 
-        centro.setBackground(FUNDO);
+        centro.setBackground(ThemeManager.getFundo());
 
 
         // -------------------------------------------------
@@ -230,7 +231,7 @@ public class ResumoRelatoriosPage extends JPanel {
                         )
                 );
 
-        cardsResumo.setBackground(FUNDO);
+        cardsResumo.setBackground(ThemeManager.getFundo());
 
         atualizarResumo();
 
@@ -270,7 +271,7 @@ public class ResumoRelatoriosPage extends JPanel {
                         new BorderLayout()
                 );
 
-        painel.setBackground(FUNDO);
+        painel.setBackground(ThemeManager.getFundo());
 
 
         JPanel textos =
@@ -283,7 +284,7 @@ public class ResumoRelatoriosPage extends JPanel {
                 )
         );
 
-        textos.setBackground(FUNDO);
+        textos.setBackground(ThemeManager.getFundo());
 
 
         JLabel titulo =
@@ -299,7 +300,7 @@ public class ResumoRelatoriosPage extends JPanel {
                 )
         );
 
-        titulo.setForeground(TEXTO);
+        titulo.setForeground(ThemeManager.getTexto());
 
 
         JLabel subtitulo =
@@ -315,7 +316,7 @@ public class ResumoRelatoriosPage extends JPanel {
                 )
         );
 
-        subtitulo.setForeground(CINZA);
+        subtitulo.setForeground(ThemeManager.getTextoSecundario());
 
 
         textos.add(titulo);
@@ -428,6 +429,7 @@ public class ResumoRelatoriosPage extends JPanel {
 
         cardsResumo.revalidate();
         cardsResumo.repaint();
+        SwingUtilities.invokeLater(() -> ThemeManager.aplicarTema(ResumoRelatoriosPage.this));
     }
 
 
@@ -448,7 +450,7 @@ public class ResumoRelatoriosPage extends JPanel {
                         new BorderLayout()
                 );
 
-        card.setBackground(CARD);
+        card.setBackground(ThemeManager.getPainel());
 
         card.setBorder(
                 BorderFactory.createCompoundBorder(
@@ -475,7 +477,7 @@ public class ResumoRelatoriosPage extends JPanel {
                 )
         );
 
-        esquerda.setBackground(CARD);
+        esquerda.setBackground(ThemeManager.getPainel());
 
 
         JLabel tituloLabel =
@@ -489,7 +491,7 @@ public class ResumoRelatoriosPage extends JPanel {
                 )
         );
 
-        tituloLabel.setForeground(CINZA);
+        tituloLabel.setForeground(ThemeManager.getTextoSecundario());
 
 
         JLabel numero =
@@ -503,7 +505,7 @@ public class ResumoRelatoriosPage extends JPanel {
                 )
         );
 
-        numero.setForeground(TEXTO);
+        numero.setForeground(ThemeManager.getTexto());
 
 
         JLabel desc =
@@ -517,7 +519,7 @@ public class ResumoRelatoriosPage extends JPanel {
                 )
         );
 
-        desc.setForeground(CINZA);
+        desc.setForeground(ThemeManager.getTextoSecundario());
 
 
         esquerda.add(tituloLabel);
@@ -605,7 +607,7 @@ public class ResumoRelatoriosPage extends JPanel {
                 )
         );
 
-        caixa.setBackground(CARD);
+        caixa.setBackground(ThemeManager.getPainel());
 
         caixa.setBorder(
                 BorderFactory.createCompoundBorder(
@@ -631,13 +633,7 @@ public class ResumoRelatoriosPage extends JPanel {
                         new BorderLayout()
                 );
 
-        cabecalho.setBackground(
-                new Color(
-                        249,
-                        250,
-                        252
-                )
-        );
+        cabecalho.setBackground(ThemeManager.getPainel());
 
         cabecalho.setBorder(
                 new EmptyBorder(
@@ -659,13 +655,7 @@ public class ResumoRelatoriosPage extends JPanel {
                 )
         );
 
-        textos.setBackground(
-                new Color(
-                        249,
-                        250,
-                        252
-                )
-        );
+        textos.setBackground(ThemeManager.getPainel());
 
 
         JLabel titulo =
@@ -681,7 +671,7 @@ public class ResumoRelatoriosPage extends JPanel {
                 )
         );
 
-        titulo.setForeground(TEXTO);
+        titulo.setForeground(ThemeManager.getTexto());
 
 
         JLabel subtitulo =
@@ -697,7 +687,7 @@ public class ResumoRelatoriosPage extends JPanel {
                 )
         );
 
-        subtitulo.setForeground(CINZA);
+        subtitulo.setForeground(ThemeManager.getTextoSecundario());
 
 
         textos.add(titulo);
@@ -782,7 +772,7 @@ public class ResumoRelatoriosPage extends JPanel {
                         )
                 );
 
-        painel.setBackground(CARD);
+        painel.setBackground(ThemeManager.getPainel());
 
         painel.setBorder(
                 new EmptyBorder(
@@ -804,7 +794,7 @@ public class ResumoRelatoriosPage extends JPanel {
                 )
         );
 
-        textos.setBackground(CARD);
+        textos.setBackground(ThemeManager.getPainel());
 
 
         JLabel nome =
@@ -818,7 +808,7 @@ public class ResumoRelatoriosPage extends JPanel {
                 )
         );
 
-        nome.setForeground(TEXTO);
+        nome.setForeground(ThemeManager.getTexto());
 
 
         JLabel desc =
@@ -832,7 +822,7 @@ public class ResumoRelatoriosPage extends JPanel {
                 )
         );
 
-        desc.setForeground(CINZA);
+        desc.setForeground(ThemeManager.getTextoSecundario());
 
 
         textos.add(nome);
@@ -884,7 +874,7 @@ public class ResumoRelatoriosPage extends JPanel {
                         )
                 );
 
-        painel.setBackground(CARD);
+        painel.setBackground(ThemeManager.getPainel());
 
         painel.setBorder(
                 new EmptyBorder(
@@ -906,7 +896,7 @@ public class ResumoRelatoriosPage extends JPanel {
                 )
         );
 
-        textos.setBackground(CARD);
+        textos.setBackground(ThemeManager.getPainel());
 
 
         JLabel nome =
@@ -922,7 +912,7 @@ public class ResumoRelatoriosPage extends JPanel {
                 )
         );
 
-        nome.setForeground(TEXTO);
+        nome.setForeground(ThemeManager.getTexto());
 
 
         JLabel descricao =
@@ -938,7 +928,7 @@ public class ResumoRelatoriosPage extends JPanel {
                 )
         );
 
-        descricao.setForeground(CINZA);
+        descricao.setForeground(ThemeManager.getTextoSecundario());
 
 
         textos.add(nome);
@@ -959,7 +949,7 @@ public class ResumoRelatoriosPage extends JPanel {
                         )
                 );
 
-        direita.setBackground(CARD);
+        direita.setBackground(ThemeManager.getPainel());
 
 
         JComboBox<EventoOpcao> eventos =
@@ -1459,6 +1449,7 @@ public class ResumoRelatoriosPage extends JPanel {
 
         cardsEvento.revalidate();
         cardsEvento.repaint();
+        SwingUtilities.invokeLater(() -> ThemeManager.aplicarTema(ResumoRelatoriosPage.this));
 
 
         cards.show(
@@ -1482,7 +1473,7 @@ public class ResumoRelatoriosPage extends JPanel {
                         )
                 );
 
-        painel.setBackground(FUNDO);
+        painel.setBackground(ThemeManager.getFundo());
 
         painel.setBorder(
                 new EmptyBorder(
@@ -1508,7 +1499,7 @@ public class ResumoRelatoriosPage extends JPanel {
                 )
         );
 
-        topo.setBackground(FUNDO);
+        topo.setBackground(ThemeManager.getFundo());
 
 
         JButton voltar =
@@ -1563,7 +1554,7 @@ public class ResumoRelatoriosPage extends JPanel {
                 )
         );
 
-        tituloEvento.setForeground(TEXTO);
+        tituloEvento.setForeground(ThemeManager.getTexto());
 
 
         JButton exportar =
@@ -1622,7 +1613,7 @@ public class ResumoRelatoriosPage extends JPanel {
                 )
         );
 
-        centro.setBackground(FUNDO);
+        centro.setBackground(ThemeManager.getFundo());
 
 
         cardsEvento =
@@ -1635,7 +1626,7 @@ public class ResumoRelatoriosPage extends JPanel {
                         )
                 );
 
-        cardsEvento.setBackground(FUNDO);
+        cardsEvento.setBackground(ThemeManager.getFundo());
 
 
         grafico =
@@ -1703,7 +1694,7 @@ public class ResumoRelatoriosPage extends JPanel {
                         new BorderLayout()
                 );
 
-        painel.setBackground(CARD);
+        painel.setBackground(ThemeManager.getPainel());
 
         painel.setBorder(
                 BorderFactory.createCompoundBorder(
@@ -1731,7 +1722,7 @@ public class ResumoRelatoriosPage extends JPanel {
                 )
         );
 
-        label.setForeground(TEXTO);
+        label.setForeground(ThemeManager.getTexto());
 
 
         painel.add(
@@ -1802,6 +1793,7 @@ public class ResumoRelatoriosPage extends JPanel {
         grafico.revalidate();
 
         grafico.repaint();
+        SwingUtilities.invokeLater(() -> ThemeManager.aplicarTema(ResumoRelatoriosPage.this));
     }
 
 
@@ -1834,7 +1826,7 @@ public class ResumoRelatoriosPage extends JPanel {
                 )
         );
 
-        lista.setBackground(CARD);
+        lista.setBackground(ThemeManager.getPainel());
 
 
         for (
@@ -1847,7 +1839,7 @@ public class ResumoRelatoriosPage extends JPanel {
                             new BorderLayout()
                     );
 
-            linha.setBackground(CARD);
+            linha.setBackground(ThemeManager.getPainel());
 
             linha.setBorder(
                     new EmptyBorder(
@@ -1872,7 +1864,7 @@ public class ResumoRelatoriosPage extends JPanel {
                     )
             );
 
-            nome.setForeground(TEXTO);
+            nome.setForeground(ThemeManager.getTexto());
 
 
             JLabel status =
@@ -1959,6 +1951,7 @@ public class ResumoRelatoriosPage extends JPanel {
         statusAlunos.revalidate();
 
         statusAlunos.repaint();
+        SwingUtilities.invokeLater(() -> ThemeManager.aplicarTema(ResumoRelatoriosPage.this));
     }
 
 
@@ -2051,7 +2044,7 @@ public class ResumoRelatoriosPage extends JPanel {
 
         botao.setForeground(cor);
 
-        botao.setBackground(Color.WHITE);
+        botao.setBackground(ThemeManager.getPainel());
 
         botao.setFocusPainted(false);
 
@@ -2217,7 +2210,7 @@ public class ResumoRelatoriosPage extends JPanel {
 
             this.rotulos = rotulos;
 
-            setBackground(Color.WHITE);
+            setBackground(ThemeManager.getPainel());
         }
 
 
@@ -2237,7 +2230,7 @@ public class ResumoRelatoriosPage extends JPanel {
                 Graphics2D vazio =
                         (Graphics2D) g.create();
 
-                vazio.setColor(CINZA);
+                vazio.setColor(ThemeManager.getTextoSecundario());
 
                 vazio.setFont(
                         new Font(
@@ -2363,7 +2356,7 @@ public class ResumoRelatoriosPage extends JPanel {
 
 
                 // Valor
-                g2.setColor(TEXTO);
+                g2.setColor(ThemeManager.getTexto());
 
                 g2.setFont(
                         new Font(
@@ -2405,7 +2398,7 @@ public class ResumoRelatoriosPage extends JPanel {
 
 
                 // Data
-                g2.setColor(CINZA);
+                g2.setColor(ThemeManager.getTextoSecundario());
 
                 g2.setFont(
                         new Font(

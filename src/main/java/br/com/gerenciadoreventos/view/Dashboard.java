@@ -1,6 +1,7 @@
 package br.com.gerenciadoreventos.view;
 
 import br.com.gerenciadoreventos.model.Usuario;
+import br.com.gerenciadoreventos.theme.ThemeManager;
 import br.com.gerenciadoreventos.view.components.DashboardCards;
 import br.com.gerenciadoreventos.view.components.DashboardCenter;
 import br.com.gerenciadoreventos.view.components.DashboardHeader;
@@ -24,6 +25,8 @@ public class Dashboard extends JFrame {
 
     private JPanel painelPaginas;
 
+    private DashboardHeader dashboardHeader;
+
 
     // =====================================================
     // CONSTRUTOR
@@ -36,6 +39,8 @@ public class Dashboard extends JFrame {
         configurarJanela();
 
         inicializarInterface();
+
+        SwingUtilities.invokeLater(this::aplicarTemaGlobal);
     }
 
 
@@ -188,6 +193,14 @@ public class Dashboard extends JFrame {
         );
 
         // =================================================
+        // PÁGINA: Configurações
+        // =================================================
+        painelPaginas.add(
+                new ConfiguracoesPage(this, usuarioLogado),
+                "configuracoes"
+        );
+
+        // =================================================
         // ADICIONAR PÁGINAS AO PRINCIPAL
         // =================================================
 
@@ -226,10 +239,10 @@ public class Dashboard extends JFrame {
 
         // Cabeçalho
 
+        dashboardHeader = new DashboardHeader(usuarioLogado);
+
         painel.add(
-                new DashboardHeader(
-                        usuarioLogado
-                ),
+                dashboardHeader,
                 BorderLayout.NORTH
         );
 
@@ -312,7 +325,8 @@ public class Dashboard extends JFrame {
                 || pagina.equals("agentesExternos")
                 || pagina.equals("inscricoes")
                 || pagina.equals("comissoes")
-                || pagina.equals("resumo");
+                || pagina.equals("resumo")
+                || pagina.equals("configuracoes");
 
     }
     public void mostrarPagina(String pagina) {
@@ -332,8 +346,29 @@ public class Dashboard extends JFrame {
         sidebar.atualizarPaginaAtiva(
                 pagina
         );
+
+        // Algumas páginas recriam cards, tabelas e abas dinamicamente.
+        // Reaplica o tema sempre que uma página é aberta para garantir
+        // que nenhum componente recém-criado permaneça com as cores claras.
+        SwingUtilities.invokeLater(() -> ThemeManager.aplicarTema(painelPaginas));
     }
 
+
+    // =====================================================
+    // TEMA / PERFIL
+    // =====================================================
+
+    public void aplicarTemaGlobal() {
+        ThemeManager.aplicarEmTodasJanelas();
+        repaint();
+    }
+
+    public void atualizarDadosUsuario() {
+        if (dashboardHeader != null) {
+            dashboardHeader.atualizarUsuario(usuarioLogado);
+        }
+        repaint();
+    }
 
     // =====================================================
     // MAIN
@@ -342,6 +377,8 @@ public class Dashboard extends JFrame {
     public static void main(String[] args) {
 
         SwingUtilities.invokeLater(() -> {
+
+            ThemeManager.instalarAtualizacaoAutomatica();
 
             try {
 

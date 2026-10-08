@@ -1,5 +1,7 @@
 package br.com.gerenciadoreventos.view.pages;
 
+
+import br.com.gerenciadoreventos.theme.ThemeManager;
 import br.com.gerenciadoreventos.dao.AlunoDAO;
 import br.com.gerenciadoreventos.dao.EventoDAO;
 import br.com.gerenciadoreventos.dao.InscricaoDAO;
@@ -85,7 +87,7 @@ public class InscricoesPage extends JPanel {
         JPanel painel =
                 new JPanel(new BorderLayout());
 
-        painel.setBackground(FUNDO);
+        painel.setBackground(ThemeManager.getFundo());
 
         painel.setBorder(
                 new EmptyBorder(
@@ -125,12 +127,12 @@ public class InscricoesPage extends JPanel {
                 )
         );
 
-        cabecalho.setBackground(FUNDO);
+        cabecalho.setBackground(ThemeManager.getFundo());
 
         JPanel linhaSuperior =
                 new JPanel(new BorderLayout());
 
-        linhaSuperior.setBackground(FUNDO);
+        linhaSuperior.setBackground(ThemeManager.getFundo());
 
         JPanel textos =
                 new JPanel();
@@ -142,7 +144,7 @@ public class InscricoesPage extends JPanel {
                 )
         );
 
-        textos.setBackground(FUNDO);
+        textos.setBackground(ThemeManager.getFundo());
 
         JLabel titulo =
                 new JLabel("Inscrições");
@@ -155,7 +157,7 @@ public class InscricoesPage extends JPanel {
                 )
         );
 
-        titulo.setForeground(TEXTO);
+        titulo.setForeground(ThemeManager.getTexto());
 
         JLabel subtitulo =
                 new JLabel(
@@ -170,7 +172,7 @@ public class InscricoesPage extends JPanel {
                 )
         );
 
-        subtitulo.setForeground(CINZA_TEXTO);
+        subtitulo.setForeground(ThemeManager.getTextoSecundario());
 
         textos.add(titulo);
 
@@ -212,7 +214,7 @@ public class InscricoesPage extends JPanel {
                         )
                 );
 
-        acoesCabecalho.setBackground(FUNDO);
+        acoesCabecalho.setBackground(ThemeManager.getFundo());
         acoesCabecalho.add(importarCsv);
         acoesCabecalho.add(novaInscricao);
 
@@ -246,7 +248,7 @@ public class InscricoesPage extends JPanel {
                         )
                 );
 
-        filtros.setBackground(FUNDO);
+        filtros.setBackground(ThemeManager.getFundo());
 
         campoBusca =
                 new JTextField();
@@ -334,7 +336,7 @@ public class InscricoesPage extends JPanel {
                         )
                 );
 
-        statusPanel.setBackground(FUNDO);
+        statusPanel.setBackground(ThemeManager.getFundo());
 
         JLabel labelStatus =
                 new JLabel("Status:");
@@ -347,7 +349,7 @@ public class InscricoesPage extends JPanel {
                 )
         );
 
-        labelStatus.setForeground(TEXTO);
+        labelStatus.setForeground(ThemeManager.getTexto());
 
         statusPanel.add(labelStatus);
 
@@ -455,7 +457,7 @@ public class InscricoesPage extends JPanel {
                 )
         );
 
-        painelInscricoes.setBackground(FUNDO);
+        painelInscricoes.setBackground(ThemeManager.getFundo());
 
         painelInscricoes.setBorder(
                 new EmptyBorder(
@@ -549,7 +551,7 @@ public class InscricoesPage extends JPanel {
                     )
             );
 
-            vazio.setForeground(CINZA_TEXTO);
+            vazio.setForeground(ThemeManager.getTextoSecundario());
 
             vazio.setAlignmentX(
                     Component.CENTER_ALIGNMENT
@@ -580,6 +582,7 @@ public class InscricoesPage extends JPanel {
         painelInscricoes.revalidate();
 
         painelInscricoes.repaint();
+        SwingUtilities.invokeLater(() -> ThemeManager.aplicarTema(InscricoesPage.this));
     }
 
     // =====================================================
@@ -598,7 +601,7 @@ public class InscricoesPage extends JPanel {
                         )
                 );
 
-        card.setBackground(Color.WHITE);
+        card.setBackground(ThemeManager.getPainel());
 
         card.setMaximumSize(
                 new Dimension(
@@ -635,7 +638,7 @@ public class InscricoesPage extends JPanel {
                 )
         );
 
-        informacoes.setBackground(Color.WHITE);
+        informacoes.setBackground(ThemeManager.getPainel());
 
         JLabel nome =
                 new JLabel(
@@ -650,7 +653,7 @@ public class InscricoesPage extends JPanel {
                 )
         );
 
-        nome.setForeground(TEXTO);
+        nome.setForeground(ThemeManager.getTexto());
 
         informacoes.add(nome);
 
@@ -722,7 +725,7 @@ public class InscricoesPage extends JPanel {
                 )
         );
 
-        dataInscricao.setForeground(CINZA_TEXTO);
+        dataInscricao.setForeground(ThemeManager.getTextoSecundario());
 
         informacoes.add(dataInscricao);
 
@@ -734,7 +737,7 @@ public class InscricoesPage extends JPanel {
                 )
         );
 
-        evento.setForeground(CINZA_TEXTO);
+        evento.setForeground(ThemeManager.getTextoSecundario());
 
         if (
                 inscricao.getCurso() != null
@@ -761,7 +764,7 @@ public class InscricoesPage extends JPanel {
                     )
             );
 
-            curso.setForeground(CINZA_TEXTO);
+            curso.setForeground(ThemeManager.getTextoSecundario());
 
             informacoes.add(curso);
         }
@@ -781,7 +784,7 @@ public class InscricoesPage extends JPanel {
                 )
         );
 
-        lateral.setBackground(Color.WHITE);
+        lateral.setBackground(ThemeManager.getPainel());
 
         JLabel status =
                 new JLabel(
@@ -898,6 +901,7 @@ public class InscricoesPage extends JPanel {
                         this::carregarInscricoes
                 );
 
+        ThemeManager.aplicarTema(dialog);
         dialog.setVisible(true);
     }
 
@@ -936,7 +940,7 @@ public class InscricoesPage extends JPanel {
                         )
                 );
 
-        principal.setBackground(FUNDO);
+        principal.setBackground(ThemeManager.getFundo());
 
         principal.setBorder(
                 new EmptyBorder(
@@ -961,7 +965,7 @@ public class InscricoesPage extends JPanel {
                 )
         );
 
-        cabecalho.setBackground(FUNDO);
+        cabecalho.setBackground(ThemeManager.getFundo());
 
         JLabel titulo =
                 new JLabel(
@@ -976,7 +980,7 @@ public class InscricoesPage extends JPanel {
                 )
         );
 
-        titulo.setForeground(TEXTO);
+        titulo.setForeground(ThemeManager.getTexto());
 
         JLabel descricao =
                 new JLabel(
@@ -991,7 +995,7 @@ public class InscricoesPage extends JPanel {
                 )
         );
 
-        descricao.setForeground(CINZA_TEXTO);
+        descricao.setForeground(ThemeManager.getTextoSecundario());
 
         cabecalho.add(titulo);
 
@@ -1020,7 +1024,7 @@ public class InscricoesPage extends JPanel {
                 )
         );
 
-        formulario.setBackground(Color.WHITE);
+        formulario.setBackground(ThemeManager.getPainel());
 
         formulario.setBorder(
                 BorderFactory.createCompoundBorder(
@@ -1055,7 +1059,7 @@ public class InscricoesPage extends JPanel {
                 )
         );
 
-        labelEvento.setForeground(TEXTO);
+        labelEvento.setForeground(ThemeManager.getTexto());
 
         formulario.add(labelEvento);
 
@@ -1117,7 +1121,7 @@ public class InscricoesPage extends JPanel {
                 )
         );
 
-        labelAluno.setForeground(TEXTO);
+        labelAluno.setForeground(ThemeManager.getTexto());
 
         formulario.add(labelAluno);
 
@@ -1218,7 +1222,7 @@ public class InscricoesPage extends JPanel {
                 )
         );
 
-        labelSelecionados.setForeground(TEXTO);
+        labelSelecionados.setForeground(ThemeManager.getTexto());
 
         formulario.add(labelSelecionados);
 
@@ -1236,9 +1240,7 @@ public class InscricoesPage extends JPanel {
                 )
         );
 
-        alunosSelecionadosPanel.setBackground(
-                Color.WHITE
-        );
+        alunosSelecionadosPanel.setBackground(ThemeManager.getPainel());
 
         JScrollPane scrollSelecionados =
                 new JScrollPane(
@@ -1443,7 +1445,7 @@ public class InscricoesPage extends JPanel {
                         )
                 );
 
-        botoes.setBackground(FUNDO);
+        botoes.setBackground(ThemeManager.getFundo());
 
         JButton cancelar =
                 criarBotaoSecundario(
@@ -1582,6 +1584,7 @@ public class InscricoesPage extends JPanel {
 
         dialog.setContentPane(principal);
 
+        ThemeManager.aplicarTema(dialog);
         dialog.setVisible(true);
     }
 
@@ -1659,6 +1662,7 @@ public class InscricoesPage extends JPanel {
         painel.revalidate();
 
         painel.repaint();
+        SwingUtilities.invokeLater(() -> ThemeManager.aplicarTema(InscricoesPage.this));
     }
 
     // =====================================================
@@ -1792,7 +1796,7 @@ public class InscricoesPage extends JPanel {
                 )
         );
 
-        nome.setForeground(TEXTO);
+        nome.setForeground(ThemeManager.getTexto());
 
         linha.add(
                 nome,
@@ -1818,7 +1822,7 @@ public class InscricoesPage extends JPanel {
                 )
         );
 
-        remover.setBackground(Color.WHITE);
+        remover.setBackground(ThemeManager.getPainel());
 
         remover.setFocusPainted(false);
 
@@ -1984,9 +1988,9 @@ public class InscricoesPage extends JPanel {
                 )
         );
 
-        combo.setBackground(Color.WHITE);
+        combo.setBackground(ThemeManager.getPainel());
 
-        combo.setForeground(TEXTO);
+        combo.setForeground(ThemeManager.getTexto());
     }
 
     // =====================================================
@@ -2078,9 +2082,9 @@ public class InscricoesPage extends JPanel {
                 )
         );
 
-        botao.setForeground(TEXTO);
+        botao.setForeground(ThemeManager.getTexto());
 
-        botao.setBackground(Color.WHITE);
+        botao.setBackground(ThemeManager.getPainel());
 
         botao.setFocusPainted(false);
 
@@ -2132,7 +2136,7 @@ public class InscricoesPage extends JPanel {
                 )
         );
 
-        botao.setBackground(Color.WHITE);
+        botao.setBackground(ThemeManager.getPainel());
 
         botao.setFocusPainted(false);
 

@@ -1,5 +1,7 @@
 package br.com.gerenciadoreventos.view.pages;
 
+
+import br.com.gerenciadoreventos.theme.ThemeManager;
 import br.com.gerenciadoreventos.model.Aluno;
 import br.com.gerenciadoreventos.model.AtividadeOpcao;
 import br.com.gerenciadoreventos.model.EventoOpcao;
@@ -122,7 +124,7 @@ public class ImportarPresencaCsvPage extends JPanel {
                         new BorderLayout(0, 15)
                 );
 
-        principal.setBackground(FUNDO);
+        principal.setBackground(ThemeManager.getFundo());
 
         principal.setBorder(
                 new EmptyBorder(
@@ -170,7 +172,7 @@ public class ImportarPresencaCsvPage extends JPanel {
                 )
         );
 
-        painel.setBackground(FUNDO);
+        painel.setBackground(ThemeManager.getFundo());
         JButton voltar =
                 new JButton(
                         "← Voltar para relatórios"
@@ -225,7 +227,7 @@ public class ImportarPresencaCsvPage extends JPanel {
                 )
         );
 
-        titulo.setForeground(TEXTO);
+        titulo.setForeground(ThemeManager.getTexto());
 
         titulo.setAlignmentX(
                 Component.LEFT_ALIGNMENT
@@ -244,9 +246,7 @@ public class ImportarPresencaCsvPage extends JPanel {
                 )
         );
 
-        subtitulo.setForeground(
-                CINZA_TEXTO
-        );
+        subtitulo.setForeground(ThemeManager.getTextoSecundario());
 
         subtitulo.setAlignmentX(
                 Component.LEFT_ALIGNMENT
@@ -274,9 +274,7 @@ public class ImportarPresencaCsvPage extends JPanel {
                 )
         );
 
-        configuracao.setBackground(
-                Color.WHITE
-        );
+        configuracao.setBackground(ThemeManager.getPainel());
 
         configuracao.setBorder(
                 BorderFactory.createCompoundBorder(
@@ -313,7 +311,7 @@ public class ImportarPresencaCsvPage extends JPanel {
                 )
         );
 
-        labelModo.setForeground(TEXTO);
+        labelModo.setForeground(ThemeManager.getTexto());
 
         configuracao.add(labelModo);
 
@@ -330,9 +328,7 @@ public class ImportarPresencaCsvPage extends JPanel {
                         )
                 );
 
-        linhaModo.setBackground(
-                Color.WHITE
-        );
+        linhaModo.setBackground(ThemeManager.getPainel());
 
         toggleModoEvento =
                 criarToggleModo(
@@ -427,9 +423,7 @@ public class ImportarPresencaCsvPage extends JPanel {
                         )
                 );
 
-        linhaContexto.setBackground(
-                Color.WHITE
-        );
+        linhaContexto.setBackground(ThemeManager.getPainel());
 
         JPanel blocoContexto =
                 criarBlocoContexto();
@@ -466,9 +460,7 @@ public class ImportarPresencaCsvPage extends JPanel {
                         )
                 );
 
-        linhaArquivo.setBackground(
-                Color.WHITE
-        );
+        linhaArquivo.setBackground(ThemeManager.getPainel());
 
         JButton escolher =
                 criarBotaoPrincipal(
@@ -492,9 +484,7 @@ public class ImportarPresencaCsvPage extends JPanel {
                 )
         );
 
-        labelArquivo.setForeground(
-                CINZA_TEXTO
-        );
+        labelArquivo.setForeground(ThemeManager.getTextoSecundario());
 
         linhaArquivo.add(escolher);
 
@@ -523,9 +513,7 @@ public class ImportarPresencaCsvPage extends JPanel {
                 )
         );
 
-        painel.setBackground(
-                Color.WHITE
-        );
+        painel.setBackground(ThemeManager.getPainel());
 
         labelContexto =
                 new JLabel("Evento");
@@ -538,7 +526,7 @@ public class ImportarPresencaCsvPage extends JPanel {
                 )
         );
 
-        labelContexto.setForeground(TEXTO);
+        labelContexto.setForeground(ThemeManager.getTexto());
 
         comboContexto =
                 new JComboBox<>();
@@ -600,9 +588,7 @@ public class ImportarPresencaCsvPage extends JPanel {
                 )
         );
 
-        painel.setBackground(
-                Color.WHITE
-        );
+        painel.setBackground(ThemeManager.getPainel());
 
         JLabel label =
                 new JLabel(
@@ -617,7 +603,7 @@ public class ImportarPresencaCsvPage extends JPanel {
                 )
         );
 
-        label.setForeground(TEXTO);
+        label.setForeground(ThemeManager.getTexto());
 
         campoData =
                 new JTextField(
@@ -779,7 +765,7 @@ public class ImportarPresencaCsvPage extends JPanel {
                         new BorderLayout()
                 );
 
-        caixa.setBackground(Color.WHITE);
+        caixa.setBackground(ThemeManager.getPainel());
 
         caixa.setBorder(
                 BorderFactory.createLineBorder(
@@ -839,7 +825,7 @@ public class ImportarPresencaCsvPage extends JPanel {
                 );
 
         tabela.getTableHeader()
-                .setForeground(TEXTO);
+                .setForeground(ThemeManager.getTexto());
 
         tabela.setShowGrid(true);
 
@@ -883,7 +869,7 @@ public class ImportarPresencaCsvPage extends JPanel {
                         new BorderLayout()
                 );
 
-        painel.setBackground(FUNDO);
+        painel.setBackground(ThemeManager.getFundo());
 
         painel.setBorder(
                 new EmptyBorder(
@@ -905,9 +891,7 @@ public class ImportarPresencaCsvPage extends JPanel {
                 )
         );
 
-        labelResumo.setForeground(
-                CINZA_TEXTO
-        );
+        labelResumo.setForeground(ThemeManager.getTextoSecundario());
 
         botaoImportar =
                 criarBotaoPrincipal(

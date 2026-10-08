@@ -2,6 +2,7 @@ package br.com.gerenciadoreventos.view;
 
 import br.com.gerenciadoreventos.model.Usuario;
 import br.com.gerenciadoreventos.service.UsuarioService;
+import br.com.gerenciadoreventos.theme.ThemeManager;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -33,6 +34,10 @@ public class Login extends JFrame {
 
     public Login() {
 
+        // Garante o tema global mesmo quando o projeto é iniciado
+        // diretamente por Login.main() ou pelo JAR.
+        ThemeManager.instalarAtualizacaoAutomatica();
+
         setTitle("Login - Gerenciador de Eventos");
 
         setSize(850, 500);
@@ -44,6 +49,7 @@ public class Login extends JFrame {
         setResizable(false);
 configurarJanela();
         criarInterface();
+        SwingUtilities.invokeLater(() -> ThemeManager.aplicarTema(this));
     }
 
     private void configurarJanela() {
@@ -652,6 +658,8 @@ configurarJanela();
 
                 e.printStackTrace();
             }
+
+            ThemeManager.instalarAtualizacaoAutomatica();
 
             Login login = new Login();
 
