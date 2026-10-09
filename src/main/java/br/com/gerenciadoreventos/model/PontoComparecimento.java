@@ -3,7 +3,6 @@ package br.com.gerenciadoreventos.model;
 import java.time.LocalDate;
 
 public class PontoComparecimento {
-
     private final LocalDate data;
     private final int total;
 

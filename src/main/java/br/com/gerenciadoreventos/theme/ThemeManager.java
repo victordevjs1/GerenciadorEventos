@@ -16,19 +16,9 @@ import java.awt.event.WindowEvent;
 import java.util.Objects;
 import java.util.prefs.Preferences;
 
-/**
- * Tema claro/escuro do e-task usando somente Swing/AWT.
- *
- * A regra principal desta versão é: nunca usamos a cor "atual" de um
- * componente como fonte definitiva para voltar ao tema claro. O estado
- * original (claro) é guardado no próprio JComponent e restaurado depois.
- * Isso evita o efeito acumulativo que deixava bordas, textos e cards com
- * cores do tema escuro depois de alternar o tema algumas vezes.
- */
+// Tema claro/escuro do e-task usando somente Swing/AWT. A regra principal desta versão é: nunca usamos a cor "atual" de um componente como fonte definitiva para voltar ao tema claro. O estado original (claro) é guardado no próprio JComponent e restaurado depois. Isso evita o efeito acumulativo que deixava bordas, textos e cards com cores do tema escuro depois de alternar o tema algumas vezes.
 public final class ThemeManager {
-
-    private static final Preferences PREFS =
-            Preferences.userRoot().node("br.com.gerenciadoreventos.etask");
+    private static final Preferences PREFS = Preferences.userRoot().node("br.com.gerenciadoreventos.etask");
 
     private static final String CHAVE_MODO_ESCURO = "modoEscuro";
 
@@ -90,17 +80,11 @@ public final class ThemeManager {
         agendarAplicacaoGlobal();
     }
 
-    /**
-     * Monitora apenas eventos que podem criar/recriar interface.
-     * As atualizações são agrupadas em uma única execução posterior na EDT;
-     * isso evita dezenas de aplicações de tema enquanto um formulário ainda
-     * está sendo montado.
-     */
+    // Monitora apenas eventos que podem criar/recriar interface. As atualizações são agrupadas em uma única execução posterior na EDT; isso evita dezenas de aplicações de tema enquanto um formulário ainda está sendo montado.
     public static synchronized void instalarAtualizacaoAutomatica() {
         if (listenerGlobalInstalado) {
             return;
         }
-
         AWTEventListener listener = evento -> {
             if (evento instanceof WindowEvent we
                     && (we.getID() == WindowEvent.WINDOW_OPENED
@@ -108,7 +92,6 @@ public final class ThemeManager {
                 agendarAplicacaoGlobal();
                 return;
             }
-
             if (evento instanceof ContainerEvent ce
                     && ce.getID() == ContainerEvent.COMPONENT_ADDED) {
                 if (!deveIgnorar(ce.getChild())) {
@@ -116,20 +99,12 @@ public final class ThemeManager {
                 }
                 return;
             }
-
             if (evento instanceof ActionEvent || evento instanceof ItemEvent) {
                 agendarAplicacaoGlobal();
             }
         };
-
         Toolkit.getDefaultToolkit().addAWTEventListener(
-                listener,
-                AWTEvent.WINDOW_EVENT_MASK
-                        | AWTEvent.CONTAINER_EVENT_MASK
-                        | AWTEvent.ACTION_EVENT_MASK
-                        | AWTEvent.ITEM_EVENT_MASK
-        );
-
+                listener, AWTEvent.WINDOW_EVENT_MASK | AWTEvent.CONTAINER_EVENT_MASK | AWTEvent.ACTION_EVENT_MASK | AWTEvent.ITEM_EVENT_MASK );
         listenerGlobalInstalado = true;
     }
 
@@ -137,7 +112,6 @@ public final class ThemeManager {
         if (!listenerGlobalInstalado || atualizacaoAgendada) {
             return;
         }
-
         atualizacaoAgendada = true;
         SwingUtilities.invokeLater(() -> {
             synchronized (ThemeManager.class) {
@@ -188,14 +162,8 @@ public final class ThemeManager {
     }
 
     public static void aplicarTema(Component componente) {
-        Color fundo = ThemeManager.isModoEscuro()
-                ? new Color(15, 23, 42)
-                : Color.WHITE;
-
-        Color texto = ThemeManager.isModoEscuro()
-                ? new Color(241, 245, 249)
-                : new Color(15, 23, 42);
-
+        Color fundo = ThemeManager.isModoEscuro() ? new Color(15, 23, 42) : Color.WHITE;
+        Color texto = ThemeManager.isModoEscuro() ? new Color(241, 245, 249) : new Color(15, 23, 42);
         UIManager.put("OptionPane.background", fundo);
         UIManager.put("Panel.background", fundo);
         UIManager.put("OptionPane.messageForeground", texto);
@@ -203,23 +171,19 @@ public final class ThemeManager {
         if (componente == null || deveIgnorar(componente)) {
             return;
         }
-
         if (componente instanceof JComponent jc) {
             capturarOuAtualizarEstadoOriginal(jc);
         }
-
         if (modoEscuro) {
             aplicarEscuro(componente);
         } else {
             restaurarClaro(componente);
         }
-
         if (componente instanceof Container container) {
             for (Component filho : container.getComponents()) {
                 aplicarTema(filho);
             }
         }
-
         if (componente instanceof JComponent jc) {
             registrarUltimoEstado(jc);
             jc.revalidate();
@@ -227,11 +191,7 @@ public final class ThemeManager {
         }
     }
 
-    /**
-     * theme.ignore vale para toda a subárvore. Isso é importante para a
-     * Sidebar: o listener global recebe eventos dos filhos individualmente,
-     * então verificar somente o próprio componente não era suficiente.
-     */
+    // theme.ignore vale para toda a subárvore. Isso é importante para a Sidebar: o listener global recebe eventos dos filhos individualmente, então verificar somente o próprio componente não era suficiente.
     private static boolean deveIgnorar(Component componente) {
         Component atual = componente;
         while (atual != null) {
@@ -246,7 +206,6 @@ public final class ThemeManager {
 
     private static void capturarOuAtualizarEstadoOriginal(JComponent jc) {
         boolean capturado = Boolean.TRUE.equals(jc.getClientProperty(P_CAPTURADO));
-
         if (!capturado) {
             salvar(jc, P_BG, normalizarFundoOriginal(jc.getBackground()));
             salvar(jc, P_FG, normalizarTextoOriginal(jc.getForeground()));
@@ -256,26 +215,21 @@ public final class ThemeManager {
             jc.putClientProperty(P_CAPTURADO, Boolean.TRUE);
             return;
         }
-
         Color ultimoBg = lerColor(jc, P_LAST_BG);
         Color ultimoFg = lerColor(jc, P_LAST_FG);
         Border ultimoBorder = lerBorder(jc, P_LAST_BORDER);
         Boolean ultimoOpaque = lerBoolean(jc, P_LAST_OPAQUE);
 
-        // Se o próprio código da tela mudou uma propriedade depois da última
-        // aplicação do tema, essa nova configuração passa a ser o original.
+        // Se o próprio código da tela mudou uma propriedade depois da última aplicação do tema, essa nova configuração passa a ser o original.
         if (ultimoBg != null && !Objects.equals(jc.getBackground(), ultimoBg)) {
             salvar(jc, P_BG, normalizarFundoOriginal(jc.getBackground()));
         }
-
         if (ultimoFg != null && !Objects.equals(jc.getForeground(), ultimoFg)) {
             salvar(jc, P_FG, normalizarTextoOriginal(jc.getForeground()));
         }
-
         if (ultimoBorder != null && jc.getBorder() != ultimoBorder) {
             salvar(jc, P_BORDER, normalizarBordaOriginal(jc.getBorder()));
         }
-
         if (ultimoOpaque != null && jc.isOpaque() != ultimoOpaque) {
             jc.putClientProperty(P_OPAQUE, jc.isOpaque());
         }
@@ -287,13 +241,11 @@ public final class ThemeManager {
             salvar(jc, P_TABLE_SEL_BG, tabela.getSelectionBackground());
             salvar(jc, P_TABLE_SEL_FG, tabela.getSelectionForeground());
         }
-
         if (jc instanceof JTextComponent texto) {
             salvar(jc, P_TEXT_CARET, texto.getCaretColor());
             salvar(jc, P_TEXT_SEL_BG, texto.getSelectionColor());
             salvar(jc, P_TEXT_SEL_FG, texto.getSelectedTextColor());
         }
-
         if (jc instanceof JList<?> lista) {
             salvar(jc, P_LIST_SEL_BG, lista.getSelectionBackground());
             salvar(jc, P_LIST_SEL_FG, lista.getSelectionForeground());
@@ -305,19 +257,15 @@ public final class ThemeManager {
             frame.getContentPane().setBackground(getFundo());
             return;
         }
-
         if (c instanceof JDialog dialog) {
             dialog.getContentPane().setBackground(getFundo());
             return;
         }
-
         if (!(c instanceof JComponent jc)) {
             return;
         }
-
         Color fundoOriginal = lerColor(jc, P_BG);
         Color textoOriginal = lerColor(jc, P_FG);
-
         if (c instanceof JTable tabela) {
             tabela.setBackground(getPainel());
             tabela.setForeground(getTexto());
@@ -400,7 +348,6 @@ public final class ThemeManager {
             separator.setForeground(getBorda());
             separator.setBackground(getBorda());
         }
-
         Border original = lerBorder(jc, P_BORDER);
         if (original != null) {
             jc.setBorder(criarBordaEscura(original));
@@ -413,17 +360,14 @@ public final class ThemeManager {
             if (c instanceof JDialog dialog) dialog.getContentPane().setBackground(getFundo());
             return;
         }
-
         Color bg = lerColor(jc, P_BG);
         Color fg = lerColor(jc, P_FG);
         Border border = lerBorder(jc, P_BORDER);
         Boolean opaque = lerBoolean(jc, P_OPAQUE);
-
         if (bg != null) jc.setBackground(bg);
         if (fg != null) jc.setForeground(fg);
         jc.setBorder(border);
         if (opaque != null) jc.setOpaque(opaque);
-
         if (jc instanceof JTable tabela) {
             Color grid = lerColor(jc, P_TABLE_GRID);
             Color selBg = lerColor(jc, P_TABLE_SEL_BG);
@@ -432,7 +376,6 @@ public final class ThemeManager {
             if (selBg != null) tabela.setSelectionBackground(selBg);
             if (selFg != null) tabela.setSelectionForeground(selFg);
         }
-
         if (jc instanceof JTextComponent texto) {
             Color caret = lerColor(jc, P_TEXT_CARET);
             Color selBg = lerColor(jc, P_TEXT_SEL_BG);
@@ -441,14 +384,12 @@ public final class ThemeManager {
             if (selBg != null) texto.setSelectionColor(selBg);
             if (selFg != null) texto.setSelectedTextColor(selFg);
         }
-
         if (jc instanceof JList<?> lista) {
             Color selBg = lerColor(jc, P_LIST_SEL_BG);
             Color selFg = lerColor(jc, P_LIST_SEL_FG);
             if (selBg != null) lista.setSelectionBackground(selBg);
             if (selFg != null) lista.setSelectionForeground(selFg);
         }
-
         if (jc instanceof JTabbedPane abas) {
             Color abaBg = bg != null ? bg : PAINEL_CLARO;
             Color abaFg = fg != null ? fg : TEXTO_CLARO;
@@ -468,104 +409,72 @@ public final class ThemeManager {
 
     private static Color mapearFundoEscuro(Color original) {
         if (original == null) return getPainel();
-
         if (ehFundoPaginaClaro(original)) {
             return getFundo();
         }
-
         if (ehSuperficieNeutraClara(original)) {
             return getPainel();
         }
-
         return original;
     }
 
     private static Color mapearTextoEscuro(Color original) {
         if (original == null) return getTexto();
-
         if (Color.WHITE.equals(original)) {
             return Color.WHITE;
         }
-
         if (ehTextoSecundarioClaro(original)) {
             return getTextoSecundario();
         }
-
         if (ehTextoPrincipalClaro(original)) {
             return getTexto();
         }
-
         return original;
     }
 
-    /**
-     * Se um componente foi criado enquanto o modo escuro já estava ativo e
-     * a própria tela usou ThemeManager.getXxx(), convertemos esse valor de
-     * volta para o equivalente claro antes de guardar o estado original.
-     */
+    // Se um componente foi criado enquanto o modo escuro já estava ativo e a própria tela usou ThemeManager.getXxx(), convertemos esse valor de volta para o equivalente claro antes de guardar o estado original.
     private static Color normalizarFundoOriginal(Color atual) {
         if (!modoEscuro || atual == null) return atual;
-
         if (Objects.equals(atual, FUNDO_ESCURO)) return FUNDO_CLARO;
         if (Objects.equals(atual, PAINEL_ESCURO)) return PAINEL_CLARO;
         if (Objects.equals(atual, CAMPO_ESCURO)) return CAMPO_CLARO;
         if (Objects.equals(atual, TABELA_HEADER_ESCURO)) return TABELA_HEADER_CLARO;
         if (Objects.equals(atual, SELECAO_ESCURA)) return SELECAO_CLARA;
-
         return atual;
     }
 
     private static Color normalizarTextoOriginal(Color atual) {
         if (!modoEscuro || atual == null) return atual;
-
         if (Objects.equals(atual, TEXTO_ESCURO)) return TEXTO_CLARO;
         if (Objects.equals(atual, TEXTO_SECUNDARIO_ESCURO)) return TEXTO_SECUNDARIO_CLARO;
         if (Objects.equals(atual, BORDA_ESCURA)) return BORDA_CLARA;
-
         return atual;
     }
 
     private static Border normalizarBordaOriginal(Border border) {
         if (!modoEscuro || border == null) return border;
-
         if (border instanceof LineBorder line) {
             Color cor = line.getLineColor();
             if (Objects.equals(cor, BORDA_ESCURA)) {
-                return new LineBorder(
-                        BORDA_CLARA,
-                        line.getThickness(),
-                        line.getRoundedCorners()
-                );
+                return new LineBorder( BORDA_CLARA, line.getThickness(), line.getRoundedCorners() );
             }
             return border;
         }
-
         if (border instanceof CompoundBorder compound) {
-            return new CompoundBorder(
-                    normalizarBordaOriginal(compound.getOutsideBorder()),
-                    normalizarBordaOriginal(compound.getInsideBorder())
-            );
+            return new CompoundBorder( normalizarBordaOriginal(compound.getOutsideBorder()), normalizarBordaOriginal(compound.getInsideBorder()) );
         }
-
         if (border instanceof TitledBorder titled) {
             Color titulo = titled.getTitleColor();
             if (Objects.equals(titulo, TEXTO_ESCURO)) titulo = TEXTO_CLARO;
             return new TitledBorder(
                     normalizarBordaOriginal(titled.getBorder()),
-                    titled.getTitle(),
-                    titled.getTitleJustification(),
-                    titled.getTitlePosition(),
-                    titled.getTitleFont(),
-                    titulo
-            );
+                    titled.getTitle(), titled.getTitleJustification(), titled.getTitlePosition(), titled.getTitleFont(), titulo );
         }
-
         return border;
     }
 
     private static Border criarBordaEscura(Border original) {
         if (original == null) return null;
-
         if (original instanceof LineBorder line) {
             Color cor = line.getLineColor();
             if (ehBordaNeutra(cor)) {
@@ -573,40 +482,25 @@ public final class ThemeManager {
             }
             return new LineBorder(cor, line.getThickness(), line.getRoundedCorners());
         }
-
         if (original instanceof CompoundBorder compound) {
-            return new CompoundBorder(
-                    criarBordaEscura(compound.getOutsideBorder()),
-                    criarBordaEscura(compound.getInsideBorder())
-            );
+            return new CompoundBorder( criarBordaEscura(compound.getOutsideBorder()), criarBordaEscura(compound.getInsideBorder()) );
         }
-
         if (original instanceof TitledBorder titled) {
             return new TitledBorder(
                     criarBordaEscura(titled.getBorder()),
-                    titled.getTitle(),
-                    titled.getTitleJustification(),
-                    titled.getTitlePosition(),
-                    titled.getTitleFont(),
-                    getTexto()
-            );
+                    titled.getTitle(), titled.getTitleJustification(), titled.getTitlePosition(), titled.getTitleFont(), getTexto() );
         }
 
-        // Bordas customizadas são preservadas. As quatro bordas arredondadas
-        // do Dashboard foram ajustadas para consultar ThemeManager no paint.
+        // Bordas customizadas são preservadas. As quatro bordas arredondadas do Dashboard foram ajustadas para consultar ThemeManager no paint.
         return original;
     }
 
     private static boolean ehFundoPaginaClaro(Color c) {
-        return corIgual(c, 246, 248, 252)
-                || corIgual(c, 248, 249, 251)
-                || corIgual(c, 248, 250, 252)
-                || corIgual(c, 245, 247, 250);
+        return corIgual(c, 246, 248, 252) || corIgual(c, 248, 249, 251) || corIgual(c, 248, 250, 252) || corIgual(c, 245, 247, 250);
     }
 
     private static boolean ehSuperficieNeutraClara(Color c) {
         if (c == null) return false;
-
         if (Color.WHITE.equals(c)
                 || corIgual(c, 241, 245, 249)
                 || corIgual(c, 242, 246, 255)
@@ -616,7 +510,6 @@ public final class ThemeManager {
                 || corIgual(c, 238, 238, 238)) {
             return true;
         }
-
         int max = Math.max(c.getRed(), Math.max(c.getGreen(), c.getBlue()));
         int min = Math.min(c.getRed(), Math.min(c.getGreen(), c.getBlue()));
         return min >= 228 && (max - min) <= 10;
@@ -625,18 +518,12 @@ public final class ThemeManager {
     private static boolean ehTextoPrincipalClaro(Color c) {
         return Color.BLACK.equals(c)
                 || corIgual(c, 15, 23, 42)
-                || corIgual(c, 35, 35, 45)
-                || corIgual(c, 35, 38, 45)
-                || corIgual(c, 40, 40, 40)
-                || corIgual(c, 71, 85, 105);
+                || corIgual(c, 35, 35, 45) || corIgual(c, 35, 38, 45) || corIgual(c, 40, 40, 40) || corIgual(c, 71, 85, 105);
     }
 
     private static boolean ehTextoSecundarioClaro(Color c) {
         return corIgual(c, 100, 116, 139)
-                || corIgual(c, 120, 125, 135)
-                || corIgual(c, 100, 100, 100)
-                || corIgual(c, 110, 110, 120)
-                || corIgual(c, 148, 163, 184);
+                || corIgual(c, 120, 125, 135) || corIgual(c, 100, 100, 100) || corIgual(c, 110, 110, 120) || corIgual(c, 148, 163, 184);
     }
 
     private static boolean ehBordaNeutra(Color c) {
@@ -646,16 +533,11 @@ public final class ThemeManager {
                         || corIgual(c, 235, 236, 240)
                         || corIgual(c, 225, 225, 225)
                         || corIgual(c, 191, 219, 254)
-                        || corIgual(c, 100, 116, 139)
-                        || (c.getRed() > 190 && c.getGreen() > 190 && c.getBlue() > 190)
-        );
+                        || corIgual(c, 100, 116, 139) || (c.getRed() > 190 && c.getGreen() > 190 && c.getBlue() > 190) );
     }
 
     private static boolean ehAzul(Color c) {
-        return corIgual(c, 37, 99, 235)
-                || corIgual(c, 65, 105, 225)
-                || corIgual(c, 29, 78, 216)
-                || corIgual(c, 122, 162, 247);
+        return corIgual(c, 37, 99, 235) || corIgual(c, 65, 105, 225) || corIgual(c, 29, 78, 216) || corIgual(c, 122, 162, 247);
     }
 
     private static boolean corIgual(Color c, int r, int g, int b) {

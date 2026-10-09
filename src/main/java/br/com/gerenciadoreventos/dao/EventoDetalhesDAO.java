@@ -8,12 +8,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Operações auxiliares usadas nas abas internas do editor de evento.
- * Mantém a tela de Eventos focada na interface e concentra o SQL aqui.
- */
+// Operações auxiliares usadas nas abas internas do editor de evento. Mantém a tela de Eventos focada na interface e concentra o SQL aqui.
 public class EventoDetalhesDAO {
-
     public static class AtividadeItem {
         public long id;
         public String nome;
@@ -47,6 +43,45 @@ public class EventoDetalhesDAO {
         }
     }
 
+    // COMISSÕES - STATUS AUTOMÁTICO PELO EVENTO
+
+    private void sincronizarStatusComissoes(Connection c) throws SQLException {
+        String sql = """
+                UPDATE comissao co
+                INNER JOIN evento e ON e.id_evento = co.id_evento
+                SET co.ativo = CASE
+                    WHEN e.data_fim IS NOT NULL AND NOW() >= e.data_fim THEN FALSE
+                    ELSE TRUE
+                END
+                WHERE co.ativo <> CASE
+                    WHEN e.data_fim IS NOT NULL AND NOW() >= e.data_fim THEN FALSE
+                    ELSE TRUE
+                END
+                """;
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.executeUpdate();
+        }
+    }
+
+    private boolean statusComissaoAutomatico(Connection c, long idEvento)
+            throws SQLException {
+        String sql = """
+                SELECT CASE
+                    WHEN data_fim IS NOT NULL AND NOW() >= data_fim THEN FALSE
+                    ELSE TRUE
+                END AS ativo
+                FROM evento
+                WHERE id_evento = ?
+                """;
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setLong(1, idEvento);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getBoolean("ativo");
+            }
+        }
+        throw new SQLException("Evento não encontrado para definir o status da comissão.");
+    }
+
     public List<Comissao> listarComissoes(long idEvento) {
         List<Comissao> lista = new ArrayList<>();
         String sql = """
@@ -55,20 +90,25 @@ public class EventoDetalhesDAO {
                 WHERE id_evento = ?
                 ORDER BY ativo DESC, nome
                 """;
-        try (Connection c = Conexao.conectar(); PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setLong(1, idEvento);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    Comissao item = new Comissao();
-                    item.setIdComissao(rs.getLong("id_comissao"));
-                    item.setIdEvento(rs.getLong("id_evento"));
-                    item.setNome(rs.getString("nome"));
-                    item.setDescricao(rs.getString("descricao"));
-                    item.setAtivo(rs.getBoolean("ativo"));
-                    lista.add(item);
+        try (Connection c = Conexao.conectar()) {
+            sincronizarStatusComissoes(c);
+            try (PreparedStatement ps = c.prepareStatement(sql)) {
+                ps.setLong(1, idEvento);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        Comissao item = new Comissao();
+                        item.setIdComissao(rs.getLong("id_comissao"));
+                        item.setIdEvento(rs.getLong("id_evento"));
+                        item.setNome(rs.getString("nome"));
+                        item.setDescricao(rs.getString("descricao"));
+                        item.setAtivo(rs.getBoolean("ativo"));
+                        lista.add(item);
+                    }
                 }
             }
-        } catch (SQLException e) { throw new IllegalStateException("Erro ao listar comissões do evento.", e); }
+        } catch (SQLException e) {
+            throw new IllegalStateException("Erro ao listar comissões do evento.", e);
+        }
         return lista;
     }
 
@@ -77,15 +117,31 @@ public class EventoDetalhesDAO {
         String sql = novo
                 ? "INSERT INTO comissao (id_evento,nome,descricao,ativo) VALUES (?,?,?,?)"
                 : "UPDATE comissao SET nome=?, descricao=?, ativo=? WHERE id_comissao=? AND id_evento=?";
-        try (Connection c = Conexao.conectar(); PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection c = Conexao.conectar();
+             PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            boolean ativoAutomatico = statusComissaoAutomatico(c, item.getIdEvento());
+            item.setAtivo(ativoAutomatico);
             if (novo) {
-                ps.setLong(1, item.getIdEvento()); ps.setString(2, item.getNome()); ps.setString(3, item.getDescricao()); ps.setBoolean(4, item.isAtivo());
+                ps.setLong(1, item.getIdEvento());
+                ps.setString(2, item.getNome());
+                ps.setString(3, item.getDescricao());
+                ps.setBoolean(4, ativoAutomatico);
             } else {
-                ps.setString(1, item.getNome()); ps.setString(2, item.getDescricao()); ps.setBoolean(3, item.isAtivo()); ps.setLong(4, item.getIdComissao()); ps.setLong(5, item.getIdEvento());
+                ps.setString(1, item.getNome());
+                ps.setString(2, item.getDescricao());
+                ps.setBoolean(3, ativoAutomatico);
+                ps.setLong(4, item.getIdComissao());
+                ps.setLong(5, item.getIdEvento());
             }
             ps.executeUpdate();
-            if (novo) try (ResultSet rs = ps.getGeneratedKeys()) { if (rs.next()) item.setIdComissao(rs.getLong(1)); }
-        } catch (SQLException e) { throw new IllegalStateException("Erro ao salvar comissão.", e); }
+            if (novo) {
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) item.setIdComissao(rs.getLong(1));
+                }
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException("Erro ao salvar comissão.", e);
+        }
     }
 
     public void excluirComissao(long idEvento, long idComissao) {

@@ -1,7 +1,6 @@
 package br.com.gerenciadoreventos.model;
 
 public class AtividadeOpcao {
-
     private final long id;
     private final String rotulo;
 

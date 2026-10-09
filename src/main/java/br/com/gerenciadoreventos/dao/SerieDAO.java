@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SerieDAO {
-
     public List<String> listarNomesAtivosPorCurso(String nomeCurso) {
         List<String> series = new ArrayList<>();
         String sql = """
@@ -19,7 +18,6 @@ public class SerieDAO {
                   AND c.nome = ?
                 ORDER BY s.numero, s.nome
                 """;
-
         try (Connection conn = Conexao.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, nomeCurso);
@@ -63,7 +61,6 @@ public class SerieDAO {
                   AND c.ativo = TRUE
                 ORDER BY s.numero, s.nome
                 """;
-
         try (Connection conn = Conexao.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
@@ -73,7 +70,6 @@ public class SerieDAO {
         } catch (SQLException e) {
             throw new IllegalStateException("Erro ao listar séries.", e);
         }
-
         return series;
     }
 }

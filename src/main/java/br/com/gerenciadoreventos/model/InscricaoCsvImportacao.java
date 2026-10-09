@@ -1,7 +1,6 @@
 package br.com.gerenciadoreventos.model;
 
 public class InscricaoCsvImportacao {
-
     private final int linha;
     private final String rmInformado;
     private final String nomeCsv;

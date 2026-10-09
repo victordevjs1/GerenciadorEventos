@@ -1,7 +1,6 @@
 package br.com.gerenciadoreventos.model;
 
 public class Professor {
-
     private long id;
     private String nome;
     private String email;

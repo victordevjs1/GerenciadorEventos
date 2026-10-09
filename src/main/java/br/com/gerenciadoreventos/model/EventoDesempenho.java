@@ -1,7 +1,6 @@
 package br.com.gerenciadoreventos.model;
 
 public class EventoDesempenho {
-
     private int totalInscritos;
     private int presencasConfirmadas;
     private int ausentes;

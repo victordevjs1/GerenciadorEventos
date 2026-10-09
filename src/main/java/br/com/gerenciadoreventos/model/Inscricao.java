@@ -3,7 +3,6 @@ package br.com.gerenciadoreventos.model;
 import java.sql.Timestamp;
 
 public class Inscricao {
-
     private long idInscricao;
     private long idAluno;
     private long idEvento;
@@ -17,10 +16,8 @@ public class Inscricao {
     private String status;
     private String observacao;
 
-
     public Inscricao() {
     }
-
 
     public long getIdInscricao() {
         return idInscricao;
@@ -30,7 +27,6 @@ public class Inscricao {
         this.idInscricao = idInscricao;
     }
 
-
     public long getIdAluno() {
         return idAluno;
     }
@@ -38,7 +34,6 @@ public class Inscricao {
     public void setIdAluno(long idAluno) {
         this.idAluno = idAluno;
     }
-
 
     public long getIdEvento() {
         return idEvento;
@@ -48,7 +43,6 @@ public class Inscricao {
         this.idEvento = idEvento;
     }
 
-
     public String getRm() {
         return rm;
     }
@@ -56,7 +50,6 @@ public class Inscricao {
     public void setRm(String rm) {
         this.rm = rm;
     }
-
 
     public String getAluno() {
         return aluno;
@@ -66,8 +59,6 @@ public class Inscricao {
         this.aluno = aluno;
     }
 
-
-
     public String getEvento() {
         return evento;
     }
@@ -76,7 +67,6 @@ public class Inscricao {
         this.evento = evento;
     }
 
-
     public Timestamp getDataInscricao() {
         return dataInscricao;
     }
@@ -84,10 +74,8 @@ public class Inscricao {
     public void setDataInscricao(
             Timestamp dataInscricao
     ) {
-        this.dataInscricao =
-                dataInscricao;
+        this.dataInscricao = dataInscricao;
     }
-
 
     public String getStatus() {
         return status;
@@ -96,7 +84,6 @@ public class Inscricao {
     public void setStatus(String status) {
         this.status = status;
     }
-
 
     public String getObservacao() {
         return observacao;

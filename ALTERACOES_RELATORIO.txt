@@ -1,0 +1,38 @@
+E-TASK - ATUALIZACAO DO RELATORIO DE DESEMPENHO
+
+1. CONFIGURACOES
+O codigo recebido ja salva nome, email e senha na tabela usuario.
+Fluxo: ConfiguracoesPage.salvarPerfil -> UsuarioService.atualizarPerfil -> UsuarioDAO.atualizarPerfil.
+A nova senha e armazenada como hash BCrypt; a senha atual e verificada antes da troca.
+Nenhuma mudanca foi necessaria nessa parte.
+
+2. RELATORIO DE DESEMPENHO
+A pedido do usuario, as paginas antigas do relatorio de desempenho foram removidas da exportacao:
+- pagina de resumo com inscritos/presentes/ausentes e grafico de comparecimento;
+- pagina "Status dos Alunos".
+
+Agora a exportacao de "Desempenho por Evento" gera somente as paginas detalhadas novas, com:
+- resumo quantitativo da estrutura do evento;
+- atividades cadastradas, datas, locais, descricao, status e comissoes envolvidas;
+- comissoes com descricao e situacao ativa/inativa;
+- integrantes de cada comissao (nome, RM, funcao e situacao do vinculo);
+- responsabilidades por comissao (nome, descricao, status e observacoes);
+- atividades vinculadas a cada comissao e status da atribuicao;
+- responsabilidades ainda sem comissao atribuida, se existirem.
+
+As atividades planejadas ou canceladas sao exibidas com seu status, sem serem tratadas como concluidas.
+Se nao houver integrantes em comissao_aluno, a secao informa que nao ha alunos vinculados.
+O relatorio faz quebra automatica de linhas e adiciona paginas conforme necessario.
+
+3. ARQUIVOS MODIFICADOS / CRIADOS
+- ALTERADO: src/main/java/br/com/gerenciadoreventos/service/RelatorioDesempenhoService.java
+- NOVO (da atualizacao anterior): src/main/java/br/com/gerenciadoreventos/dao/RelatorioEstruturaEventoDAO.java
+- NOVO (da atualizacao anterior): src/main/java/br/com/gerenciadoreventos/service/RelatorioEstruturaEventoPdf.java
+
+Nao foi necessario alterar o SQL.
+
+4. COMO TESTAR
+Abra o projeto no IntelliJ, sincronize o Maven e conecte ao banco gerenciador_eventos.
+Abra Relatorios > Desempenho por Evento, selecione um evento e exporte o PDF.
+O PDF deve comecar diretamente pela pagina "Estrutura e execucao do evento" e nao deve mais conter
+o resumo/grafico antigo nem a pagina "Status dos Alunos".

@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Locale;
 
 public class RelatorioPdfExporter {
-
     private static final String[] MESES = {
             "Janeiro",
             "Fevereiro",
@@ -42,19 +41,10 @@ public class RelatorioPdfExporter {
             List<LinhaRelatorioCursoSerie> linhas,
             double taxaGlobal
     ) throws IOException {
-
         try (PDDocument documento = new PDDocument()) {
-
             PDPage pagina = criarPagina(documento);
-
-            float largura =
-                    pagina.getMediaBox().getWidth()
-                            - MARGEM * 2;
-
-            float y =
-                    pagina.getMediaBox().getHeight()
-                            - MARGEM;
-
+            float largura = pagina.getMediaBox().getWidth() - MARGEM * 2;
+            float y = pagina.getMediaBox().getHeight() - MARGEM;
             try (
                     PDPageContentStream pdf =
                             new PDPageContentStream(
@@ -62,61 +52,18 @@ public class RelatorioPdfExporter {
                                     pagina
                             )
             ) {
-
-                y = titulo(
-                        pdf,
-                        y,
-                        "Relatório Mensal de Frequência"
-                );
-
+                y = titulo( pdf, y, "Relatório Mensal de Frequência" );
                 y -= 12;
-
-                y = texto(
-                        pdf,
-                        y,
-                        "Escola: " + nomeEscola,
-                        10,
-                        false
-                );
-
-                y = texto(
-                        pdf,
-                        y,
-                        "Referência: "
-                                + MESES[mes - 1]
-                                + " / "
-                                + ano,
-                        10,
-                        false
-                );
-
-                y = texto(
-                        pdf,
-                        y,
-                        "Dias com presença registrada: "
-                                + diasLetivos,
-                        10,
-                        false
-                );
-
+                y = texto( pdf, y, "Escola: " + nomeEscola, 10, false );
+                y = texto( pdf, y, "Referência: " + MESES[mes - 1] + " / " + ano, 10, false );
+                y = texto( pdf, y, "Dias com presença registrada: " + diasLetivos, 10, false );
                 y -= 18;
-
-                y = desenharTabela(
-                        pdf,
-                        y,
-                        largura,
-                        linhas
-                );
-
+                y = desenharTabela( pdf, y, largura, linhas );
                 y -= 25;
-
                 if (y < 150) {
                     pdf.close();
-
                     pagina = criarPagina(documento);
-                    y = pagina.getMediaBox().getHeight()
-                            - MARGEM;
-
+                    y = pagina.getMediaBox().getHeight() - MARGEM;
                     try (
                             PDPageContentStream novoPdf =
                                     new PDPageContentStream(
@@ -124,40 +71,19 @@ public class RelatorioPdfExporter {
                                             pagina
                                     )
                     ) {
-                        desenharResumo(
-                                novoPdf,
-                                y,
-                                largura,
-                                ano,
-                                mes,
-                                taxaGlobal,
-                                linhas
-                        );
+                        desenharResumo( novoPdf, y, largura, ano, mes, taxaGlobal, linhas );
                     }
                 } else {
-                    desenharResumo(
-                            pdf,
-                            y,
-                            largura,
-                            ano,
-                            mes,
-                            taxaGlobal,
-                            linhas
-                    );
+                    desenharResumo( pdf, y, largura, ano, mes, taxaGlobal, linhas );
                 }
             }
-
             documento.save(destino);
         }
     }
 
     private PDPage criarPagina(PDDocument documento) {
-
-        PDPage pagina =
-                new PDPage(PDRectangle.A4);
-
+        PDPage pagina = new PDPage(PDRectangle.A4);
         documento.addPage(pagina);
-
         return pagina;
     }
 
@@ -166,14 +92,7 @@ public class RelatorioPdfExporter {
             float y,
             String titulo
     ) throws IOException {
-
-        return texto(
-                pdf,
-                y,
-                titulo,
-                18,
-                true
-        );
+        return texto( pdf, y, titulo, 18, true );
     }
 
     private float texto(
@@ -183,27 +102,11 @@ public class RelatorioPdfExporter {
             int tamanho,
             boolean negrito
     ) throws IOException {
-
         pdf.beginText();
-
-        pdf.setFont(
-                negrito
-                        ? PDType1Font.HELVETICA_BOLD
-                        : PDType1Font.HELVETICA,
-                tamanho
-        );
-
-        pdf.newLineAtOffset(
-                MARGEM,
-                y
-        );
-
-        pdf.showText(
-                textoSeguro(valor)
-        );
-
+        pdf.setFont( negrito ? PDType1Font.HELVETICA_BOLD : PDType1Font.HELVETICA, tamanho );
+        pdf.newLineAtOffset( MARGEM, y );
+        pdf.showText( textoSeguro(valor) );
         pdf.endText();
-
         return y - tamanho - 5;
     }
 
@@ -213,7 +116,6 @@ public class RelatorioPdfExporter {
             float largura,
             List<LinhaRelatorioCursoSerie> linhas
     ) throws IOException {
-
         float[] colunas = {
                 largura * 0.23f,
                 largura * 0.17f,
@@ -221,7 +123,6 @@ public class RelatorioPdfExporter {
                 largura * 0.17f,
                 largura * 0.23f
         };
-
         String[] cabecalho = {
                 "Curso / Série",
                 "Alunos",
@@ -229,17 +130,8 @@ public class RelatorioPdfExporter {
                 "Faltas",
                 "Comparecimento"
         };
-
-        y = linhaTabela(
-                pdf,
-                y,
-                colunas,
-                cabecalho,
-                true
-        );
-
+        y = linhaTabela( pdf, y, colunas, cabecalho, true );
         for (LinhaRelatorioCursoSerie linha : linhas) {
-
             String[] dados = {
                     linha.getCurso() + " / " + linha.getSerie(),
                     String.valueOf(
@@ -255,16 +147,8 @@ public class RelatorioPdfExporter {
                             linha.taxaComparecimento()
                     )
             };
-
-            y = linhaTabela(
-                    pdf,
-                    y,
-                    colunas,
-                    dados,
-                    false
-            );
+            y = linhaTabela( pdf, y, colunas, dados, false );
         }
-
         return y;
     }
 
@@ -275,111 +159,40 @@ public class RelatorioPdfExporter {
             String[] valores,
             boolean cabecalho
     ) throws IOException {
-
         float larguraTotal = 0;
-
         for (float largura : larguras) {
             larguraTotal += largura;
         }
-
         float topo = y;
         float baixo = y - ALTURA_LINHA;
-
         if (cabecalho) {
-
-            pdf.setNonStrokingColor(
-                    37,
-                    99,
-                    235
-            );
-
-            pdf.addRect(
-                    MARGEM,
-                    baixo,
-                    larguraTotal,
-                    ALTURA_LINHA
-            );
-
+            pdf.setNonStrokingColor( 37, 99, 235 );
+            pdf.addRect( MARGEM, baixo, larguraTotal, ALTURA_LINHA );
             pdf.fill();
         }
-
-        pdf.setStrokingColor(
-                210,
-                214,
-                220
-        );
-
-        pdf.addRect(
-                MARGEM,
-                baixo,
-                larguraTotal,
-                ALTURA_LINHA
-        );
-
+        pdf.setStrokingColor( 210, 214, 220 );
+        pdf.addRect( MARGEM, baixo, larguraTotal, ALTURA_LINHA );
         pdf.stroke();
-
         float x = MARGEM;
-
         for (int i = 0; i < valores.length; i++) {
-
             if (cabecalho) {
-                pdf.setNonStrokingColor(
-                        255,
-                        255,
-                        255
-                );
+                pdf.setNonStrokingColor( 255, 255, 255 );
             } else {
-                pdf.setNonStrokingColor(
-                        30,
-                        41,
-                        59
-                );
+                pdf.setNonStrokingColor( 30, 41, 59 );
             }
-
             pdf.beginText();
-
-            pdf.setFont(
-                    cabecalho
-                            ? PDType1Font.HELVETICA_BOLD
-                            : PDType1Font.HELVETICA,
-                    8
-            );
-
-            pdf.newLineAtOffset(
-                    x + 5,
-                    baixo + 7
-            );
-
-            pdf.showText(
-                    textoSeguro(valores[i])
-            );
-
+            pdf.setFont( cabecalho ? PDType1Font.HELVETICA_BOLD : PDType1Font.HELVETICA, 8 );
+            pdf.newLineAtOffset( x + 5, baixo + 7 );
+            pdf.showText( textoSeguro(valores[i]) );
             pdf.endText();
-
             x += larguras[i];
-
             if (i < valores.length - 1) {
-
-                pdf.setStrokingColor(
-                        210,
-                        214,
-                        220
-                );
-
-                pdf.moveTo(
-                        x,
-                        baixo
-                );
-
-                pdf.lineTo(
-                        x,
-                        topo
-                );
-
+                pdf.setStrokingColor( 210, 214, 220 );
+                pdf.moveTo( x, baixo );
+                pdf.lineTo( x, topo );
                 pdf.stroke();
             }
         }
-
         return baixo;
     }
 
@@ -392,153 +205,73 @@ public class RelatorioPdfExporter {
             double taxaGlobal,
             List<LinhaRelatorioCursoSerie> linhas
     ) throws IOException {
-
         pdf.beginText();
-
-        pdf.setFont(
-                PDType1Font.HELVETICA_BOLD,
-                13
-        );
-
-        pdf.newLineAtOffset(
-                MARGEM,
-                y
-        );
-
+        pdf.setFont( PDType1Font.HELVETICA_BOLD, 13 );
+        pdf.newLineAtOffset( MARGEM, y );
         pdf.showText("Resumo do período");
-
         pdf.endText();
-
         y -= 25;
-
-        y = texto(
-                pdf,
-                y,
-                String.format(
-                        Locale.US,
-                        "Taxa global de comparecimento: %.2f%%",
-                        taxaGlobal
-                ),
-                10,
-                false
-        );
-
-        y = texto(
-                pdf,
-                y,
-                "Cursos/séries analisados: " + linhas.size(),
-                10,
-                false
-        );
-
-        LinhaRelatorioCursoSerie melhor =
-                encontrarMelhor(linhas);
-
-        LinhaRelatorioCursoSerie pior =
-                encontrarPior(linhas);
-
+        y = texto( pdf, y, String.format( Locale.US, "Taxa global de comparecimento: %.2f%%", taxaGlobal ), 10, false );
+        y = texto( pdf, y, "Cursos/séries analisados: " + linhas.size(), 10, false );
+        LinhaRelatorioCursoSerie melhor = encontrarMelhor(linhas);
+        LinhaRelatorioCursoSerie pior = encontrarPior(linhas);
         if (melhor != null) {
-
             y = texto(
                     pdf,
                     y,
                     "Maior taxa: "
                             + melhor.getCurso() + " / " + melhor.getSerie()
-                            + " ("
-                            + formatarPercentual(
-                            melhor.taxaComparecimento()
-                    )
-                            + ")",
-                    10,
-                    false
-            );
+                            + " (" + formatarPercentual( melhor.taxaComparecimento() ) + ")", 10, false );
         }
-
         if (pior != null) {
-
             texto(
                     pdf,
                     y,
                     "Menor taxa: "
-                            + pior.getCurso() + " / " + pior.getSerie()
-                            + " ("
-                            + formatarPercentual(
-                            pior.taxaComparecimento()
-                    )
-                            + ")",
-                    10,
-                    false
-            );
+                            + pior.getCurso() + " / " + pior.getSerie() + " (" + formatarPercentual( pior.taxaComparecimento() ) + ")", 10, false );
         }
     }
 
     private LinhaRelatorioCursoSerie encontrarMelhor(
             List<LinhaRelatorioCursoSerie> linhas
     ) {
-
         LinhaRelatorioCursoSerie resultado = null;
-
         for (LinhaRelatorioCursoSerie linha : linhas) {
-
             if (resultado == null
                     || linha.taxaComparecimento()
                     > resultado.taxaComparecimento()) {
-
                 resultado = linha;
             }
         }
-
         return resultado;
     }
 
     private LinhaRelatorioCursoSerie encontrarPior(
             List<LinhaRelatorioCursoSerie> linhas
     ) {
-
         LinhaRelatorioCursoSerie resultado = null;
-
         for (LinhaRelatorioCursoSerie linha : linhas) {
-
             if (resultado == null
                     || linha.taxaComparecimento()
                     < resultado.taxaComparecimento()) {
-
                 resultado = linha;
             }
         }
-
         return resultado;
     }
 
     private String formatar(double valor) {
-
-        return String.format(
-                Locale.forLanguageTag("pt-BR"),
-                "%.1f",
-                valor
-        );
+        return String.format( Locale.forLanguageTag("pt-BR"), "%.1f", valor );
     }
 
     private String formatarPercentual(double valor) {
-
-        return String.format(
-                Locale.forLanguageTag("pt-BR"),
-                "%.1f%%",
-                valor
-        );
+        return String.format( Locale.forLanguageTag("pt-BR"), "%.1f%%", valor );
     }
 
     private String textoSeguro(String texto) {
-
         if (texto == null) {
             return "";
         }
-
-        return texto
-                .replace("–", "-")
-                .replace("—", "-")
-                .replace("“", "\"")
-                .replace("”", "\"")
-                .replace("’", "'");
+        return texto .replace("–", "-") .replace("—", "-") .replace("“", "\"") .replace("”", "\"") .replace("’", "'");
     }
 }

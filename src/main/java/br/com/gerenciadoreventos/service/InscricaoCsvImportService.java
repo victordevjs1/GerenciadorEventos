@@ -15,7 +15,6 @@ import java.text.Normalizer;
 import java.util.*;
 
 public class InscricaoCsvImportService {
-
     private final AlunoDAO alunoDAO = new AlunoDAO();
     private final InscricaoDAO inscricaoDAO = new InscricaoDAO();
 
@@ -23,56 +22,43 @@ public class InscricaoCsvImportService {
         if (evento == null) {
             throw new IllegalArgumentException("Selecione um evento antes de analisar o CSV.");
         }
-
         List<InscricaoCsvImportacao> resultado = new ArrayList<>();
         int inscritosAtuais = inscricaoDAO.contarInscricoesAtivasEvento(evento.getId());
         int vagasReservadasNoCsv = 0;
-
         try (BufferedReader reader = Files.newBufferedReader(arquivo.toPath(), StandardCharsets.UTF_8)) {
             String cabecalhoBruto = reader.readLine();
             if (cabecalhoBruto == null || cabecalhoBruto.isBlank()) {
                 throw new IllegalArgumentException("O arquivo CSV está vazio.");
             }
-
             cabecalhoBruto = removerBom(cabecalhoBruto);
             char delimitador = detectarDelimitador(cabecalhoBruto);
             List<String> cabecalhos = separarLinha(cabecalhoBruto, delimitador);
             Map<String, Integer> colunas = mapearColunas(cabecalhos);
-
             Integer colRm = localizarColuna(colunas, "rm", "r m", "registro matricula", "registro de matricula");
             Integer colNome = localizarColuna(colunas, "nome", "nome completo", "aluno");
             Integer colObservacao = localizarColuna(colunas, "observacao", "observações", "observacoes", "comentario", "comentários");
-
             if (colRm == null) {
-                throw new IllegalArgumentException(
-                        "Coluna obrigatória ausente: RM.\n\nUse, por exemplo: RM,Nome,Observacao"
-                );
+                throw new IllegalArgumentException( "Coluna obrigatória ausente: RM.\n\nUse, por exemplo: RM,Nome,Observacao" );
             }
-
             Set<String> rmsNoArquivo = new HashSet<>();
             String linhaBruta;
             int numeroLinha = 1;
-
             while ((linhaBruta = reader.readLine()) != null) {
                 numeroLinha++;
                 if (linhaBruta.isBlank()) continue;
-
                 List<String> valores = separarLinha(linhaBruta, delimitador);
                 String rm = valor(valores, colRm).trim();
                 String nomeCsv = valor(valores, colNome).trim();
                 String observacao = valor(valores, colObservacao).trim();
-
                 Aluno aluno = null;
                 String problema = null;
                 String chaveRm = normalizarRm(rm);
-
                 if (rm.isBlank()) {
                     problema = "RM não informado";
                 } else if (!rmsNoArquivo.add(chaveRm)) {
                     problema = "RM repetido no próprio CSV";
                 } else {
                     aluno = alunoDAO.buscarPorRm(rm);
-
                     if (aluno == null) {
                         problema = "RM não encontrado no cadastro de alunos";
                     } else if (!aluno.isAtivo()) {
@@ -81,7 +67,6 @@ public class InscricaoCsvImportService {
                         problema = "Aluno fora do público deste evento";
                     } else {
                         String statusAtual = inscricaoDAO.buscarStatusInscricao(aluno.getId(), evento.getId());
-
                         if (statusAtual != null && !"CANCELADO".equalsIgnoreCase(statusAtual)) {
                             problema = "Aluno já inscrito neste evento";
                         } else if (evento.getCapacidade() > 0
@@ -90,7 +75,6 @@ public class InscricaoCsvImportService {
                         }
                     }
                 }
-
                 boolean valido = problema == null;
                 if (valido) {
                     vagasReservadasNoCsv++;
@@ -98,19 +82,10 @@ public class InscricaoCsvImportService {
                         nomeCsv = aluno.getNome();
                     }
                 }
-
                 resultado.add(new InscricaoCsvImportacao(
-                        numeroLinha,
-                        rm,
-                        nomeCsv,
-                        observacao,
-                        aluno,
-                        valido,
-                        valido ? "Pronto para inscrever" : problema
-                ));
+                        numeroLinha, rm, nomeCsv, observacao, aluno, valido, valido ? "Pronto para inscrever" : problema ));
             }
         }
-
         return resultado;
     }
 
@@ -118,21 +93,13 @@ public class InscricaoCsvImportService {
         if (evento == null) {
             throw new IllegalArgumentException("Evento não informado.");
         }
-
         int importados = 0;
-
         for (InscricaoCsvImportacao linha : linhas) {
             if (!linha.isValido() || linha.getAluno() == null) continue;
-
             boolean sucesso = inscricaoDAO.cadastrarOuReativarInscricao(
-                    linha.getAluno().getId(),
-                    evento.getId(),
-                    linha.getObservacao().isBlank() ? null : linha.getObservacao()
-            );
-
+                    linha.getAluno().getId(), evento.getId(), linha.getObservacao().isBlank() ? null : linha.getObservacao() );
             if (sucesso) importados++;
         }
-
         return importados;
     }
 
@@ -149,7 +116,6 @@ public class InscricaoCsvImportService {
             Integer indice = colunas.get(normalizar(alias));
             if (indice != null) return indice;
         }
-
         for (Map.Entry<String, Integer> entry : colunas.entrySet()) {
             for (String alias : aliases) {
                 String normalizado = normalizar(alias);
@@ -168,7 +134,6 @@ public class InscricaoCsvImportService {
         char[] candidatos = {';', ',', '\t'};
         char melhor = ',';
         int maior = -1;
-
         for (char candidato : candidatos) {
             int qtd = contarDelimitadores(linha, candidato);
             if (qtd > maior) {
@@ -201,10 +166,8 @@ public class InscricaoCsvImportService {
         List<String> campos = new ArrayList<>();
         StringBuilder atual = new StringBuilder();
         boolean aspas = false;
-
         for (int i = 0; i < linha.length(); i++) {
             char c = linha.charAt(i);
-
             if (c == '"') {
                 if (aspas && i + 1 < linha.length() && linha.charAt(i + 1) == '"') {
                     atual.append('"');
@@ -219,7 +182,6 @@ public class InscricaoCsvImportService {
                 atual.append(c);
             }
         }
-
         campos.add(atual.toString());
         return campos;
     }
@@ -239,8 +201,6 @@ public class InscricaoCsvImportService {
         if (texto == null) return "";
         String semAcentos = Normalizer.normalize(texto, Normalizer.Form.NFD)
                 .replaceAll("\\p{M}", "");
-        return semAcentos.toLowerCase(Locale.ROOT)
-                .replaceAll("[^a-z0-9]+", " ")
-                .trim();
+        return semAcentos.toLowerCase(Locale.ROOT) .replaceAll("[^a-z0-9]+", " ") .trim();
     }
 }

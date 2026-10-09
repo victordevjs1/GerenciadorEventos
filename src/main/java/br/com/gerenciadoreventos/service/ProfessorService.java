@@ -6,7 +6,6 @@ import br.com.gerenciadoreventos.model.Professor;
 import java.util.List;
 
 public class ProfessorService {
-
     private final ProfessorDAO professorDAO;
 
     public ProfessorService() {
@@ -16,34 +15,24 @@ public class ProfessorService {
     public List<Professor> listarProfessores(
             boolean ativos
     ) {
-
         return professorDAO.listarProfessores(ativos);
     }
 
     public boolean cadastrarProfessor(
             Professor professor
     ) {
-
-        return professorDAO.cadastrarProfessor(
-                professor
-        );
+        return professorDAO.cadastrarProfessor( professor );
     }
 
     public boolean desativarProfessor(
             long idProfessor
     ) {
-
-        return professorDAO.desativar(
-                idProfessor
-        );
+        return professorDAO.desativar( idProfessor );
     }
 
     public boolean ativarProfessor(
             long idProfessor
     ) {
-
-        return professorDAO.ativar(
-                idProfessor
-        );
+        return professorDAO.ativar( idProfessor );
     }
 }

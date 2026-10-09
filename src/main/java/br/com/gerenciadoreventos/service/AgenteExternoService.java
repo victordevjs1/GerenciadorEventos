@@ -6,7 +6,6 @@ import br.com.gerenciadoreventos.model.AgenteExterno;
 import java.util.List;
 
 public class AgenteExternoService {
-
     private final AgenteExternoDAO agenteExternoDAO;
 
     public AgenteExternoService() {
@@ -25,11 +24,7 @@ public class AgenteExternoService {
             String texto,
             boolean ativo
     ) {
-
-        return agenteExternoDAO.pesquisar(
-                texto,
-                ativo
-        );
+        return agenteExternoDAO.pesquisar( texto, ativo );
     }
 
     public AgenteExterno buscarPorId(long id) {
@@ -37,82 +32,33 @@ public class AgenteExternoService {
     }
 
     public boolean cadastrar(AgenteExterno agente) {
-
         if (agente.getNome() == null
                 || agente.getNome().trim().isEmpty()) {
-
             return false;
         }
-
-        agente.setNome(
-                agente.getNome().trim()
-        );
-
-        agente.setEmail(
-                limpar(agente.getEmail())
-        );
-
-        agente.setTelefone(
-                limpar(agente.getTelefone())
-        );
-
-        agente.setEmpresa(
-                limpar(agente.getEmpresa())
-        );
-
-        agente.setCargo(
-                limpar(agente.getCargo())
-        );
-
-        agente.setEspecialidade(
-                limpar(agente.getEspecialidade())
-        );
-
-        agente.setObservacao(
-                limpar(agente.getObservacao())
-        );
-
+        agente.setNome( agente.getNome().trim() );
+        agente.setEmail( limpar(agente.getEmail()) );
+        agente.setTelefone( limpar(agente.getTelefone()) );
+        agente.setEmpresa( limpar(agente.getEmpresa()) );
+        agente.setCargo( limpar(agente.getCargo()) );
+        agente.setEspecialidade( limpar(agente.getEspecialidade()) );
+        agente.setObservacao( limpar(agente.getObservacao()) );
         agente.setAtivo(true);
-
         return agenteExternoDAO.cadastrar(agente);
     }
 
     public boolean atualizar(AgenteExterno agente) {
-
         if (agente.getNome() == null
                 || agente.getNome().trim().isEmpty()) {
-
             return false;
         }
-
-        agente.setNome(
-                agente.getNome().trim()
-        );
-
-        agente.setEmail(
-                limpar(agente.getEmail())
-        );
-
-        agente.setTelefone(
-                limpar(agente.getTelefone())
-        );
-
-        agente.setEmpresa(
-                limpar(agente.getEmpresa())
-        );
-
-        agente.setCargo(
-                limpar(agente.getCargo())
-        );
-
-        agente.setEspecialidade(
-                limpar(agente.getEspecialidade())
-        );
-
-        agente.setObservacao(
-                limpar(agente.getObservacao())
-        );
-
+        agente.setNome( agente.getNome().trim() );
+        agente.setEmail( limpar(agente.getEmail()) );
+        agente.setTelefone( limpar(agente.getTelefone()) );
+        agente.setEmpresa( limpar(agente.getEmpresa()) );
+        agente.setCargo( limpar(agente.getCargo()) );
+        agente.setEspecialidade( limpar(agente.getEspecialidade()) );
+        agente.setObservacao( limpar(agente.getObservacao()) );
         return agenteExternoDAO.atualizar(agente);
     }
 
@@ -125,15 +71,10 @@ public class AgenteExternoService {
     }
 
     private String limpar(String valor) {
-
         if (valor == null) {
             return null;
         }
-
         valor = valor.trim();
-
-        return valor.isEmpty()
-                ? null
-                : valor;
+        return valor.isEmpty() ? null : valor;
     }
 }

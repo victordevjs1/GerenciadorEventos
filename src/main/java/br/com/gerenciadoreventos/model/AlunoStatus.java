@@ -1,7 +1,6 @@
 package br.com.gerenciadoreventos.model;
 
 public class AlunoStatus {
-
     private final String nome;
     private final String status;
 

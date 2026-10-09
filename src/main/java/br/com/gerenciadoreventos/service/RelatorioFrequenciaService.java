@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.List;
 
 public class RelatorioFrequenciaService {
-
     private final RelatorioFrequenciaDAO dao;
     private final RelatorioPdfExporter exporter;
 
@@ -35,23 +34,9 @@ public class RelatorioFrequenciaService {
             int ano,
             int mes
     ) throws IOException {
-
-        List<LinhaRelatorioCursoSerie> linhas =
-                gerarRelatorioPorCursoSerie(ano, mes);
-
+        List<LinhaRelatorioCursoSerie> linhas = gerarRelatorioPorCursoSerie(ano, mes);
         int diasLetivos = contarDiasLetivos(ano, mes);
-
-        double taxaGlobal =
-                calcularTaxaGlobal(linhas);
-
-        exporter.exportarFrequencia(
-                destino,
-                nomeEscola,
-                ano,
-                mes,
-                diasLetivos,
-                linhas,
-                taxaGlobal
-        );
+        double taxaGlobal = calcularTaxaGlobal(linhas);
+        exporter.exportarFrequencia( destino, nomeEscola, ano, mes, diasLetivos, linhas, taxaGlobal );
     }
 }

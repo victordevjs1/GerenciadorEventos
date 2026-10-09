@@ -1,7 +1,6 @@
 package br.com.gerenciadoreventos.model;
 
 public class LinhaRelatorioTurma {
-
     private String turma;
     public int matriculados;
     private int totalRegistros;   // total de chamadas registradas
@@ -39,25 +38,17 @@ public class LinhaRelatorioTurma {
         this.totalPresentes = totalPresentes;
     }
 
-    // =====================================================
     // VALORES DERIVADOS
-    // =====================================================
 
     public double presencasMedia() {
-        return matriculados == 0
-                ? 0
-                : (double) totalPresentes / matriculados;
+        return matriculados == 0 ? 0 : (double) totalPresentes / matriculados;
     }
 
     public double faltasMedia() {
-        return matriculados == 0
-                ? 0
-                : (double) (totalRegistros - totalPresentes) / matriculados;
+        return matriculados == 0 ? 0 : (double) (totalRegistros - totalPresentes) / matriculados;
     }
 
     public double taxaComparecimento() {
-        return totalRegistros == 0
-                ? 0
-                : (totalPresentes * 100.0) / totalRegistros;
+        return totalRegistros == 0 ? 0 : (totalPresentes * 100.0) / totalRegistros;
     }
 }

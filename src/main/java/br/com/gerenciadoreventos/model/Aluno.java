@@ -1,7 +1,6 @@
 package br.com.gerenciadoreventos.model;
 
 public class Aluno {
-
     private long id;
     private String rm;
     private String nome;
@@ -11,16 +10,12 @@ public class Aluno {
     private String telefone;
     private boolean ativo;
 
-    // =====================================================
     // SÉRIE / FORMATURA AUTOMÁTICA
-    // =====================================================
 
     // 1, 2 ou 3 (1º, 2º ou 3º ano do ensino médio)
     private Integer serie;
 
-    // Ano em que o aluno conclui o 3º ano (calculado a partir
-    // da série informada no cadastro). Quando o ano atual
-    // ultrapassa este valor, o aluno é desativado automaticamente.
+    // Ano em que o aluno conclui o 3º ano (calculado a partir da série informada no cadastro). Quando o ano atual ultrapassa este valor, o aluno é desativado automaticamente.
     private Integer anoConclusao;
 
     public Aluno() {

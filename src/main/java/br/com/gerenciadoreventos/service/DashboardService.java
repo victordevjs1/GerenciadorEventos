@@ -7,9 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 public class DashboardService {
-
-    private final DashboardDAO dashboardDAO =
-            new DashboardDAO();
+    private final DashboardDAO dashboardDAO = new DashboardDAO();
 
     public int contarEventos() {
         return dashboardDAO.contarEventos();

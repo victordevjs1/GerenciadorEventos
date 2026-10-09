@@ -3,7 +3,6 @@ package br.com.gerenciadoreventos.model;
 import java.time.LocalDate;
 
 public class EventoOpcao {
-
     private final long id;
     private final String nome;
     private final LocalDate dataInicio;

@@ -1,14 +1,7 @@
 package br.com.gerenciadoreventos.model;
 
-/**
- * Alvo de público de um evento.
- *
- * serie == null representa o curso inteiro.
- * A opção "toda a escola" não usa esta classe: ela é representada por
- * Evento.publicoTodos e por uma linha publico_todos=TRUE em evento_publico.
- */
+// Alvo de público de um evento. serie == null representa o curso inteiro. A opção "toda a escola" não usa esta classe: ela é representada por Evento.publicoTodos e por uma linha publico_todos=TRUE em evento_publico.
 public class EventoPublico {
-
     private String curso;
     private String serie;
 

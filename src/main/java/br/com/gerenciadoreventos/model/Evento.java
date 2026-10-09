@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Evento {
-
     private long id;
     private long idUsuarioCriador;
 
@@ -19,13 +18,7 @@ public class Evento {
     private int capacidade;
     private String status;
 
-    /*
-     * Estado derivado de evento_publico.
-     * Não é uma coluna da tabela evento.
-     *
-     * true  = existe um registro publico_todos = TRUE
-     * false = existem públicos por curso/série
-     */
+    // Estado derivado de evento_publico. Não é uma coluna da tabela evento. true = existe um registro publico_todos = TRUE false = existem públicos por curso/série
     private boolean publicoTodos = true;
 
     private List<EventoPublico> publicos = new ArrayList<>();
@@ -118,7 +111,6 @@ public class Evento {
     }
 
     public void setPublicos(List<EventoPublico> publicos) {
-
         if (publicos == null) {
             this.publicos = new ArrayList<>();
         } else {
@@ -127,7 +119,6 @@ public class Evento {
     }
 
     public void adicionarPublico(EventoPublico publico) {
-
         if (publico != null) {
             publicos.add(publico);
         }

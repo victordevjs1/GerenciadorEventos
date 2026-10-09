@@ -1,7 +1,5 @@
--- =========================================================
 -- GERENCIADOR DE EVENTOS ESCOLARES
 -- BANCO DE DADOS COMPLETO
--- =========================================================
 
 DROP DATABASE IF EXISTS gerenciador_eventos;
 
@@ -13,10 +11,7 @@ USE gerenciador_eventos;
 
 SET FOREIGN_KEY_CHECKS = 0;
 
-
--- =========================================================
 -- 1. USUARIO
--- =========================================================
 
 DROP TABLE IF EXISTS auditoria;
 DROP TABLE IF EXISTS evento_agente_externo;
@@ -36,8 +31,8 @@ DROP TABLE IF EXISTS serie;
 DROP TABLE IF EXISTS curso;
 DROP TABLE IF EXISTS evento;
 DROP TABLE IF EXISTS aluno;
+DROP TABLE IF EXISTS recuperacao_senha;
 DROP TABLE IF EXISTS usuario;
-
 
 CREATE TABLE usuario (
                          id_usuario BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -64,10 +59,28 @@ CREATE TABLE usuario (
 DEFAULT CHARSET=utf8mb4
 COLLATE=utf8mb4_unicode_ci;
 
+-- 2. RECUPERAÇÃO DE SENHA
 
--- =========================================================
--- 2. CURSO
--- =========================================================
+CREATE TABLE recuperacao_senha (
+    id_recuperacao BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    id_usuario BIGINT UNSIGNED NOT NULL,
+    codigo_hash VARCHAR(255) NOT NULL,
+    data_expiracao DATETIME NOT NULL,
+    tentativas TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    utilizado BOOLEAN NOT NULL DEFAULT FALSE,
+    data_solicitacao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id_recuperacao),
+    KEY idx_recuperacao_usuario (id_usuario),
+    KEY idx_recuperacao_expiracao (data_expiracao),
+    CONSTRAINT fk_recuperacao_usuario
+        FOREIGN KEY (id_usuario) REFERENCES usuario (id_usuario)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+) ENGINE=InnoDB
+DEFAULT CHARSET=utf8mb4
+COLLATE=utf8mb4_unicode_ci;
+
+-- 3. CURSO
 
 CREATE TABLE curso (
                        id_curso BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -87,10 +100,7 @@ CREATE TABLE curso (
 DEFAULT CHARSET=utf8mb4
 COLLATE=utf8mb4_unicode_ci;
 
-
--- =========================================================
--- 3. SERIE
--- =========================================================
+-- 4. SERIE
 --
 -- Cada curso possui suas próprias séries.
 --
@@ -106,7 +116,6 @@ COLLATE=utf8mb4_unicode_ci;
 --   2º Ano
 --   3º Ano
 --
--- =========================================================
 
 CREATE TABLE serie (
                        id_serie BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -146,10 +155,7 @@ CREATE TABLE serie (
 DEFAULT CHARSET=utf8mb4
 COLLATE=utf8mb4_unicode_ci;
 
-
--- =========================================================
--- 4. ALUNO
--- =========================================================
+-- 5. ALUNO
 
 CREATE TABLE aluno (
                        id_aluno BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -163,7 +169,6 @@ CREATE TABLE aluno (
                        id_curso BIGINT UNSIGNED NULL,
 
                        id_serie BIGINT UNSIGNED NULL,
-
 
                        ano_conclusao YEAR NULL,
 
@@ -188,7 +193,6 @@ CREATE TABLE aluno (
                        KEY idx_aluno_serie (
         id_serie
     ),
-
 
                        KEY idx_aluno_ano_conclusao (
         ano_conclusao
@@ -216,10 +220,7 @@ CREATE TABLE aluno (
 DEFAULT CHARSET=utf8mb4
 COLLATE=utf8mb4_unicode_ci;
 
-
--- =========================================================
--- 5. EVENTO
--- =========================================================
+-- 6. EVENTO
 
 CREATE TABLE evento (
                         id_evento BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -272,10 +273,7 @@ CREATE TABLE evento (
 DEFAULT CHARSET=utf8mb4
 COLLATE=utf8mb4_unicode_ci;
 
-
--- =========================================================
--- 6. EVENTO_PUBLICO
--- =========================================================
+-- 7. EVENTO_PUBLICO
 --
 -- Define quem pode participar de cada evento.
 --
@@ -316,7 +314,6 @@ COLLATE=utf8mb4_unicode_ci;
 -- DS 2º ano
 -- Nutrição inteira
 --
--- =========================================================
 
 CREATE TABLE evento_publico (
                                 id_evento_publico BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -387,10 +384,7 @@ CREATE TABLE evento_publico (
 DEFAULT CHARSET=utf8mb4
 COLLATE=utf8mb4_unicode_ci;
 
-
--- =========================================================
--- 7. PROFESSOR
--- =========================================================
+-- 8. PROFESSOR
 
 CREATE TABLE professor (
                            id_professor BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -421,10 +415,7 @@ CREATE TABLE professor (
 DEFAULT CHARSET=utf8mb4
 COLLATE=utf8mb4_unicode_ci;
 
-
--- =========================================================
--- 8. EVENTO_PROFESSOR
--- =========================================================
+-- 9. EVENTO_PROFESSOR
 
 CREATE TABLE evento_professor (
                                   id_evento BIGINT UNSIGNED NOT NULL,
@@ -454,10 +445,7 @@ CREATE TABLE evento_professor (
 DEFAULT CHARSET=utf8mb4
 COLLATE=utf8mb4_unicode_ci;
 
-
--- =========================================================
--- 9. INSCRICAO_EVENTO
--- =========================================================
+-- 10. INSCRICAO_EVENTO
 
 CREATE TABLE inscricao_evento (
                                   id_inscricao BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -513,10 +501,7 @@ CREATE TABLE inscricao_evento (
 DEFAULT CHARSET=utf8mb4
 COLLATE=utf8mb4_unicode_ci;
 
-
--- =========================================================
--- 10. PRESENCA_EVENTO
--- =========================================================
+-- 11. PRESENCA_EVENTO
 
 CREATE TABLE presenca_evento (
                                  id_presenca BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -563,10 +548,7 @@ CREATE TABLE presenca_evento (
 DEFAULT CHARSET=utf8mb4
 COLLATE=utf8mb4_unicode_ci;
 
-
--- =========================================================
--- 11. COMISSAO
--- =========================================================
+-- 12. COMISSAO
 
 CREATE TABLE comissao (
                           id_comissao BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -599,10 +581,7 @@ CREATE TABLE comissao (
 DEFAULT CHARSET=utf8mb4
 COLLATE=utf8mb4_unicode_ci;
 
-
--- =========================================================
--- 12. COMISSAO_ALUNO
--- =========================================================
+-- 13. COMISSAO_ALUNO
 
 CREATE TABLE comissao_aluno (
                                 id_comissao BIGINT UNSIGNED NOT NULL,
@@ -642,10 +621,7 @@ CREATE TABLE comissao_aluno (
 DEFAULT CHARSET=utf8mb4
 COLLATE=utf8mb4_unicode_ci;
 
-
--- =========================================================
--- 13. ATIVIDADE
--- =========================================================
+-- 14. ATIVIDADE
 
 CREATE TABLE atividade (
                            id_atividade BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -700,10 +676,7 @@ CREATE TABLE atividade (
 DEFAULT CHARSET=utf8mb4
 COLLATE=utf8mb4_unicode_ci;
 
-
--- =========================================================
--- 14. COMISSAO_ATIVIDADE
--- =========================================================
+-- 15. COMISSAO_ATIVIDADE
 
 CREATE TABLE comissao_atividade (
                                     id_comissao BIGINT UNSIGNED NOT NULL,
@@ -748,10 +721,7 @@ CREATE TABLE comissao_atividade (
 DEFAULT CHARSET=utf8mb4
 COLLATE=utf8mb4_unicode_ci;
 
-
--- =========================================================
--- 15. RESPONSABILIDADE
--- =========================================================
+-- 16. RESPONSABILIDADE
 
 CREATE TABLE responsabilidade (
                                   id_responsabilidade BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -797,10 +767,7 @@ CREATE TABLE responsabilidade (
 DEFAULT CHARSET=utf8mb4
 COLLATE=utf8mb4_unicode_ci;
 
-
--- =========================================================
--- 16. RESPONSABILIDADE_COMISSAO
--- =========================================================
+-- 17. RESPONSABILIDADE_COMISSAO
 
 CREATE TABLE responsabilidade_comissao (
                                            id_responsabilidade BIGINT UNSIGNED NOT NULL,
@@ -832,10 +799,7 @@ CREATE TABLE responsabilidade_comissao (
 DEFAULT CHARSET=utf8mb4
 COLLATE=utf8mb4_unicode_ci;
 
-
--- =========================================================
--- 17. AGENTE_EXTERNO
--- =========================================================
+-- 18. AGENTE_EXTERNO
 
 CREATE TABLE agente_externo (
                                 id_agente BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -874,10 +838,7 @@ CREATE TABLE agente_externo (
 DEFAULT CHARSET=utf8mb4
 COLLATE=utf8mb4_unicode_ci;
 
-
--- =========================================================
--- 18. EVENTO_AGENTE_EXTERNO
--- =========================================================
+-- 19. EVENTO_AGENTE_EXTERNO
 
 CREATE TABLE evento_agente_externo (
                                        id_evento BIGINT UNSIGNED NOT NULL,
@@ -921,10 +882,7 @@ CREATE TABLE evento_agente_externo (
 DEFAULT CHARSET=utf8mb4
 COLLATE=utf8mb4_unicode_ci;
 
-
--- =========================================================
--- 19. AUDITORIA
--- =========================================================
+-- 20. AUDITORIA
 
 CREATE TABLE auditoria (
                            id_auditoria BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -973,15 +931,9 @@ CREATE TABLE auditoria (
 DEFAULT CHARSET=utf8mb4
 COLLATE=utf8mb4_unicode_ci;
 
-
--- =========================================================
 -- DADOS INICIAIS
--- =========================================================
 
-
--- =========================================================
 -- USUÁRIOS
--- =========================================================
 
 INSERT INTO usuario (
     id_usuario,
@@ -1011,10 +963,7 @@ INSERT INTO usuario (
           '2026-09-10 17:35:39'
       );
 
-
--- =========================================================
 -- CURSOS
--- =========================================================
 
 INSERT INTO curso (
     id_curso,
@@ -1042,10 +991,7 @@ INSERT INTO curso (
           'MKT'
       );
 
-
--- =========================================================
 -- SÉRIES
--- =========================================================
 
 INSERT INTO serie (
     id_serie,
@@ -1134,10 +1080,7 @@ INSERT INTO serie (
     3
 );
 
-
--- =========================================================
 -- EVENTOS
--- =========================================================
 
 INSERT INTO evento (
     id_evento,
@@ -1176,13 +1119,8 @@ INSERT INTO evento (
           '2026-09-10 18:35:44'
       );
 
-
--- =========================================================
 -- PÚBLICO DOS EVENTOS
--- =========================================================
 
-
--- =========================================================
 -- EVENTO 1
 -- Semana de Tecnologia
 --
@@ -1190,7 +1128,6 @@ INSERT INTO evento (
 -- TODAS AS SÉRIES
 --
 -- id_serie = NULL
--- =========================================================
 
 INSERT INTO evento_publico (
     id_evento,
@@ -1204,13 +1141,10 @@ INSERT INTO evento_publico (
              FALSE
          );
 
-
--- =========================================================
 -- EVENTO 2
 -- Feira de Ciências
 --
 -- TODA A ESCOLA
--- =========================================================
 
 INSERT INTO evento_publico (
     id_evento,
@@ -1224,15 +1158,9 @@ INSERT INTO evento_publico (
              TRUE
          );
 
-
--- =========================================================
 -- VIEWS
--- =========================================================
 
-
--- =========================================================
 -- VIEW EVENTOS
--- =========================================================
 
 CREATE OR REPLACE VIEW vw_eventos AS
 SELECT
@@ -1265,10 +1193,7 @@ FROM evento e
          INNER JOIN usuario u
                     ON u.id_usuario = e.id_usuario_criador;
 
-
--- =========================================================
 -- VIEW PÚBLICO DOS EVENTOS
--- =========================================================
 
 CREATE OR REPLACE VIEW vw_eventos_publico AS
 SELECT
@@ -1299,10 +1224,7 @@ FROM evento_publico ep
          LEFT JOIN serie s
                    ON s.id_serie = ep.id_serie;
 
-
--- =========================================================
 -- VIEW ALUNOS POR EVENTO
--- =========================================================
 
 CREATE OR REPLACE VIEW vw_alunos_eventos AS
 SELECT
@@ -1348,10 +1270,7 @@ FROM inscricao_evento i
          LEFT JOIN serie s
                    ON s.id_serie = a.id_serie;
 
-
--- =========================================================
 -- VIEW ATIVIDADES
--- =========================================================
 
 CREATE OR REPLACE VIEW vw_atividades AS
 SELECT
@@ -1382,10 +1301,7 @@ FROM atividade a
          INNER JOIN evento e
                     ON e.id_evento = a.id_evento;
 
-
--- =========================================================
 -- VIEW QUANTIDADE DE ALUNOS POR EVENTO
--- =========================================================
 
 CREATE OR REPLACE VIEW vw_quantidade_alunos_evento AS
 SELECT
@@ -1425,10 +1341,7 @@ GROUP BY
     e.nome,
     e.capacidade;
 
-
--- =========================================================
 -- VIEW COMISSÕES
--- =========================================================
 
 CREATE OR REPLACE VIEW vw_comissoes AS
 SELECT
@@ -1475,10 +1388,7 @@ GROUP BY
     c.ativo,
     c.data_cadastro;
 
-
--- =========================================================
 -- VIEW RESPONSABILIDADES
--- =========================================================
 
 CREATE OR REPLACE VIEW vw_responsabilidades AS
 SELECT
@@ -1524,10 +1434,7 @@ GROUP BY
     r.data_atribuicao,
     r.data_conclusao;
 
-
--- =========================================================
 -- VIEW PROFESSORES POR EVENTO
--- =========================================================
 
 CREATE OR REPLACE VIEW vw_eventos_professores AS
 SELECT
@@ -1555,10 +1462,7 @@ FROM evento_professor ep
          INNER JOIN professor p
                     ON p.id_professor = ep.id_professor;
 
-
--- =========================================================
 -- VIEW AGENTES EXTERNOS POR EVENTO
--- =========================================================
 
 CREATE OR REPLACE VIEW vw_eventos_agentes_externos AS
 SELECT
@@ -1594,10 +1498,7 @@ FROM evento_agente_externo ea
          INNER JOIN agente_externo a
                     ON a.id_agente = ea.id_agente;
 
-
--- =========================================================
 -- VIEW CURSOS E SÉRIES
--- =========================================================
 
 CREATE OR REPLACE VIEW vw_cursos_series AS
 SELECT
@@ -1624,10 +1525,7 @@ ORDER BY
     c.nome,
     s.numero;
 
-
--- =========================================================
 -- VIEW RESUMO DOS EVENTOS
--- =========================================================
 
 CREATE OR REPLACE VIEW vw_resumo_eventos AS
 SELECT
@@ -1711,7 +1609,4 @@ GROUP BY
     e.capacidade,
     e.status;
 
-
--- =========================================================
 -- FIM DO BANCO
--- =========================================================

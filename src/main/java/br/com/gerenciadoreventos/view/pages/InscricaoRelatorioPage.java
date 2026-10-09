@@ -1,7 +1,6 @@
 package br.com.gerenciadoreventos.view.pages;
 
 public class InscricaoRelatorioPage {
-
     private long idAluno;
     private String nome;
     private String rm;

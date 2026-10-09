@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Set;
 
 public class PresencaImportService {
-
     private final AlunoDAO alunoDAO;
     private final PresencaImportDAO presencaDAO;
 
@@ -21,19 +20,13 @@ public class PresencaImportService {
         presencaDAO = new PresencaImportDAO();
     }
 
-
-    // =====================================================
     // ALUNO
-    // =====================================================
 
     public Aluno buscarAlunoPorRm(String rm) {
         return alunoDAO.buscarPorRm(rm);
     }
 
-
-    // =====================================================
     // LISTAS PARA OS COMBOS
-    // =====================================================
 
     public List<EventoOpcao> listarEventos() {
         return presencaDAO.listarEventos();
@@ -43,19 +36,13 @@ public class PresencaImportService {
         return presencaDAO.listarAtividades();
     }
 
-
-    // =====================================================
     // PÚBLICO / INSCRIÇÕES DO EVENTO
-    // =====================================================
 
     public boolean alunoPertenceAoPublicoEvento(
             long idAluno,
             long idEvento
     ) {
-        return presencaDAO.alunoPertenceAoPublicoEvento(
-                idAluno,
-                idEvento
-        );
+        return presencaDAO.alunoPertenceAoPublicoEvento( idAluno, idEvento );
     }
 
     public boolean alunoInscritoNoEvento(
@@ -69,10 +56,7 @@ public class PresencaImportService {
         return presencaDAO.sincronizarInscricoesPublicoEvento(idEvento);
     }
 
-
-    // =====================================================
     // PRESENÇA EM EVENTO
-    // =====================================================
 
     public boolean registrarPresencaEvento(
             long idAluno,
@@ -80,63 +64,36 @@ public class PresencaImportService {
             LocalDate data,
             String status
     ) {
-
         Long idInscricao = presencaDAO.obterInscricaoAtiva(idAluno, idEvento);
-
         if (idInscricao == null) {
             return false;
         }
-
         return presencaDAO.registrarPresenca(idInscricao, data, status);
     }
 
-
-    // =====================================================
-    // MARCAR AUSENTES DO EVENTO
-    //
-    // O CSV do Google Forms contém somente quem respondeu.
-    // Antes desta etapa, as inscrições são sincronizadas com
-    // evento_publico. Assim, somente alunos do curso/série
-    // correto entram no cálculo de AUSENTE.
-    // =====================================================
+    // MARCAR AUSENTES DO EVENTO O CSV do Google Forms contém somente quem respondeu. Antes desta etapa, as inscrições são sincronizadas com evento_publico. Assim, somente alunos do curso/série correto entram no cálculo de AUSENTE.
 
     public int registrarAusenciasEvento(
             long idEvento,
             LocalDate data,
             Set<String> rmsPresentes
     ) {
-
-        Map<String, Long> inscricoes =
-                presencaDAO.listarInscricoesAtivasEvento(idEvento);
-
+        Map<String, Long> inscricoes = presencaDAO.listarInscricoesAtivasEvento(idEvento);
         int ausentesRegistrados = 0;
-
         for (Map.Entry<String, Long> entrada : inscricoes.entrySet()) {
-
             String rm = entrada.getKey();
-
             if (rmsPresentes.contains(rm)) {
                 continue;
             }
-
-            boolean sucesso = presencaDAO.registrarPresenca(
-                    entrada.getValue(),
-                    data,
-                    "AUSENTE"
-            );
-
+            boolean sucesso = presencaDAO.registrarPresenca( entrada.getValue(), data, "AUSENTE" );
             if (sucesso) {
                 ausentesRegistrados++;
             }
         }
-
         return ausentesRegistrados;
     }
 
-
-    // =====================================================
     // PARTICIPAÇÃO EM ATIVIDADE
-    // =====================================================
 
     public boolean registrarParticipacaoAtividade(
             long idAluno,

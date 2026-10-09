@@ -1,6 +1,5 @@
 package br.com.gerenciadoreventos.view.pages;
 
-
 import br.com.gerenciadoreventos.theme.ThemeManager;
 import br.com.gerenciadoreventos.dao.AlunoDAO;
 import br.com.gerenciadoreventos.dao.EventoDAO;
@@ -21,33 +20,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InscricoesPage extends JPanel {
+    private static final Color FUNDO = new Color(246, 248, 252);
 
-    private static final Color FUNDO =
-            new Color(246, 248, 252);
+    private static final Color AZUL = new Color(37, 99, 235);
 
-    private static final Color AZUL =
-            new Color(37, 99, 235);
+    private static final Color AZUL_HOVER = new Color(29, 78, 216);
 
-    private static final Color AZUL_HOVER =
-            new Color(29, 78, 216);
+    private static final Color TEXTO = new Color(15, 23, 42);
 
-    private static final Color TEXTO =
-            new Color(15, 23, 42);
+    private static final Color CINZA_TEXTO = new Color(100, 116, 139);
 
-    private static final Color CINZA_TEXTO =
-            new Color(100, 116, 139);
+    private static final Color BORDA = new Color(203, 213, 225);
 
-    private static final Color BORDA =
-            new Color(203, 213, 225);
+    private final InscricaoDAO inscricaoDAO = new InscricaoDAO();
 
-    private final InscricaoDAO inscricaoDAO =
-            new InscricaoDAO();
+    private final EventoDAO eventoDAO = new EventoDAO();
 
-    private final EventoDAO eventoDAO =
-            new EventoDAO();
-
-    private final AlunoDAO alunoDAO =
-            new AlunoDAO();
+    private final AlunoDAO alunoDAO = new AlunoDAO();
 
     private JPanel painelInscricoes;
 
@@ -58,230 +47,90 @@ public class InscricoesPage extends JPanel {
     private JTextField campoBusca;
 
     public InscricoesPage() {
-
         inicializarInterface();
-
         carregarEventos();
-
         carregarInscricoes();
     }
 
-    // =====================================================
     // INTERFACE
-    // =====================================================
 
     private void inicializarInterface() {
-
         setLayout(new BorderLayout());
-
         setBackground(FUNDO);
-
-        add(
-                criarConteudo(),
-                BorderLayout.CENTER
-        );
+        add( criarConteudo(), BorderLayout.CENTER );
     }
 
     private JPanel criarConteudo() {
-
-        JPanel painel =
-                new JPanel(new BorderLayout());
-
+        JPanel painel = new JPanel(new BorderLayout());
         painel.setBackground(ThemeManager.getFundo());
-
-        painel.setBorder(
-                new EmptyBorder(
-                        25,
-                        25,
-                        25,
-                        25
-                )
-        );
-
-        painel.add(
-                criarCabecalho(),
-                BorderLayout.NORTH
-        );
-
-        painel.add(
-                criarListaInscricoes(),
-                BorderLayout.CENTER
-        );
-
+        painel.setBorder( new EmptyBorder( 25, 25, 25, 25 ) );
+        painel.add( criarCabecalho(), BorderLayout.NORTH );
+        painel.add( criarListaInscricoes(), BorderLayout.CENTER );
         return painel;
     }
 
-    // =====================================================
     // CABEÇALHO
-    // =====================================================
 
     private JPanel criarCabecalho() {
-
-        JPanel cabecalho =
-                new JPanel();
-
-        cabecalho.setLayout(
-                new BoxLayout(
-                        cabecalho,
-                        BoxLayout.Y_AXIS
-                )
-        );
-
+        JPanel cabecalho = new JPanel();
+        cabecalho.setLayout( new BoxLayout( cabecalho, BoxLayout.Y_AXIS ) );
         cabecalho.setBackground(ThemeManager.getFundo());
-
-        JPanel linhaSuperior =
-                new JPanel(new BorderLayout());
-
+        JPanel linhaSuperior = new JPanel(new BorderLayout());
         linhaSuperior.setBackground(ThemeManager.getFundo());
-
-        JPanel textos =
-                new JPanel();
-
-        textos.setLayout(
-                new BoxLayout(
-                        textos,
-                        BoxLayout.Y_AXIS
-                )
-        );
-
+        JPanel textos = new JPanel();
+        textos.setLayout( new BoxLayout( textos, BoxLayout.Y_AXIS ) );
         textos.setBackground(ThemeManager.getFundo());
-
-        JLabel titulo =
-                new JLabel("Inscrições");
-
-        titulo.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        28
-                )
-        );
-
+        JLabel titulo = new JLabel("Inscrições");
+        titulo.setFont( new Font( "Segoe UI", Font.BOLD, 28 ) );
         titulo.setForeground(ThemeManager.getTexto());
-
-        JLabel subtitulo =
-                new JLabel(
-                        "Gerencie os participantes dos eventos"
-                );
-
-        subtitulo.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        14
-                )
-        );
-
+        JLabel subtitulo = new JLabel( "Gerencie os participantes dos eventos" );
+        subtitulo.setFont( new Font( "Segoe UI", Font.PLAIN, 14 ) );
         subtitulo.setForeground(ThemeManager.getTextoSecundario());
-
         textos.add(titulo);
-
-        textos.add(
-                Box.createVerticalStrut(4)
-        );
-
+        textos.add( Box.createVerticalStrut(4) );
         textos.add(subtitulo);
-
-        linhaSuperior.add(
-                textos,
-                BorderLayout.WEST
-        );
-
-        JButton novaInscricao =
-                criarBotaoPrincipal(
-                        "+ Nova Inscrição"
-                );
-
+        linhaSuperior.add( textos, BorderLayout.WEST );
+        JButton novaInscricao = criarBotaoPrincipal( "+ Nova Inscrição" );
         novaInscricao.addActionListener(
-                e -> abrirNovaInscricao()
-        );
-
-        JButton importarCsv =
-                criarBotaoSecundario(
-                        "Importar CSV"
-                );
-
+                e -> abrirNovaInscricao() );
+        JButton importarCsv = criarBotaoSecundario( "Importar CSV" );
         importarCsv.addActionListener(
-                e -> abrirImportadorCsv()
-        );
-
-        JPanel acoesCabecalho =
-                new JPanel(
-                        new FlowLayout(
-                                FlowLayout.RIGHT,
-                                10,
-                                0
-                        )
-                );
-
+                e -> abrirImportadorCsv() );
+        JPanel acoesCabecalho = new JPanel( new FlowLayout( FlowLayout.RIGHT, 10, 0 ) );
         acoesCabecalho.setBackground(ThemeManager.getFundo());
         acoesCabecalho.add(importarCsv);
         acoesCabecalho.add(novaInscricao);
-
-        linhaSuperior.add(
-                acoesCabecalho,
-                BorderLayout.EAST
-        );
-
+        linhaSuperior.add( acoesCabecalho, BorderLayout.EAST );
         cabecalho.add(linhaSuperior);
-
-        cabecalho.add(
-                Box.createVerticalStrut(22)
-        );
-
+        cabecalho.add( Box.createVerticalStrut(22) );
         criarFiltros(cabecalho);
-
         return cabecalho;
     }
 
-    // =====================================================
     // FILTROS
-    // =====================================================
 
     private void criarFiltros(JPanel cabecalho) {
-
-        JPanel filtros =
-                new JPanel(
-                        new BorderLayout(
-                                12,
-                                0
-                        )
-                );
-
+        JPanel filtros = new JPanel( new BorderLayout( 12, 0 ) );
         filtros.setBackground(ThemeManager.getFundo());
-
-        campoBusca =
-                new JTextField();
-
-        campoBusca.putClientProperty(
-                "JTextField.placeholderText",
-                "Pesquisar por nome ou RM..."
-        );
-
+        campoBusca = new JTextField();
+        campoBusca.putClientProperty( "JTextField.placeholderText", "Pesquisar por nome ou RM..." );
         estilizarCampo(campoBusca);
-
-        campoBusca.setPreferredSize(
-                new Dimension(0, 42)
-        );
-
+        campoBusca.setPreferredSize( new Dimension(0, 42) );
         campoBusca.getDocument()
                 .addDocumentListener(
                         new DocumentListener() {
-
                             @Override
                             public void insertUpdate(
                                     DocumentEvent e
                             ) {
                                 carregarInscricoes();
                             }
-
                             @Override
                             public void removeUpdate(
                                     DocumentEvent e
                             ) {
                                 carregarInscricoes();
                             }
-
                             @Override
                             public void changedUpdate(
                                     DocumentEvent e
@@ -290,106 +139,38 @@ public class InscricoesPage extends JPanel {
                             }
                         }
                 );
-
-        filtros.add(
-                campoBusca,
-                BorderLayout.CENTER
-        );
-
-        comboEvento =
-                new JComboBox<>();
-
-        comboEvento.setPreferredSize(
-                new Dimension(
-                        260,
-                        42
-                )
-        );
-
+        filtros.add( campoBusca, BorderLayout.CENTER );
+        comboEvento = new JComboBox<>();
+        comboEvento.setPreferredSize( new Dimension( 260, 42 ) );
         estilizarCombo(comboEvento);
-
-        comboEvento.setRenderer(
-                criarRendererEvento()
-        );
-
+        comboEvento.setRenderer( criarRendererEvento() );
         comboEvento.addActionListener(
-                e -> carregarInscricoes()
-        );
-
-        filtros.add(
-                comboEvento,
-                BorderLayout.EAST
-        );
-
+                e -> carregarInscricoes() );
+        filtros.add( comboEvento, BorderLayout.EAST );
         cabecalho.add(filtros);
-
-        cabecalho.add(
-                Box.createVerticalStrut(12)
-        );
-
-        JPanel statusPanel =
-                new JPanel(
-                        new FlowLayout(
-                                FlowLayout.LEFT,
-                                0,
-                                0
-                        )
-                );
-
+        cabecalho.add( Box.createVerticalStrut(12) );
+        JPanel statusPanel = new JPanel( new FlowLayout( FlowLayout.LEFT, 0, 0 ) );
         statusPanel.setBackground(ThemeManager.getFundo());
-
-        JLabel labelStatus =
-                new JLabel("Status:");
-
-        labelStatus.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        13
-                )
-        );
-
+        JLabel labelStatus = new JLabel("Status:");
+        labelStatus.setFont( new Font( "Segoe UI", Font.BOLD, 13 ) );
         labelStatus.setForeground(ThemeManager.getTexto());
-
         statusPanel.add(labelStatus);
-
-        statusPanel.add(
-                Box.createHorizontalStrut(8)
-        );
-
-        comboStatus =
-                new JComboBox<>();
-
+        statusPanel.add( Box.createHorizontalStrut(8) );
+        comboStatus = new JComboBox<>();
         comboStatus.addItem("TODOS");
         comboStatus.addItem("INSCRITO");
         comboStatus.addItem("CANCELADO");
-
-        comboStatus.setPreferredSize(
-                new Dimension(
-                        160,
-                        38
-                )
-        );
-
+        comboStatus.setPreferredSize( new Dimension( 160, 38 ) );
         estilizarCombo(comboStatus);
-
         comboStatus.addActionListener(
-                e -> carregarInscricoes()
-        );
-
+                e -> carregarInscricoes() );
         statusPanel.add(comboStatus);
-
         cabecalho.add(statusPanel);
-
-        cabecalho.add(
-                Box.createVerticalStrut(18)
-        );
+        cabecalho.add( Box.createVerticalStrut(18) );
     }
 
     private DefaultListCellRenderer criarRendererEvento() {
-
         return new DefaultListCellRenderer() {
-
             @Override
             public Component getListCellRendererComponent(
                     JList<?> list,
@@ -398,967 +179,322 @@ public class InscricoesPage extends JPanel {
                     boolean isSelected,
                     boolean cellHasFocus
             ) {
-
-                super.getListCellRendererComponent(
-                        list,
-                        value,
-                        index,
-                        isSelected,
-                        cellHasFocus
-                );
-
+                super.getListCellRendererComponent( list, value, index, isSelected, cellHasFocus );
                 if (value instanceof Evento) {
-
-                    Evento evento =
-                            (Evento) value;
-
+                    Evento evento = (Evento) value;
                     setText(evento.getNome());
                 }
-
                 return this;
             }
         };
     }
 
-    // =====================================================
     // EVENTOS
-    // =====================================================
 
     private void carregarEventos() {
-
         if (comboEvento == null) {
             return;
         }
-
         comboEvento.removeAllItems();
-
-        List<Evento> eventos =
-                eventoDAO.listarEventos();
-
+        List<Evento> eventos = eventoDAO.listarEventos();
         for (Evento evento : eventos) {
-
             comboEvento.addItem(evento);
         }
     }
 
-    // =====================================================
     // LISTA DE INSCRIÇÕES
-    // =====================================================
 
     private JScrollPane criarListaInscricoes() {
-
-        painelInscricoes =
-                new JPanel();
-
-        painelInscricoes.setLayout(
-                new BoxLayout(
-                        painelInscricoes,
-                        BoxLayout.Y_AXIS
-                )
-        );
-
+        painelInscricoes = new JPanel();
+        painelInscricoes.setLayout( new BoxLayout( painelInscricoes, BoxLayout.Y_AXIS ) );
         painelInscricoes.setBackground(ThemeManager.getFundo());
-
-        painelInscricoes.setBorder(
-                new EmptyBorder(
-                        5,
-                        0,
-                        20,
-                        0
-                )
-        );
-
-        JScrollPane scroll =
-                new JScrollPane(
-                        painelInscricoes
-                );
-
+        painelInscricoes.setBorder( new EmptyBorder( 5, 0, 20, 0 ) );
+        JScrollPane scroll = new JScrollPane( painelInscricoes );
         scroll.setBorder(null);
-
-        scroll.setHorizontalScrollBarPolicy(
-                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
-        );
-
-        scroll.getVerticalScrollBar()
-                .setUnitIncrement(16);
-
+        scroll.setHorizontalScrollBarPolicy( JScrollPane.HORIZONTAL_SCROLLBAR_NEVER );
+        scroll.getVerticalScrollBar() .setUnitIncrement(16);
         return scroll;
     }
 
     private void carregarInscricoes() {
-
         if (painelInscricoes == null) {
             return;
         }
-
         painelInscricoes.removeAll();
-
         Long idEvento = null;
-
         if (comboEvento != null) {
-
-            Evento evento =
-                    (Evento) comboEvento
-                            .getSelectedItem();
-
+            Evento evento = (Evento) comboEvento .getSelectedItem();
             if (evento != null) {
-
-                idEvento =
-                        evento.getId();
+                idEvento = evento.getId();
             }
         }
-
         String busca = "";
-
         if (campoBusca != null) {
-
-            busca =
-                    campoBusca
-                            .getText()
-                            .trim();
+            busca = campoBusca .getText() .trim();
         }
-
         String status = "TODOS";
-
         if (comboStatus != null
                 && comboStatus.getSelectedItem() != null) {
-
-            status =
-                    comboStatus
-                            .getSelectedItem()
-                            .toString();
+            status = comboStatus .getSelectedItem() .toString();
         }
-
-        List<Inscricao> inscricoes =
-                inscricaoDAO.listarInscricoes(
-                        idEvento,
-                        busca,
-                        status
-                );
-
+        List<Inscricao> inscricoes = inscricaoDAO.listarInscricoes( idEvento, busca, status );
         if (inscricoes.isEmpty()) {
-
-            JLabel vazio =
-                    new JLabel(
-                            "Nenhuma inscrição encontrada."
-                    );
-
-            vazio.setFont(
-                    new Font(
-                            "Segoe UI",
-                            Font.PLAIN,
-                            15
-                    )
-            );
-
+            JLabel vazio = new JLabel( "Nenhuma inscrição encontrada." );
+            vazio.setFont( new Font( "Segoe UI", Font.PLAIN, 15 ) );
             vazio.setForeground(ThemeManager.getTextoSecundario());
-
-            vazio.setAlignmentX(
-                    Component.CENTER_ALIGNMENT
-            );
-
-            painelInscricoes.add(
-                    Box.createVerticalStrut(30)
-            );
-
+            vazio.setAlignmentX( Component.CENTER_ALIGNMENT );
+            painelInscricoes.add( Box.createVerticalStrut(30) );
             painelInscricoes.add(vazio);
-
         } else {
-
             for (Inscricao inscricao : inscricoes) {
-
-                painelInscricoes.add(
-                        criarCardInscricao(
-                                inscricao
-                        )
-                );
-
-                painelInscricoes.add(
-                        Box.createVerticalStrut(12)
-                );
+                painelInscricoes.add( criarCardInscricao( inscricao ) );
+                painelInscricoes.add( Box.createVerticalStrut(12) );
             }
         }
-
         painelInscricoes.revalidate();
-
         painelInscricoes.repaint();
         SwingUtilities.invokeLater(() -> ThemeManager.aplicarTema(InscricoesPage.this));
     }
 
-    // =====================================================
     // CARD
-    // =====================================================
 
     private JPanel criarCardInscricao(
             Inscricao inscricao
     ) {
-
-        JPanel card =
-                new JPanel(
-                        new BorderLayout(
-                                20,
-                                0
-                        )
-                );
-
+        JPanel card = new JPanel( new BorderLayout( 20, 0 ) );
         card.setBackground(ThemeManager.getPainel());
-
-        card.setMaximumSize(
-                new Dimension(
-                        Integer.MAX_VALUE,
-                        140
-                )
-        );
-
+        card.setMaximumSize( new Dimension( Integer.MAX_VALUE, 140 ) );
         card.setBorder(
                 BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(
-                                new Color(
-                                        226,
-                                        232,
-                                        240
-                                )
-                        ),
-                        new EmptyBorder(
-                                18,
-                                22,
-                                18,
-                                22
-                        )
-                )
-        );
-
-        JPanel informacoes =
-                new JPanel();
-
-        informacoes.setLayout(
-                new BoxLayout(
-                        informacoes,
-                        BoxLayout.Y_AXIS
-                )
-        );
-
+                        BorderFactory.createLineBorder( new Color( 226, 232, 240 ) ), new EmptyBorder( 18, 22, 18, 22 ) ) );
+        JPanel informacoes = new JPanel();
+        informacoes.setLayout( new BoxLayout( informacoes, BoxLayout.Y_AXIS ) );
         informacoes.setBackground(ThemeManager.getPainel());
-
-        JLabel nome =
-                new JLabel(
-                        inscricao.getNomeAluno()
-                );
-
-        nome.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        18
-                )
-        );
-
+        JLabel nome = new JLabel( inscricao.getNomeAluno() );
+        nome.setFont( new Font( "Segoe UI", Font.BOLD, 18 ) );
         nome.setForeground(ThemeManager.getTexto());
-
         informacoes.add(nome);
-
-        informacoes.add(
-                Box.createVerticalStrut(7)
-        );
-
+        informacoes.add( Box.createVerticalStrut(7) );
         JLabel dados =
                 new JLabel(
                         "RM: "
                                 + valor(
                                 inscricao.getRm()
-                        )
-                                + "   •   Curso: "
-                                + valor(inscricao.getCurso())
-                                + "   •   Série: "
-                                + valor(inscricao.getSerie())
-                );
-
-        dados.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        14
-                )
-        );
-
-        dados.setForeground(
-                new Color(
-                        71,
-                        85,
-                        105
-                )
-        );
-
+                        ) + "   •   Curso: " + valor(inscricao.getCurso()) + "   •   Série: " + valor(inscricao.getSerie()) );
+        dados.setFont( new Font( "Segoe UI", Font.PLAIN, 14 ) );
+        dados.setForeground( new Color( 71, 85, 105 ) );
         informacoes.add(dados);
-
-        informacoes.add(
-                Box.createVerticalStrut(6)
-        );
-
-        JLabel evento =
-                new JLabel(
-                        "Evento: "
-                                + valor(
-                                inscricao.getNomeEvento()
-                        )
-                );
-
+        informacoes.add( Box.createVerticalStrut(6) );
+        JLabel evento = new JLabel( "Evento: " + valor( inscricao.getNomeEvento() ) );
         informacoes.add(evento);
-
-        informacoes.add(
-                Box.createVerticalStrut(4)
-        );
-
-        JLabel dataInscricao =
-                new JLabel(
-                        "Inscrição: "
-                                + formatarDataInscricao(
-                                inscricao.getDataInscricao()
-                        )
-                );
-
-        dataInscricao.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        12
-                )
-        );
-
+        informacoes.add( Box.createVerticalStrut(4) );
+        JLabel dataInscricao = new JLabel( "Inscrição: " + formatarDataInscricao( inscricao.getDataInscricao() ) );
+        dataInscricao.setFont( new Font( "Segoe UI", Font.PLAIN, 12 ) );
         dataInscricao.setForeground(ThemeManager.getTextoSecundario());
-
         informacoes.add(dataInscricao);
-
-        evento.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        13
-                )
-        );
-
+        evento.setFont( new Font( "Segoe UI", Font.PLAIN, 13 ) );
         evento.setForeground(ThemeManager.getTextoSecundario());
-
         if (
                 inscricao.getCurso() != null
                         && !inscricao.getCurso().isBlank()
         ) {
-
-            informacoes.add(
-                    Box.createVerticalStrut(4)
-            );
-
-            JLabel curso =
-                    new JLabel(
-                            "Curso: "
-                                    + inscricao.getCurso()
-                                    + "   •   Série: "
-                                    + valor(inscricao.getSerie())
-                    );
-
-            curso.setFont(
-                    new Font(
-                            "Segoe UI",
-                            Font.PLAIN,
-                            12
-                    )
-            );
-
+            informacoes.add( Box.createVerticalStrut(4) );
+            JLabel curso = new JLabel( "Curso: " + inscricao.getCurso() + "   •   Série: " + valor(inscricao.getSerie()) );
+            curso.setFont( new Font( "Segoe UI", Font.PLAIN, 12 ) );
             curso.setForeground(ThemeManager.getTextoSecundario());
-
             informacoes.add(curso);
         }
-
-        card.add(
-                informacoes,
-                BorderLayout.CENTER
-        );
-
-        JPanel lateral =
-                new JPanel();
-
-        lateral.setLayout(
-                new BoxLayout(
-                        lateral,
-                        BoxLayout.Y_AXIS
-                )
-        );
-
+        card.add( informacoes, BorderLayout.CENTER );
+        JPanel lateral = new JPanel();
+        lateral.setLayout( new BoxLayout( lateral, BoxLayout.Y_AXIS ) );
         lateral.setBackground(ThemeManager.getPainel());
-
-        JLabel status =
-                new JLabel(
-                        valor(
-                                inscricao.getStatus()
-                        )
-                );
-
-        status.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        12
-                )
-        );
-
+        JLabel status = new JLabel( valor( inscricao.getStatus() ) );
+        status.setFont( new Font( "Segoe UI", Font.BOLD, 12 ) );
         status.setOpaque(true);
-
-        status.setBorder(
-                new EmptyBorder(
-                        6,
-                        10,
-                        6,
-                        10
-                )
-        );
-
+        status.setBorder( new EmptyBorder( 6, 10, 6, 10 ) );
         if (
                 "CANCELADO".equalsIgnoreCase(
                         inscricao.getStatus()
                 )
         ) {
-
-            status.setForeground(
-                    new Color(
-                            153,
-                            27,
-                            27
-                    )
-            );
-
-            status.setBackground(
-                    new Color(
-                            254,
-                            226,
-                            226
-                    )
-            );
-
+            status.setForeground( new Color( 153, 27, 27 ) );
+            status.setBackground( new Color( 254, 226, 226 ) );
         } else {
-
-            status.setForeground(
-                    new Color(
-                            21,
-                            128,
-                            61
-                    )
-            );
-
-            status.setBackground(
-                    new Color(
-                            220,
-                            252,
-                            231
-                    )
-            );
+            status.setForeground( new Color( 21, 128, 61 ) );
+            status.setBackground( new Color( 220, 252, 231 ) );
         }
-
         lateral.add(status);
-
-        lateral.add(
-                Box.createVerticalStrut(10)
-        );
-
+        lateral.add( Box.createVerticalStrut(10) );
         if (
                 !"CANCELADO".equalsIgnoreCase(
                         inscricao.getStatus()
                 )
         ) {
-
-            JButton cancelar =
-                    criarBotaoRemover();
-
+            JButton cancelar = criarBotaoRemover();
             cancelar.addActionListener(
-                    e -> cancelarInscricao(
-                            inscricao
-                    )
-            );
-
+                    e -> cancelarInscricao( inscricao ) );
             lateral.add(cancelar);
         }
-
-        card.add(
-                lateral,
-                BorderLayout.EAST
-        );
-
+        card.add( lateral, BorderLayout.EAST );
         return card;
     }
 
-    // =====================================================
     // IMPORTAR INSCRIÇÕES POR CSV
-    // =====================================================
 
     private void abrirImportadorCsv() {
-
-        Evento eventoInicial =
-                (Evento) comboEvento.getSelectedItem();
-
+        Evento eventoInicial = (Evento) comboEvento.getSelectedItem();
         ImportarInscricoesCsvDialog dialog =
-                new ImportarInscricoesCsvDialog(
-                        SwingUtilities.getWindowAncestor(this),
-                        eventoInicial,
-                        this::carregarInscricoes
-                );
-
+                new ImportarInscricoesCsvDialog( SwingUtilities.getWindowAncestor(this), eventoInicial, this::carregarInscricoes );
         ThemeManager.aplicarTema(dialog);
         dialog.setVisible(true);
     }
 
-    // =====================================================
     // NOVA INSCRIÇÃO
-    // =====================================================
 
     private void abrirNovaInscricao() {
-
-        Evento eventoInicial =
-                (Evento) comboEvento
-                        .getSelectedItem();
-
-        JDialog dialog =
-                new JDialog(
-                        SwingUtilities
-                                .getWindowAncestor(this),
-                        "Nova Inscrição",
-                        Dialog.ModalityType.APPLICATION_MODAL
-                );
-
-        dialog.setSize(
-                650,
-                650
-        );
-
+        Evento eventoInicial = (Evento) comboEvento .getSelectedItem();
+        JDialog dialog = new JDialog( SwingUtilities .getWindowAncestor(this), "Nova Inscrição", Dialog.ModalityType.APPLICATION_MODAL );
+        dialog.setSize( 650, 650 );
         dialog.setLocationRelativeTo(this);
-
         dialog.setResizable(false);
-
-        JPanel principal =
-                new JPanel(
-                        new BorderLayout(
-                                0,
-                                15
-                        )
-                );
-
+        JPanel principal = new JPanel( new BorderLayout( 0, 15 ) );
         principal.setBackground(ThemeManager.getFundo());
+        principal.setBorder( new EmptyBorder( 25, 30, 25, 30 ) );
 
-        principal.setBorder(
-                new EmptyBorder(
-                        25,
-                        30,
-                        25,
-                        30
-                )
-        );
-
-        // =================================================
         // CABEÇALHO
-        // =================================================
 
-        JPanel cabecalho =
-                new JPanel();
-
-        cabecalho.setLayout(
-                new BoxLayout(
-                        cabecalho,
-                        BoxLayout.Y_AXIS
-                )
-        );
-
+        JPanel cabecalho = new JPanel();
+        cabecalho.setLayout( new BoxLayout( cabecalho, BoxLayout.Y_AXIS ) );
         cabecalho.setBackground(ThemeManager.getFundo());
-
-        JLabel titulo =
-                new JLabel(
-                        "Nova inscrição"
-                );
-
-        titulo.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        24
-                )
-        );
-
+        JLabel titulo = new JLabel( "Nova inscrição" );
+        titulo.setFont( new Font( "Segoe UI", Font.BOLD, 24 ) );
         titulo.setForeground(ThemeManager.getTexto());
-
-        JLabel descricao =
-                new JLabel(
-                        "Escolha o evento e adicione vários alunos."
-                );
-
-        descricao.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        14
-                )
-        );
-
+        JLabel descricao = new JLabel( "Escolha o evento e adicione vários alunos." );
+        descricao.setFont( new Font( "Segoe UI", Font.PLAIN, 14 ) );
         descricao.setForeground(ThemeManager.getTextoSecundario());
-
         cabecalho.add(titulo);
-
-        cabecalho.add(
-                Box.createVerticalStrut(5)
-        );
-
+        cabecalho.add( Box.createVerticalStrut(5) );
         cabecalho.add(descricao);
+        principal.add( cabecalho, BorderLayout.NORTH );
 
-        principal.add(
-                cabecalho,
-                BorderLayout.NORTH
-        );
-
-        // =================================================
         // FORMULÁRIO
-        // =================================================
 
-        JPanel formulario =
-                new JPanel();
-
-        formulario.setLayout(
-                new BoxLayout(
-                        formulario,
-                        BoxLayout.Y_AXIS
-                )
-        );
-
+        JPanel formulario = new JPanel();
+        formulario.setLayout( new BoxLayout( formulario, BoxLayout.Y_AXIS ) );
         formulario.setBackground(ThemeManager.getPainel());
-
         formulario.setBorder(
                 BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(
-                                new Color(
-                                        226,
-                                        232,
-                                        240
-                                )
-                        ),
-                        new EmptyBorder(
-                                20,
-                                20,
-                                20,
-                                20
-                        )
-                )
-        );
+                        BorderFactory.createLineBorder( new Color( 226, 232, 240 ) ), new EmptyBorder( 20, 20, 20, 20 ) ) );
 
-        // =================================================
         // EVENTO
-        // =================================================
 
-        JLabel labelEvento =
-                new JLabel("Evento");
-
-        labelEvento.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        12
-                )
-        );
-
+        JLabel labelEvento = new JLabel("Evento");
+        labelEvento.setFont( new Font( "Segoe UI", Font.BOLD, 12 ) );
         labelEvento.setForeground(ThemeManager.getTexto());
-
         formulario.add(labelEvento);
-
-        formulario.add(
-                Box.createVerticalStrut(6)
-        );
-
-        JComboBox<Evento> eventoCombo =
-                new JComboBox<>();
-
-        eventoCombo.setRenderer(
-                criarRendererEvento()
-        );
-
-        List<Evento> eventos =
-                eventoDAO.listarEventos();
-
+        formulario.add( Box.createVerticalStrut(6) );
+        JComboBox<Evento> eventoCombo = new JComboBox<>();
+        eventoCombo.setRenderer( criarRendererEvento() );
+        List<Evento> eventos = eventoDAO.listarEventos();
         for (Evento evento : eventos) {
-
             eventoCombo.addItem(evento);
         }
-
         if (eventoInicial != null) {
-
-            eventoCombo.setSelectedItem(
-                    eventoInicial
-            );
+            eventoCombo.setSelectedItem( eventoInicial );
         }
-
         estilizarCombo(eventoCombo);
-
-        eventoCombo.setMaximumSize(
-                new Dimension(
-                        Integer.MAX_VALUE,
-                        40
-                )
-        );
-
+        eventoCombo.setMaximumSize( new Dimension( Integer.MAX_VALUE, 40 ) );
         formulario.add(eventoCombo);
+        formulario.add( Box.createVerticalStrut(18) );
 
-        formulario.add(
-                Box.createVerticalStrut(18)
-        );
-
-        // =================================================
         // CAMPO DE BUSCA DO ALUNO
-        // =================================================
 
-        JLabel labelAluno =
-                new JLabel(
-                        "Adicionar alunos"
-                );
-
-        labelAluno.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        12
-                )
-        );
-
+        JLabel labelAluno = new JLabel( "Adicionar alunos" );
+        labelAluno.setFont( new Font( "Segoe UI", Font.BOLD, 12 ) );
         labelAluno.setForeground(ThemeManager.getTexto());
-
         formulario.add(labelAluno);
-
-        formulario.add(
-                Box.createVerticalStrut(6)
-        );
-
-        JTextField campoAluno =
-                new JTextField();
-
-        campoAluno.putClientProperty(
-                "JTextField.placeholderText",
-                "Digite nome ou RM..."
-        );
-
+        formulario.add( Box.createVerticalStrut(6) );
+        JTextField campoAluno = new JTextField();
+        campoAluno.putClientProperty( "JTextField.placeholderText", "Digite nome ou RM..." );
         estilizarCampo(campoAluno);
-
-        campoAluno.setMaximumSize(
-                new Dimension(
-                        Integer.MAX_VALUE,
-                        40
-                )
-        );
-
+        campoAluno.setMaximumSize( new Dimension( Integer.MAX_VALUE, 40 ) );
         formulario.add(campoAluno);
+        formulario.add( Box.createVerticalStrut(8) );
 
-        formulario.add(
-                Box.createVerticalStrut(8)
-        );
-
-        // =================================================
         // RESULTADOS
-        // =================================================
 
-        DefaultListModel<Aluno> modeloAlunos =
-                new DefaultListModel<>();
-
-        JList<Aluno> listaAlunos =
-                new JList<>(
-                        modeloAlunos
-                );
-
-        listaAlunos.setSelectionMode(
-                ListSelectionModel.SINGLE_SELECTION
-        );
-
-        listaAlunos.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        13
-                )
-        );
-
-        listaAlunos.setCellRenderer(
-                criarRendererAluno()
-        );
-
-        JScrollPane scrollAlunos =
-                new JScrollPane(
-                        listaAlunos
-                );
-
-        scrollAlunos.setPreferredSize(
-                new Dimension(
-                        0,
-                        100
-                )
-        );
-
-        scrollAlunos.setMaximumSize(
-                new Dimension(
-                        Integer.MAX_VALUE,
-                        100
-                )
-        );
-
+        DefaultListModel<Aluno> modeloAlunos = new DefaultListModel<>();
+        JList<Aluno> listaAlunos = new JList<>( modeloAlunos );
+        listaAlunos.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
+        listaAlunos.setFont( new Font( "Segoe UI", Font.PLAIN, 13 ) );
+        listaAlunos.setCellRenderer( criarRendererAluno() );
+        JScrollPane scrollAlunos = new JScrollPane( listaAlunos );
+        scrollAlunos.setPreferredSize( new Dimension( 0, 100 ) );
+        scrollAlunos.setMaximumSize( new Dimension( Integer.MAX_VALUE, 100 ) );
         formulario.add(scrollAlunos);
+        formulario.add( Box.createVerticalStrut(8) );
 
-        formulario.add(
-                Box.createVerticalStrut(8)
-        );
-
-        // =================================================
         // LISTA DOS SELECIONADOS
-        // =================================================
 
-        JLabel labelSelecionados =
-                new JLabel(
-                        "Alunos selecionados"
-                );
-
-        labelSelecionados.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        12
-                )
-        );
-
+        JLabel labelSelecionados = new JLabel( "Alunos selecionados" );
+        labelSelecionados.setFont( new Font( "Segoe UI", Font.BOLD, 12 ) );
         labelSelecionados.setForeground(ThemeManager.getTexto());
-
         formulario.add(labelSelecionados);
-
-        formulario.add(
-                Box.createVerticalStrut(6)
-        );
-
-        JPanel alunosSelecionadosPanel =
-                new JPanel();
-
-        alunosSelecionadosPanel.setLayout(
-                new BoxLayout(
-                        alunosSelecionadosPanel,
-                        BoxLayout.Y_AXIS
-                )
-        );
-
+        formulario.add( Box.createVerticalStrut(6) );
+        JPanel alunosSelecionadosPanel = new JPanel();
+        alunosSelecionadosPanel.setLayout( new BoxLayout( alunosSelecionadosPanel, BoxLayout.Y_AXIS ) );
         alunosSelecionadosPanel.setBackground(ThemeManager.getPainel());
-
-        JScrollPane scrollSelecionados =
-                new JScrollPane(
-                        alunosSelecionadosPanel
-                );
-
-        scrollSelecionados.setPreferredSize(
-                new Dimension(
-                        0,
-                        120
-                )
-        );
-
-        scrollSelecionados.setMaximumSize(
-                new Dimension(
-                        Integer.MAX_VALUE,
-                        120
-                )
-        );
-
+        JScrollPane scrollSelecionados = new JScrollPane( alunosSelecionadosPanel );
+        scrollSelecionados.setPreferredSize( new Dimension( 0, 120 ) );
+        scrollSelecionados.setMaximumSize( new Dimension( Integer.MAX_VALUE, 120 ) );
         formulario.add(scrollSelecionados);
+        formulario.add( Box.createVerticalStrut(8) );
 
-        formulario.add(
-                Box.createVerticalStrut(8)
-        );
-
-        // =================================================
         // ALUNOS SELECIONADOS
-        // =================================================
 
-        List<Aluno> alunosSelecionados =
-                new ArrayList<>();
+        List<Aluno> alunosSelecionados = new ArrayList<>();
 
-        /*
-         * IMPORTANTE:
-         *
-         * Não usamos:
-         *
-         * Runnable atualizarSelecionados =
-         *     () -> {
-         *         ...
-         *         atualizarSelecionados.run();
-         *     };
-         *
-         * porque isso gera:
-         *
-         * variable atualizarSelecionados
-         * might not have been initialized
-         *
-         * Em vez disso, usamos um método separado.
-         */
+        // IMPORTANTE: Não usamos: Runnable atualizarSelecionados = () -> { ... atualizarSelecionados.run(); }; porque isso gera: variable atualizarSelecionados might not have been initialized Em vez disso, usamos um método separado.
 
-        Runnable[] atualizar =
-                new Runnable[1];
-
+        Runnable[] atualizar = new Runnable[1];
         atualizar[0] =
-                () -> atualizarListaSelecionados(
-                        alunosSelecionadosPanel,
-                        alunosSelecionados,
-                        atualizar[0]
-                );
+                () -> atualizarListaSelecionados( alunosSelecionadosPanel, alunosSelecionados, atualizar[0] );
 
-        // =================================================
         // PESQUISA
-        // =================================================
 
         campoAluno.getDocument()
                 .addDocumentListener(
                         new DocumentListener() {
-
                             private void pesquisar() {
-
-                                String texto =
-                                        campoAluno
-                                                .getText()
-                                                .trim();
-
+                                String texto = campoAluno .getText() .trim();
                                 modeloAlunos.clear();
-
                                 if (texto.isEmpty()) {
                                     return;
                                 }
-
-                                List<Aluno> alunos =
-                                        inscricaoDAO.buscarAlunos(
-                                                texto
-                                        );
-
+                                List<Aluno> alunos = inscricaoDAO.buscarAlunos( texto );
                                 for (Aluno aluno : alunos) {
-
                                     if (
                                             !contemAluno(
                                                     alunosSelecionados,
                                                     aluno
                                             )
                                     ) {
-
-                                        modeloAlunos.addElement(
-                                                aluno
-                                        );
+                                        modeloAlunos.addElement( aluno );
                                     }
                                 }
                             }
-
                             @Override
                             public void insertUpdate(
                                     DocumentEvent e
                             ) {
                                 pesquisar();
                             }
-
                             @Override
                             public void removeUpdate(
                                     DocumentEvent e
                             ) {
                                 pesquisar();
                             }
-
                             @Override
                             public void changedUpdate(
                                     DocumentEvent e
@@ -1368,141 +504,63 @@ public class InscricoesPage extends JPanel {
                         }
                 );
 
-        // =================================================
         // DUPLO CLIQUE
-        // =================================================
 
         listaAlunos.addMouseListener(
                 new MouseAdapter() {
-
                     @Override
                     public void mouseClicked(
                             MouseEvent e
                     ) {
-
                         if (e.getClickCount() != 2) {
                             return;
                         }
-
-                        Aluno aluno =
-                                listaAlunos
-                                        .getSelectedValue();
-
-                        adicionarAlunoSelecionado(
-                                aluno,
-                                alunosSelecionados,
-                                campoAluno,
-                                modeloAlunos,
-                                atualizar[0]
-                        );
+                        Aluno aluno = listaAlunos .getSelectedValue();
+                        adicionarAlunoSelecionado( aluno, alunosSelecionados, campoAluno, modeloAlunos, atualizar[0] );
                     }
                 }
         );
 
-        // =================================================
         // BOTÃO ADICIONAR
-        // =================================================
 
-        JButton adicionarAluno =
-                criarBotaoSecundario(
-                        "Adicionar aluno"
-                );
-
+        JButton adicionarAluno = criarBotaoSecundario( "Adicionar aluno" );
         adicionarAluno.addActionListener(
                 e -> {
-
-                    Aluno aluno =
-                            listaAlunos
-                                    .getSelectedValue();
-
-                    adicionarAlunoSelecionado(
-                            aluno,
-                            alunosSelecionados,
-                            campoAluno,
-                            modeloAlunos,
-                            atualizar[0]
-                    );
+                    Aluno aluno = listaAlunos .getSelectedValue();
+                    adicionarAlunoSelecionado( aluno, alunosSelecionados, campoAluno, modeloAlunos, atualizar[0] );
                 }
         );
-
         formulario.add(adicionarAluno);
+        principal.add( formulario, BorderLayout.CENTER );
 
-        principal.add(
-                formulario,
-                BorderLayout.CENTER
-        );
-
-        // =================================================
         // BOTÕES
-        // =================================================
 
-        JPanel botoes =
-                new JPanel(
-                        new FlowLayout(
-                                FlowLayout.RIGHT,
-                                10,
-                                0
-                        )
-                );
-
+        JPanel botoes = new JPanel( new FlowLayout( FlowLayout.RIGHT, 10, 0 ) );
         botoes.setBackground(ThemeManager.getFundo());
-
-        JButton cancelar =
-                criarBotaoSecundario(
-                        "Cancelar"
-                );
-
+        JButton cancelar = criarBotaoSecundario( "Cancelar" );
         cancelar.addActionListener(
-                e -> dialog.dispose()
-        );
-
-        JButton inscrever =
-                criarBotaoPrincipal(
-                        "Inscrever alunos"
-                );
-
+                e -> dialog.dispose() );
+        JButton inscrever = criarBotaoPrincipal( "Inscrever alunos" );
         inscrever.addActionListener(
                 e -> {
-
-                    Evento evento =
-                            (Evento) eventoCombo
-                                    .getSelectedItem();
-
+                    Evento evento = (Evento) eventoCombo .getSelectedItem();
                     if (evento == null) {
-
-                        JOptionPane.showMessageDialog(
-                                dialog,
-                                "Selecione um evento.",
-                                "Evento obrigatório",
-                                JOptionPane.WARNING_MESSAGE
-                        );
-
+                        JOptionPane.showMessageDialog( dialog, "Selecione um evento.", "Evento obrigatório", JOptionPane.WARNING_MESSAGE );
                         return;
                     }
-
                     if (
                             alunosSelecionados.isEmpty()
                     ) {
-
-                        JOptionPane.showMessageDialog(
-                                dialog,
-                                "Adicione pelo menos um aluno.",
-                                "Aluno obrigatório",
-                                JOptionPane.WARNING_MESSAGE
-                        );
-
+                        JOptionPane.showMessageDialog( dialog, "Adicione pelo menos um aluno.", "Aluno obrigatório", JOptionPane.WARNING_MESSAGE );
                         return;
                     }
-
                     int sucesso = 0;
                     int jaInscritos = 0;
                     int erros = 0;
-
                     for (
                             Aluno aluno :
                             alunosSelecionados
                     ) {
-
                         if (!inscricaoDAO.alunoPertenceAoPublicoEvento(
                                 aluno.getId(),
                                 evento.getId()
@@ -1510,87 +568,46 @@ public class InscricoesPage extends JPanel {
                             erros++;
                             continue;
                         }
-
                         if (evento.getCapacidade() > 0
                                 && inscricaoDAO.contarInscricoesAtivasEvento(evento.getId())
                                 >= evento.getCapacidade()) {
                             erros++;
                             continue;
                         }
-
                         if (
                                 inscricaoDAO.alunoJaInscrito(
                                         aluno.getId(),
                                         evento.getId()
                                 )
                         ) {
-
                             jaInscritos++;
-
                             continue;
                         }
-
-                        boolean resultado =
-                                inscricaoDAO.cadastrarInscricao(
-                                        aluno.getId(),
-                                        evento.getId(),
-                                        null
-                                );
-
+                        boolean resultado = inscricaoDAO.cadastrarInscricao( aluno.getId(), evento.getId(), null );
                         if (resultado) {
-
                             sucesso++;
-
                         } else {
-
                             erros++;
                         }
                     }
-
                     String mensagem =
                             "Processamento concluído.\n\n"
-                                    + "Inscritos com sucesso: "
-                                    + sucesso
-                                    + "\n"
-                                    + "Já estavam inscritos: "
-                                    + jaInscritos
-                                    + "\n"
-                                    + "Erros: "
-                                    + erros;
-
+                                    + "Inscritos com sucesso: " + sucesso + "\n" + "Já estavam inscritos: " + jaInscritos + "\n" + "Erros: " + erros;
                     JOptionPane.showMessageDialog(
-                            dialog,
-                            mensagem,
-                            "Inscrições",
-                            sucesso > 0
-                                    ? JOptionPane.INFORMATION_MESSAGE
-                                    : JOptionPane.WARNING_MESSAGE
-                    );
-
+                            dialog, mensagem, "Inscrições", sucesso > 0 ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.WARNING_MESSAGE );
                     dialog.dispose();
-
                     carregarInscricoes();
                 }
         );
-
         botoes.add(cancelar);
-
         botoes.add(inscrever);
-
-        principal.add(
-                botoes,
-                BorderLayout.SOUTH
-        );
-
+        principal.add( botoes, BorderLayout.SOUTH );
         dialog.setContentPane(principal);
-
         ThemeManager.aplicarTema(dialog);
         dialog.setVisible(true);
     }
 
-    // =====================================================
     // ADICIONAR ALUNO
-    // =====================================================
 
     private void adicionarAlunoSelecionado(
             Aluno aluno,
@@ -1599,103 +616,63 @@ public class InscricoesPage extends JPanel {
             DefaultListModel<Aluno> modeloAlunos,
             Runnable atualizarSelecionados
     ) {
-
         if (aluno == null) {
-
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Pesquise e selecione um aluno.",
-                    "Aluno",
-                    JOptionPane.WARNING_MESSAGE
-            );
-
+            JOptionPane.showMessageDialog( this, "Pesquise e selecione um aluno.", "Aluno", JOptionPane.WARNING_MESSAGE );
             return;
         }
-
         if (
                 contemAluno(
                         alunosSelecionados,
                         aluno
                 )
         ) {
-
             return;
         }
-
         alunosSelecionados.add(aluno);
-
         atualizarSelecionados.run();
-
         campoAluno.setText("");
-
         modeloAlunos.clear();
     }
 
-    // =====================================================
     // ATUALIZAR ALUNOS SELECIONADOS
-    // =====================================================
 
     private void atualizarListaSelecionados(
             JPanel painel,
             List<Aluno> alunosSelecionados,
             Runnable atualizarSelecionados
     ) {
-
         painel.removeAll();
-
         for (Aluno aluno : alunosSelecionados) {
-
-            JPanel linha =
-                    criarAlunoSelecionado(
-                            aluno,
-                            alunosSelecionados,
-                            atualizarSelecionados
-                    );
-
+            JPanel linha = criarAlunoSelecionado( aluno, alunosSelecionados, atualizarSelecionados );
             painel.add(linha);
-
-            painel.add(
-                    Box.createVerticalStrut(5)
-            );
+            painel.add( Box.createVerticalStrut(5) );
         }
-
         painel.revalidate();
-
         painel.repaint();
         SwingUtilities.invokeLater(() -> ThemeManager.aplicarTema(InscricoesPage.this));
     }
 
-    // =====================================================
     // VERIFICAR ALUNO
-    // =====================================================
 
     private boolean contemAluno(
             List<Aluno> alunos,
             Aluno aluno
     ) {
-
         for (Aluno item : alunos) {
-
             if (
                     item.getId()
                             == aluno.getId()
             ) {
-
                 return true;
             }
         }
-
         return false;
     }
 
-    // =====================================================
     // RENDERER ALUNO
-    // =====================================================
 
     private DefaultListCellRenderer criarRendererAluno() {
-
         return new DefaultListCellRenderer() {
-
             @Override
             public Component getListCellRendererComponent(
                     JList<?> list,
@@ -1704,466 +681,170 @@ public class InscricoesPage extends JPanel {
                     boolean isSelected,
                     boolean cellHasFocus
             ) {
-
-                super.getListCellRendererComponent(
-                        list,
-                        value,
-                        index,
-                        isSelected,
-                        cellHasFocus
-                );
-
+                super.getListCellRendererComponent( list, value, index, isSelected, cellHasFocus );
                 if (value instanceof Aluno) {
-
-                    Aluno aluno =
-                            (Aluno) value;
-
-                    setText(
-                            aluno.getNome()
-                                    + " - RM "
-                                    + aluno.getRm()
-                    );
+                    Aluno aluno = (Aluno) value;
+                    setText( aluno.getNome() + " - RM " + aluno.getRm() );
                 }
-
                 return this;
             }
         };
     }
 
-    // =====================================================
     // ALUNO SELECIONADO
-    // =====================================================
 
     private JPanel criarAlunoSelecionado(
             Aluno aluno,
             List<Aluno> alunosSelecionados,
             Runnable atualizarSelecionados
     ) {
-
-        JPanel linha =
-                new JPanel(
-                        new BorderLayout(
-                                10,
-                                0
-                        )
-                );
-
-        linha.setBackground(
-                new Color(
-                        248,
-                        250,
-                        252
-                )
-        );
-
+        JPanel linha = new JPanel( new BorderLayout( 10, 0 ) );
+        linha.setBackground( new Color( 248, 250, 252 ) );
         linha.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(
-                                new Color(
-                                        226,
-                                        232,
-                                        240
-                                )
-                        ),
-                        new EmptyBorder(
-                                7,
-                                10,
-                                7,
-                                10
-                        )
-                )
-        );
-
-        linha.setMaximumSize(
-                new Dimension(
-                        Integer.MAX_VALUE,
-                        42
-                )
-        );
-
-        JLabel nome =
-                new JLabel(
-                        aluno.getNome()
-                                + " - RM "
-                                + aluno.getRm()
-                );
-
-        nome.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        13
-                )
-        );
-
+                BorderFactory.createCompoundBorder( BorderFactory.createLineBorder( new Color( 226, 232, 240 ) ), new EmptyBorder( 7, 10, 7, 10 ) ) );
+        linha.setMaximumSize( new Dimension( Integer.MAX_VALUE, 42 ) );
+        JLabel nome = new JLabel( aluno.getNome() + " - RM " + aluno.getRm() );
+        nome.setFont( new Font( "Segoe UI", Font.PLAIN, 13 ) );
         nome.setForeground(ThemeManager.getTexto());
-
-        linha.add(
-                nome,
-                BorderLayout.CENTER
-        );
-
-        JButton remover =
-                new JButton("X");
-
-        remover.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        11
-                )
-        );
-
-        remover.setForeground(
-                new Color(
-                        185,
-                        28,
-                        28
-                )
-        );
-
+        linha.add( nome, BorderLayout.CENTER );
+        JButton remover = new JButton("X");
+        remover.setFont( new Font( "Segoe UI", Font.BOLD, 11 ) );
+        remover.setForeground( new Color( 185, 28, 28 ) );
         remover.setBackground(ThemeManager.getPainel());
-
         remover.setFocusPainted(false);
-
-        remover.setBorder(
-                BorderFactory.createLineBorder(
-                        new Color(
-                                252,
-                                165,
-                                165
-                        )
-                )
-        );
-
-        remover.setCursor(
-                new Cursor(
-                        Cursor.HAND_CURSOR
-                )
-        );
-
+        remover.setBorder( BorderFactory.createLineBorder( new Color( 252, 165, 165 ) ) );
+        remover.setCursor( new Cursor( Cursor.HAND_CURSOR ) );
         remover.addActionListener(
                 e -> {
-
-                    alunosSelecionados.remove(
-                            aluno
-                    );
-
+                    alunosSelecionados.remove( aluno );
                     atualizarSelecionados.run();
                 }
         );
-
-        linha.add(
-                remover,
-                BorderLayout.EAST
-        );
-
+        linha.add( remover, BorderLayout.EAST );
         return linha;
     }
 
-    // =====================================================
     // CANCELAR INSCRIÇÃO
-    // =====================================================
 
     private void cancelarInscricao(
             Inscricao inscricao
     ) {
-
         int resposta =
                 JOptionPane.showConfirmDialog(
                         this,
                         "Deseja cancelar a inscrição de\n"
-                                + inscricao.getNomeAluno()
-                                + "?",
-                        "Confirmar cancelamento",
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.WARNING_MESSAGE
-                );
-
+                                + inscricao.getNomeAluno() + "?", "Confirmar cancelamento", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE );
         if (
                 resposta
                         != JOptionPane.YES_OPTION
         ) {
-
             return;
         }
-
-        boolean sucesso =
-                inscricaoDAO.cancelarInscricao(
-                        inscricao.getIdInscricao()
-                );
-
+        boolean sucesso = inscricaoDAO.cancelarInscricao( inscricao.getIdInscricao() );
         if (sucesso) {
-
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Inscrição cancelada com sucesso.",
-                    "Sucesso",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
-
+            JOptionPane.showMessageDialog( this, "Inscrição cancelada com sucesso.", "Sucesso", JOptionPane.INFORMATION_MESSAGE );
             carregarInscricoes();
-
         } else {
-
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Não foi possível cancelar a inscrição.",
-                    "Erro",
-                    JOptionPane.ERROR_MESSAGE
-            );
+            JOptionPane.showMessageDialog( this, "Não foi possível cancelar a inscrição.", "Erro", JOptionPane.ERROR_MESSAGE );
         }
     }
 
-    // =====================================================
     // UTIL
-    // =====================================================
 
     private String formatarDataInscricao(java.sql.Timestamp timestamp) {
         if (timestamp == null) {
             return "Não informada";
         }
-
-        return timestamp.toLocalDateTime()
-                .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+        return timestamp.toLocalDateTime() .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
     }
 
     private String valor(String texto) {
-
         if (
                 texto == null
                         || texto.isBlank()
         ) {
-
             return "-";
         }
-
         return texto;
     }
 
-    // =====================================================
     // CAMPO
-    // =====================================================
 
     private void estilizarCampo(
             JTextField campo
     ) {
-
-        campo.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        14
-                )
-        );
-
-        campo.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(
-                                BORDA
-                        ),
-                        new EmptyBorder(
-                                8,
-                                10,
-                                8,
-                                10
-                        )
-                )
-        );
+        campo.setFont( new Font( "Segoe UI", Font.PLAIN, 14 ) );
+        campo.setBorder( BorderFactory.createCompoundBorder( BorderFactory.createLineBorder( BORDA ), new EmptyBorder( 8, 10, 8, 10 ) ) );
     }
 
-    // =====================================================
     // COMBO
-    // =====================================================
 
     private void estilizarCombo(
             JComboBox<?> combo
     ) {
-
-        combo.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        14
-                )
-        );
-
+        combo.setFont( new Font( "Segoe UI", Font.PLAIN, 14 ) );
         combo.setBackground(ThemeManager.getPainel());
-
         combo.setForeground(ThemeManager.getTexto());
     }
 
-    // =====================================================
     // BOTÃO PRINCIPAL
-    // =====================================================
 
     private JButton criarBotaoPrincipal(
             String texto
     ) {
-
-        JButton botao =
-                new JButton(texto);
-
-        botao.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        14
-                )
-        );
-
+        JButton botao = new JButton(texto);
+        botao.setFont( new Font( "Segoe UI", Font.BOLD, 14 ) );
         botao.setForeground(Color.WHITE);
-
         botao.setBackground(AZUL);
-
         botao.setFocusPainted(false);
-
         botao.setBorderPainted(false);
-
-        botao.setCursor(
-                new Cursor(
-                        Cursor.HAND_CURSOR
-                )
-        );
-
-        botao.setBorder(
-                new EmptyBorder(
-                        11,
-                        18,
-                        11,
-                        18
-                )
-        );
-
+        botao.setCursor( new Cursor( Cursor.HAND_CURSOR ) );
+        botao.setBorder( new EmptyBorder( 11, 18, 11, 18 ) );
         botao.addMouseListener(
                 new MouseAdapter() {
-
                     @Override
                     public void mouseEntered(
                             MouseEvent e
                     ) {
-
-                        botao.setBackground(
-                                AZUL_HOVER
-                        );
+                        botao.setBackground( AZUL_HOVER );
                     }
-
                     @Override
                     public void mouseExited(
                             MouseEvent e
                     ) {
-
-                        botao.setBackground(
-                                AZUL
-                        );
+                        botao.setBackground( AZUL );
                     }
                 }
         );
-
         return botao;
     }
 
-    // =====================================================
     // BOTÃO SECUNDÁRIO
-    // =====================================================
 
     private JButton criarBotaoSecundario(
             String texto
     ) {
-
-        JButton botao =
-                new JButton(texto);
-
-        botao.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        13
-                )
-        );
-
+        JButton botao = new JButton(texto);
+        botao.setFont( new Font( "Segoe UI", Font.BOLD, 13 ) );
         botao.setForeground(ThemeManager.getTexto());
-
         botao.setBackground(ThemeManager.getPainel());
-
         botao.setFocusPainted(false);
-
-        botao.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(
-                                BORDA
-                        ),
-                        new EmptyBorder(
-                                9,
-                                15,
-                                9,
-                                15
-                        )
-                )
-        );
-
-        botao.setCursor(
-                new Cursor(
-                        Cursor.HAND_CURSOR
-                )
-        );
-
+        botao.setBorder( BorderFactory.createCompoundBorder( BorderFactory.createLineBorder( BORDA ), new EmptyBorder( 9, 15, 9, 15 ) ) );
+        botao.setCursor( new Cursor( Cursor.HAND_CURSOR ) );
         return botao;
     }
 
-    // =====================================================
     // BOTÃO REMOVER
-    // =====================================================
 
     private JButton criarBotaoRemover() {
-
-        JButton botao =
-                new JButton("Cancelar");
-
-        botao.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        12
-                )
-        );
-
-        botao.setForeground(
-                new Color(
-                        185,
-                        28,
-                        28
-                )
-        );
-
+        JButton botao = new JButton("Cancelar");
+        botao.setFont( new Font( "Segoe UI", Font.BOLD, 12 ) );
+        botao.setForeground( new Color( 185, 28, 28 ) );
         botao.setBackground(ThemeManager.getPainel());
-
         botao.setFocusPainted(false);
-
-        botao.setCursor(
-                new Cursor(
-                        Cursor.HAND_CURSOR
-                )
-        );
-
+        botao.setCursor( new Cursor( Cursor.HAND_CURSOR ) );
         botao.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(
-                                new Color(
-                                        252,
-                                        165,
-                                        165
-                                )
-                        ),
-                        new EmptyBorder(
-                                6,
-                                10,
-                                6,
-                                10
-                        )
-                )
-        );
-
+                BorderFactory.createCompoundBorder( BorderFactory.createLineBorder( new Color( 252, 165, 165 ) ), new EmptyBorder( 6, 10, 6, 10 ) ) );
         return botao;
     }
 }

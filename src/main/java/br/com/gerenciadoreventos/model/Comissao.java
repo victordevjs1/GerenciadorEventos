@@ -1,7 +1,6 @@
 package br.com.gerenciadoreventos.model;
 
 public class Comissao {
-
     private Long idComissao;
     private Long idEvento;
 
@@ -14,18 +13,12 @@ public class Comissao {
     private Integer totalAlunos;
     private Integer totalAtividades;
 
-
-    // =====================================================
     // CONSTRUTOR
-    // =====================================================
 
     public Comissao() {
     }
 
-
-    // =====================================================
     // ID COMISSÃO
-    // =====================================================
 
     public Long getIdComissao() {
         return idComissao;
@@ -35,10 +28,7 @@ public class Comissao {
         this.idComissao = idComissao;
     }
 
-
-    // =====================================================
     // ID EVENTO
-    // =====================================================
 
     public Long getIdEvento() {
         return idEvento;
@@ -48,10 +38,7 @@ public class Comissao {
         this.idEvento = idEvento;
     }
 
-
-    // =====================================================
     // EVENTO
-    // =====================================================
 
     public String getEvento() {
         return evento;
@@ -61,10 +48,7 @@ public class Comissao {
         this.evento = evento;
     }
 
-
-    // =====================================================
     // NOME
-    // =====================================================
 
     public String getNome() {
         return nome;
@@ -74,10 +58,7 @@ public class Comissao {
         this.nome = nome;
     }
 
-
-    // =====================================================
     // DESCRIÇÃO
-    // =====================================================
 
     public String getDescricao() {
         return descricao;
@@ -87,10 +68,7 @@ public class Comissao {
         this.descricao = descricao;
     }
 
-
-    // =====================================================
     // ATIVO
-    // =====================================================
 
     public Boolean getAtivo() {
         return ativo;
@@ -100,10 +78,7 @@ public class Comissao {
         this.ativo = ativo;
     }
 
-
-    // =====================================================
     // TOTAL DE ALUNOS
-    // =====================================================
 
     public Integer getTotalAlunos() {
         return totalAlunos;
@@ -113,10 +88,7 @@ public class Comissao {
         this.totalAlunos = totalAlunos;
     }
 
-
-    // =====================================================
     // TOTAL DE ATIVIDADES
-    // =====================================================
 
     public Integer getTotalAtividades() {
         return totalAtividades;
@@ -126,10 +98,7 @@ public class Comissao {
         this.totalAtividades = totalAtividades;
     }
 
-
-    // =====================================================
     // COMPATIBILIDADE COM isAtivo()
-    // =====================================================
 
     public boolean isAtivo() {
         return Boolean.TRUE.equals(ativo);

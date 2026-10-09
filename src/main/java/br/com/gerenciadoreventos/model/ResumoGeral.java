@@ -1,7 +1,6 @@
 package br.com.gerenciadoreventos.model;
 
 public class ResumoGeral {
-
     private int totalEventos;
     private int totalInscricoes;
     private double taxaComparecimento;

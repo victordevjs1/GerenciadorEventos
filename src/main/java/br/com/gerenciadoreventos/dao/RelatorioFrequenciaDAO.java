@@ -9,76 +9,47 @@ import java.util.List;
 
 public class RelatorioFrequenciaDAO {
 
-    // =====================================================
     // DIAS COM CHAMADA REGISTRADA NO MÊS
-    // =====================================================
 
     public int contarDiasLetivos(
             int ano,
             int mes
     ) {
-
         String sql = """
                 SELECT COUNT(DISTINCT data_presenca) AS total
                 FROM presenca_evento
                 WHERE YEAR(data_presenca) = ?
                   AND MONTH(data_presenca) = ?
                 """;
-
         try (
-                Connection conn =
-                        Conexao.conectar();
-
+                Connection conn = Conexao.conectar();
                 PreparedStatement stmt =
                         conn.prepareStatement(sql)
         ) {
-
             stmt.setInt(1, ano);
             stmt.setInt(2, mes);
-
             try (
                     ResultSet rs =
                             stmt.executeQuery()
             ) {
-
                 if (rs.next()) {
-
-                    return rs.getInt(
-                            "total"
-                    );
+                    return rs.getInt( "total" );
                 }
             }
-
         } catch (SQLException e) {
-
             e.printStackTrace();
         }
-
         return 0;
     }
 
-    // =====================================================
-    // RELATÓRIO POR CURSO E SÉRIE
-    //
-    // O CSV importa somente os PRESENTES.
-    //
-    // O agrupamento é feito por curso e série a partir dos alunos ativos que possuem
-    // inscrição em evento e que possuem registros de
-    // presença no mês.
-    //
-    // total_registros = registros de chamada
-    // total_presentes = registros PRESENTE
-    // =====================================================
+    // RELATÓRIO POR CURSO E SÉRIE O CSV importa somente os PRESENTES. O agrupamento é feito por curso e série a partir dos alunos ativos que possuem inscrição em evento e que possuem registros de presença no mês. total_registros = registros de chamada total_presentes = registros PRESENTE
 
     public List<LinhaRelatorioCursoSerie>
     gerarRelatorioPorCursoSerie(
             int ano,
             int mes
     ) {
-
-        List<LinhaRelatorioCursoSerie> linhas =
-                new ArrayList<>();
-
+        List<LinhaRelatorioCursoSerie> linhas = new ArrayList<>();
         String sql = """
                 SELECT
                     c.nome AS curso,
@@ -111,91 +82,50 @@ public class RelatorioFrequenciaDAO {
                 GROUP BY c.id_curso, c.nome, s.id_serie, s.nome
                 ORDER BY c.nome ASC, s.numero ASC
                 """;
-
         try (
-                Connection conn =
-                        Conexao.conectar();
-
+                Connection conn = Conexao.conectar();
                 PreparedStatement stmt =
                         conn.prepareStatement(sql)
         ) {
-
             stmt.setInt(1, ano);
             stmt.setInt(2, mes);
-
             try (
                     ResultSet rs =
                             stmt.executeQuery()
             ) {
-
                 while (rs.next()) {
-
-                    LinhaRelatorioCursoSerie linha =
-                            new LinhaRelatorioCursoSerie();
-
+                    LinhaRelatorioCursoSerie linha = new LinhaRelatorioCursoSerie();
                     linha.setCurso(rs.getString("curso"));
                     linha.setSerie(rs.getString("serie"));
-
-                    linha.setMatriculados(
-                            rs.getInt(
-                                    "matriculados"
-                            )
-                    );
-
-                    linha.setTotalRegistros(
-                            rs.getInt(
-                                    "total_registros"
-                            )
-                    );
-
-                    linha.setTotalPresentes(
-                            rs.getInt(
-                                    "total_presentes"
-                            )
-                    );
-
+                    linha.setMatriculados( rs.getInt( "matriculados" ) );
+                    linha.setTotalRegistros( rs.getInt( "total_registros" ) );
+                    linha.setTotalPresentes( rs.getInt( "total_presentes" ) );
                     linhas.add(linha);
                 }
             }
-
         } catch (SQLException e) {
-
             e.printStackTrace();
         }
-
         return linhas;
     }
 
-    // =====================================================
     // TAXA GLOBAL
-    // =====================================================
 
     public double calcularTaxaGlobal(
             List<LinhaRelatorioCursoSerie> linhas
     ) {
-
         int totalRegistros = 0;
-
         int totalPresentes = 0;
-
         for (
                 LinhaRelatorioCursoSerie linha
                 : linhas
         ) {
-
-            totalRegistros +=
-                    linha.getTotalRegistros();
-
-            totalPresentes +=
-                    linha.getTotalPresentes();
+            totalRegistros += linha.getTotalRegistros();
+            totalPresentes += linha.getTotalPresentes();
         }
-
         if (totalRegistros == 0) {
             return 0;
         }
-
-        return (
-                totalPresentes * 100.0
-        ) / totalRegistros;
+        return ( totalPresentes * 100.0 ) / totalRegistros;
     }
 }

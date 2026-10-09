@@ -3,7 +3,6 @@ package br.com.gerenciadoreventos.model;
 import java.time.LocalDateTime;
 
 public class AgenteExterno {
-
     private long id;
     private String nome;
     private String email;

@@ -1,7 +1,6 @@
 package br.com.gerenciadoreventos.model;
 
 public class ProfessorCsvImportacao {
-
     private final int linha;
     private final Professor professor;
     private final boolean valido;

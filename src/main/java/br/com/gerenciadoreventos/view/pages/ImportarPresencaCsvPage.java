@@ -1,6 +1,5 @@
 package br.com.gerenciadoreventos.view.pages;
 
-
 import br.com.gerenciadoreventos.theme.ThemeManager;
 import br.com.gerenciadoreventos.model.Aluno;
 import br.com.gerenciadoreventos.model.AtividadeOpcao;
@@ -25,37 +24,25 @@ import java.util.Set;
 
 public class ImportarPresencaCsvPage extends JPanel {
 
-    // =====================================================
     // CORES
-    // =====================================================
 
-    private static final Color FUNDO =
-            new Color(246, 248, 252);
+    private static final Color FUNDO = new Color(246, 248, 252);
 
-    private static final Color AZUL =
-            new Color(37, 99, 235);
+    private static final Color AZUL = new Color(37, 99, 235);
 
-    private static final Color AZUL_CLARO =
-            new Color(239, 246, 255);
+    private static final Color AZUL_CLARO = new Color(239, 246, 255);
 
-    private static final Color TEXTO =
-            new Color(15, 23, 42);
+    private static final Color TEXTO = new Color(15, 23, 42);
 
-    private static final Color CINZA_TEXTO =
-            new Color(100, 116, 139);
+    private static final Color CINZA_TEXTO = new Color(100, 116, 139);
 
-    private static final Color BORDA =
-            new Color(226, 232, 240);
+    private static final Color BORDA = new Color(226, 232, 240);
 
-    private static final Color VERDE =
-            new Color(22, 163, 74);
+    private static final Color VERDE = new Color(22, 163, 74);
 
-    private static final Color VERMELHO =
-            new Color(220, 38, 38);
+    private static final Color VERMELHO = new Color(220, 38, 38);
 
-    // =====================================================
     // COMPONENTES
-    // =====================================================
 
     private JToggleButton toggleModoEvento;
 
@@ -81,623 +68,190 @@ public class ImportarPresencaCsvPage extends JPanel {
 
     private JLabel labelResumo;
 
-    /*
-     * [0] = RM
-     * [1] = Nome vindo do CSV
-     * [2] = Status. No modo Evento, toda linha do CSV é PRESENTE.
-     *       Os AUSENTES são descobertos comparando o CSV com os inscritos.
-     */
-    private final List<String[]> linhasCsv =
-            new ArrayList<>();
+    // [0] = RM [1] = Nome vindo do CSV [2] = Status. No modo Evento, toda linha do CSV é PRESENTE. Os AUSENTES são descobertos comparando o CSV com os inscritos.
+    private final List<String[]> linhasCsv = new ArrayList<>();
 
-    // Quando o CSV tiver uma coluna ID_EVENTO / Código do evento,
-    // o sistema usa esse valor para selecionar e validar automaticamente
-    // o evento da importação. Se não houver, continua valendo a seleção manual.
+    // Quando o CSV tiver uma coluna ID_EVENTO / Código do evento, o sistema usa esse valor para selecionar e validar automaticamente o evento da importação. Se não houver, continua valendo a seleção manual.
     private Long idEventoCsv;
 
-    private final PresencaImportService presencaService =
-            new PresencaImportService();
+    private final PresencaImportService presencaService = new PresencaImportService();
 
-    // =====================================================
     // CONSTRUTOR
-    // =====================================================
 
     public ImportarPresencaCsvPage() {
-
         setLayout(new BorderLayout());
-
         setBackground(FUNDO);
-
         criarInterface();
-
         carregarContexto();
     }
 
-    // =====================================================
     // INTERFACE
-    // =====================================================
 
     private void criarInterface() {
-
-        JPanel principal =
-                new JPanel(
-                        new BorderLayout(0, 15)
-                );
-
+        JPanel principal = new JPanel( new BorderLayout(0, 15) );
         principal.setBackground(ThemeManager.getFundo());
-
-        principal.setBorder(
-                new EmptyBorder(
-                        25,
-                        25,
-                        20,
-                        25
-                )
-        );
-
-        principal.add(
-                criarCabecalho(),
-                BorderLayout.NORTH
-        );
-
-        principal.add(
-                criarPreview(),
-                BorderLayout.CENTER
-        );
-
-        principal.add(
-                criarRodape(),
-                BorderLayout.SOUTH
-        );
-
-        add(
-                principal,
-                BorderLayout.CENTER
-        );
+        principal.setBorder( new EmptyBorder( 25, 25, 20, 25 ) );
+        principal.add( criarCabecalho(), BorderLayout.NORTH );
+        principal.add( criarPreview(), BorderLayout.CENTER );
+        principal.add( criarRodape(), BorderLayout.SOUTH );
+        add( principal, BorderLayout.CENTER );
     }
 
-    // =====================================================
     // CABEÇALHO
-    // =====================================================
 
     private JPanel criarCabecalho() {
-
-        JPanel painel =
-                new JPanel();
-
-        painel.setLayout(
-                new BoxLayout(
-                        painel,
-                        BoxLayout.Y_AXIS
-                )
-        );
-
+        JPanel painel = new JPanel();
+        painel.setLayout( new BoxLayout( painel, BoxLayout.Y_AXIS ) );
         painel.setBackground(ThemeManager.getFundo());
-        JButton voltar =
-                new JButton(
-                        "← Voltar para relatórios"
-                );
-
-        voltar.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        13
-                )
-        );
-
+        JButton voltar = new JButton( "← Voltar para relatórios" );
+        voltar.setFont( new Font( "Segoe UI", Font.BOLD, 13 ) );
         voltar.setForeground(AZUL);
-
         voltar.setBorderPainted(false);
-
         voltar.setContentAreaFilled(false);
-
         voltar.setFocusPainted(false);
-
-        voltar.setCursor(
-                new Cursor(
-                        Cursor.HAND_CURSOR
-                )
-        );
-
-        voltar.setAlignmentX(
-                Component.LEFT_ALIGNMENT
-        );
-
+        voltar.setCursor( new Cursor( Cursor.HAND_CURSOR ) );
+        voltar.setAlignmentX( Component.LEFT_ALIGNMENT );
         voltar.addActionListener(
-                e -> voltarParaRelatorios()
-        );
-
-        painel.add(
-                voltar
-        );
-
-        painel.add(
-                Box.createVerticalStrut(8)
-        );
-
-        JLabel titulo =
-                new JLabel("Importar Presença");
-
-        titulo.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        25
-                )
-        );
-
+                e -> voltarParaRelatorios() );
+        painel.add( voltar );
+        painel.add( Box.createVerticalStrut(8) );
+        JLabel titulo = new JLabel("Importar Presença");
+        titulo.setFont( new Font( "Segoe UI", Font.BOLD, 25 ) );
         titulo.setForeground(ThemeManager.getTexto());
-
-        titulo.setAlignmentX(
-                Component.LEFT_ALIGNMENT
-        );
-
-        JLabel subtitulo =
-                new JLabel(
-                        "Importe as respostas do Google Forms ou Google Sheets através de um arquivo CSV."
-                );
-
-        subtitulo.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        13
-                )
-        );
-
+        titulo.setAlignmentX( Component.LEFT_ALIGNMENT );
+        JLabel subtitulo = new JLabel( "Importe as respostas do Google Forms ou Google Sheets através de um arquivo CSV." );
+        subtitulo.setFont( new Font( "Segoe UI", Font.PLAIN, 13 ) );
         subtitulo.setForeground(ThemeManager.getTextoSecundario());
-
-        subtitulo.setAlignmentX(
-                Component.LEFT_ALIGNMENT
-        );
-
+        subtitulo.setAlignmentX( Component.LEFT_ALIGNMENT );
         painel.add(titulo);
-
-        painel.add(
-                Box.createVerticalStrut(4)
-        );
-
+        painel.add( Box.createVerticalStrut(4) );
         painel.add(subtitulo);
-
-        painel.add(
-                Box.createVerticalStrut(18)
-        );
-
-        JPanel configuracao =
-                new JPanel();
-
-        configuracao.setLayout(
-                new BoxLayout(
-                        configuracao,
-                        BoxLayout.Y_AXIS
-                )
-        );
-
+        painel.add( Box.createVerticalStrut(18) );
+        JPanel configuracao = new JPanel();
+        configuracao.setLayout( new BoxLayout( configuracao, BoxLayout.Y_AXIS ) );
         configuracao.setBackground(ThemeManager.getPainel());
+        configuracao.setBorder( BorderFactory.createCompoundBorder( BorderFactory.createLineBorder( BORDA ), new EmptyBorder( 16, 18, 16, 18 ) ) );
+        configuracao.setAlignmentX( Component.LEFT_ALIGNMENT );
 
-        configuracao.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(
-                                BORDA
-                        ),
-                        new EmptyBorder(
-                                16,
-                                18,
-                                16,
-                                18
-                        )
-                )
-        );
-
-        configuracao.setAlignmentX(
-                Component.LEFT_ALIGNMENT
-        );
-
-        // =================================================
         // TIPO DE IMPORTAÇÃO
-        // =================================================
 
-        JLabel labelModo =
-                new JLabel(
-                        "Tipo de importação"
-                );
-
-        labelModo.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        12
-                )
-        );
-
+        JLabel labelModo = new JLabel( "Tipo de importação" );
+        labelModo.setFont( new Font( "Segoe UI", Font.BOLD, 12 ) );
         labelModo.setForeground(ThemeManager.getTexto());
-
         configuracao.add(labelModo);
-
-        configuracao.add(
-                Box.createVerticalStrut(7)
-        );
-
-        JPanel linhaModo =
-                new JPanel(
-                        new FlowLayout(
-                                FlowLayout.LEFT,
-                                0,
-                                0
-                        )
-                );
-
+        configuracao.add( Box.createVerticalStrut(7) );
+        JPanel linhaModo = new JPanel( new FlowLayout( FlowLayout.LEFT, 0, 0 ) );
         linhaModo.setBackground(ThemeManager.getPainel());
-
-        toggleModoEvento =
-                criarToggleModo(
-                        "Presença em Evento"
-                );
-
-        toggleModoAtividade =
-                criarToggleModo(
-                        "Participação em Atividade"
-                );
-
-        ButtonGroup grupo =
-                new ButtonGroup();
-
+        toggleModoEvento = criarToggleModo( "Presença em Evento" );
+        toggleModoAtividade = criarToggleModo( "Participação em Atividade" );
+        ButtonGroup grupo = new ButtonGroup();
         grupo.add(toggleModoEvento);
         grupo.add(toggleModoAtividade);
-
         toggleModoEvento.setSelected(true);
-
-        aplicarEstiloToggle(
-                toggleModoEvento,
-                true
-        );
-
-        aplicarEstiloToggle(
-                toggleModoAtividade,
-                false
-        );
-
+        aplicarEstiloToggle( toggleModoEvento, true );
+        aplicarEstiloToggle( toggleModoAtividade, false );
         toggleModoEvento.addActionListener(e -> {
-
             modoAtividade = false;
-
-            aplicarEstiloToggle(
-                    toggleModoEvento,
-                    true
-            );
-
-            aplicarEstiloToggle(
-                    toggleModoAtividade,
-                    false
-            );
-
+            aplicarEstiloToggle( toggleModoEvento, true );
+            aplicarEstiloToggle( toggleModoAtividade, false );
             alternarModo();
         });
-
         toggleModoAtividade.addActionListener(e -> {
-
             modoAtividade = true;
-
-            aplicarEstiloToggle(
-                    toggleModoEvento,
-                    false
-            );
-
-            aplicarEstiloToggle(
-                    toggleModoAtividade,
-                    true
-            );
-
+            aplicarEstiloToggle( toggleModoEvento, false );
+            aplicarEstiloToggle( toggleModoAtividade, true );
             alternarModo();
         });
-
-        linhaModo.add(
-                toggleModoEvento
-        );
-
-        linhaModo.add(
-                Box.createHorizontalStrut(8)
-        );
-
-        linhaModo.add(
-                toggleModoAtividade
-        );
-
+        linhaModo.add( toggleModoEvento );
+        linhaModo.add( Box.createHorizontalStrut(8) );
+        linhaModo.add( toggleModoAtividade );
         configuracao.add(linhaModo);
+        configuracao.add( Box.createVerticalStrut(15) );
 
-        configuracao.add(
-                Box.createVerticalStrut(15)
-        );
-
-        // =================================================
         // CONTEXTO
-        // =================================================
 
-        JPanel linhaContexto =
-                new JPanel(
-                        new FlowLayout(
-                                FlowLayout.LEFT,
-                                15,
-                                0
-                        )
-                );
-
+        JPanel linhaContexto = new JPanel( new FlowLayout( FlowLayout.LEFT, 15, 0 ) );
         linhaContexto.setBackground(ThemeManager.getPainel());
+        JPanel blocoContexto = criarBlocoContexto();
+        linhaContexto.add( blocoContexto );
+        painelData = criarBlocoData();
+        linhaContexto.add( painelData );
+        configuracao.add( linhaContexto );
+        configuracao.add( Box.createVerticalStrut(15) );
 
-        JPanel blocoContexto =
-                criarBlocoContexto();
-
-        linhaContexto.add(
-                blocoContexto
-        );
-
-        painelData =
-                criarBlocoData();
-
-        linhaContexto.add(
-                painelData
-        );
-
-        configuracao.add(
-                linhaContexto
-        );
-
-        configuracao.add(
-                Box.createVerticalStrut(15)
-        );
-
-        // =================================================
         // ARQUIVO
-        // =================================================
 
-        JPanel linhaArquivo =
-                new JPanel(
-                        new FlowLayout(
-                                FlowLayout.LEFT,
-                                10,
-                                0
-                        )
-                );
-
+        JPanel linhaArquivo = new JPanel( new FlowLayout( FlowLayout.LEFT, 10, 0 ) );
         linhaArquivo.setBackground(ThemeManager.getPainel());
-
-        JButton escolher =
-                criarBotaoPrincipal(
-                        "Escolher arquivo CSV"
-                );
-
+        JButton escolher = criarBotaoPrincipal( "Escolher arquivo CSV" );
         escolher.addActionListener(
-                e -> escolherArquivo()
-        );
-
-        labelArquivo =
-                new JLabel(
-                        "Nenhum arquivo selecionado."
-                );
-
-        labelArquivo.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        13
-                )
-        );
-
+                e -> escolherArquivo() );
+        labelArquivo = new JLabel( "Nenhum arquivo selecionado." );
+        labelArquivo.setFont( new Font( "Segoe UI", Font.PLAIN, 13 ) );
         labelArquivo.setForeground(ThemeManager.getTextoSecundario());
-
         linhaArquivo.add(escolher);
-
         linhaArquivo.add(labelArquivo);
-
         configuracao.add(linhaArquivo);
-
         painel.add(configuracao);
-
         return painel;
     }
 
-    // =====================================================
     // BLOCO CONTEXTO
-    // =====================================================
 
     private JPanel criarBlocoContexto() {
-
-        JPanel painel =
-                new JPanel();
-
-        painel.setLayout(
-                new BoxLayout(
-                        painel,
-                        BoxLayout.Y_AXIS
-                )
-        );
-
+        JPanel painel = new JPanel();
+        painel.setLayout( new BoxLayout( painel, BoxLayout.Y_AXIS ) );
         painel.setBackground(ThemeManager.getPainel());
-
-        labelContexto =
-                new JLabel("Evento");
-
-        labelContexto.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        12
-                )
-        );
-
+        labelContexto = new JLabel("Evento");
+        labelContexto.setFont( new Font( "Segoe UI", Font.BOLD, 12 ) );
         labelContexto.setForeground(ThemeManager.getTexto());
+        comboContexto = new JComboBox<>();
+        comboContexto.setPreferredSize( new Dimension( 360, 38 ) );
+        comboContexto.setMaximumSize( new Dimension( 360, 38 ) );
+        comboContexto.setFont( new Font( "Segoe UI", Font.PLAIN, 13 ) );
 
-        comboContexto =
-                new JComboBox<>();
-
-        comboContexto.setPreferredSize(
-                new Dimension(
-                        360,
-                        38
-                )
-        );
-
-        comboContexto.setMaximumSize(
-                new Dimension(
-                        360,
-                        38
-                )
-        );
-
-        comboContexto.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        13
-                )
-        );
-
-        // Ao trocar o evento, revalida o CSV já carregado para
-        // conferir se cada aluno pertence ao público desse evento.
+        // Ao trocar o evento, revalida o CSV já carregado para conferir se cada aluno pertence ao público desse evento.
         comboContexto.addActionListener(e -> {
             if (!linhasCsv.isEmpty()) {
                 validarLinhas();
             }
         });
-
         painel.add(labelContexto);
-
-        painel.add(
-                Box.createVerticalStrut(5)
-        );
-
+        painel.add( Box.createVerticalStrut(5) );
         painel.add(comboContexto);
-
         return painel;
     }
 
-    // =====================================================
     // BLOCO DATA
-    // =====================================================
 
     private JPanel criarBlocoData() {
-
-        JPanel painel =
-                new JPanel();
-
-        painel.setLayout(
-                new BoxLayout(
-                        painel,
-                        BoxLayout.Y_AXIS
-                )
-        );
-
+        JPanel painel = new JPanel();
+        painel.setLayout( new BoxLayout( painel, BoxLayout.Y_AXIS ) );
         painel.setBackground(ThemeManager.getPainel());
-
-        JLabel label =
-                new JLabel(
-                        "Data da presença (AAAA-MM-DD)"
-                );
-
-        label.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        12
-                )
-        );
-
+        JLabel label = new JLabel( "Data da presença (AAAA-MM-DD)" );
+        label.setFont( new Font( "Segoe UI", Font.BOLD, 12 ) );
         label.setForeground(ThemeManager.getTexto());
-
-        campoData =
-                new JTextField(
-                        LocalDate.now().toString()
-                );
-
-        campoData.setPreferredSize(
-                new Dimension(
-                        180,
-                        38
-                )
-        );
-
-        campoData.setMaximumSize(
-                new Dimension(
-                        180,
-                        38
-                )
-        );
-
-        campoData.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        13
-                )
-        );
-
-        campoData.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(
-                                BORDA
-                        ),
-                        new EmptyBorder(
-                                7,
-                                10,
-                                7,
-                                10
-                        )
-                )
-        );
-
+        campoData = new JTextField( LocalDate.now().toString() );
+        campoData.setPreferredSize( new Dimension( 180, 38 ) );
+        campoData.setMaximumSize( new Dimension( 180, 38 ) );
+        campoData.setFont( new Font( "Segoe UI", Font.PLAIN, 13 ) );
+        campoData.setBorder( BorderFactory.createCompoundBorder( BorderFactory.createLineBorder( BORDA ), new EmptyBorder( 7, 10, 7, 10 ) ) );
         painel.add(label);
-
-        painel.add(
-                Box.createVerticalStrut(5)
-        );
-
+        painel.add( Box.createVerticalStrut(5) );
         painel.add(campoData);
-
         return painel;
     }
 
-    // =====================================================
     // TOGGLE
-    // =====================================================
 
     private JToggleButton criarToggleModo(
             String texto
     ) {
-
-        JToggleButton toggle =
-                new JToggleButton(texto);
-
-        toggle.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        12
-                )
-        );
-
+        JToggleButton toggle = new JToggleButton(texto);
+        toggle.setFont( new Font( "Segoe UI", Font.BOLD, 12 ) );
         toggle.setFocusPainted(false);
-
-        toggle.setCursor(
-                new Cursor(
-                        Cursor.HAND_CURSOR
-                )
-        );
-
-        toggle.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(
-                                BORDA
-                        ),
-                        new EmptyBorder(
-                                8,
-                                14,
-                                8,
-                                14
-                        )
-                )
-        );
-
+        toggle.setCursor( new Cursor( Cursor.HAND_CURSOR ) );
+        toggle.setBorder( BorderFactory.createCompoundBorder( BorderFactory.createLineBorder( BORDA ), new EmptyBorder( 8, 14, 8, 14 ) ) );
         return toggle;
     }
 
@@ -705,74 +259,32 @@ public class ImportarPresencaCsvPage extends JPanel {
             JToggleButton toggle,
             boolean ativo
     ) {
-
-        toggle.setBackground(
-                ativo
-                        ? AZUL
-                        : Color.WHITE
-        );
-
-        toggle.setForeground(
-                ativo
-                        ? Color.WHITE
-                        : TEXTO
-        );
+        toggle.setBackground( ativo ? AZUL : Color.WHITE );
+        toggle.setForeground( ativo ? Color.WHITE : TEXTO );
     }
 
-    // =====================================================
     // ALTERNAR MODO
-    // =====================================================
 
     private void alternarModo() {
-
-        labelContexto.setText(
-                modoAtividade
-                        ? "Atividade"
-                        : "Evento"
-        );
-
-        painelData.setVisible(
-                !modoAtividade
-        );
-
+        labelContexto.setText( modoAtividade ? "Atividade" : "Evento" );
+        painelData.setVisible( !modoAtividade );
         carregarContexto();
-
         linhasCsv.clear();
         idEventoCsv = null;
-
         modeloTabela.setRowCount(0);
-
-        labelArquivo.setText(
-                "Nenhum arquivo selecionado."
-        );
-
+        labelArquivo.setText( "Nenhum arquivo selecionado." );
         labelResumo.setText(" ");
-
         botaoImportar.setEnabled(false);
-
         revalidate();
         repaint();
     }
 
-    // =====================================================
     // PREVIEW
-    // =====================================================
 
     private JScrollPane criarPreview() {
-
-        JPanel caixa =
-                new JPanel(
-                        new BorderLayout()
-                );
-
+        JPanel caixa = new JPanel( new BorderLayout() );
         caixa.setBackground(ThemeManager.getPainel());
-
-        caixa.setBorder(
-                BorderFactory.createLineBorder(
-                        BORDA
-                )
-        );
-
+        caixa.setBorder( BorderFactory.createLineBorder( BORDA ) );
         modeloTabela =
                 new DefaultTableModel(
                         new Object[]{
@@ -783,7 +295,6 @@ public class ImportarPresencaCsvPage extends JPanel {
                         },
                         0
                 ) {
-
                     @Override
                     public boolean isCellEditable(
                             int row,
@@ -792,225 +303,94 @@ public class ImportarPresencaCsvPage extends JPanel {
                         return false;
                     }
                 };
-
-        tabela =
-                new JTable(modeloTabela);
-
+        tabela = new JTable(modeloTabela);
         tabela.setRowHeight(32);
-
-        tabela.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        13
-                )
-        );
-
-        tabela.getTableHeader()
-                .setFont(
-                        new Font(
-                                "Segoe UI",
-                                Font.BOLD,
-                                13
-                        )
-                );
-
-        tabela.getTableHeader()
-                .setBackground(
-                        new Color(
-                                249,
-                                250,
-                                252
-                        )
-                );
-
-        tabela.getTableHeader()
-                .setForeground(ThemeManager.getTexto());
-
+        tabela.setFont( new Font( "Segoe UI", Font.PLAIN, 13 ) );
+        tabela.getTableHeader() .setFont( new Font( "Segoe UI", Font.BOLD, 13 ) );
+        tabela.getTableHeader() .setBackground( new Color( 249, 250, 252 ) );
+        tabela.getTableHeader() .setForeground(ThemeManager.getTexto());
         tabela.setShowGrid(true);
-
         tabela.setGridColor(BORDA);
-
-        tabela.setSelectionBackground(
-                AZUL_CLARO
-        );
-
-        tabela.setSelectionForeground(
-                TEXTO
-        );
-
-        tabela.getColumnModel()
-                .getColumn(2)
-                .setCellRenderer(
-                        new SituacaoRenderer()
-                );
-
-        JScrollPane scroll =
-                new JScrollPane(tabela);
-
+        tabela.setSelectionBackground( AZUL_CLARO );
+        tabela.setSelectionForeground( TEXTO );
+        tabela.getColumnModel() .getColumn(2) .setCellRenderer( new SituacaoRenderer() );
+        JScrollPane scroll = new JScrollPane(tabela);
         scroll.setBorder(null);
-
-        caixa.add(
-                scroll,
-                BorderLayout.CENTER
-        );
-
+        caixa.add( scroll, BorderLayout.CENTER );
         return scroll;
     }
 
-    // =====================================================
     // RODAPÉ
-    // =====================================================
 
     private JPanel criarRodape() {
-
-        JPanel painel =
-                new JPanel(
-                        new BorderLayout()
-                );
-
+        JPanel painel = new JPanel( new BorderLayout() );
         painel.setBackground(ThemeManager.getFundo());
-
-        painel.setBorder(
-                new EmptyBorder(
-                        5,
-                        0,
-                        0,
-                        0
-                )
-        );
-
-        labelResumo =
-                new JLabel(" ");
-
-        labelResumo.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        13
-                )
-        );
-
+        painel.setBorder( new EmptyBorder( 5, 0, 0, 0 ) );
+        labelResumo = new JLabel(" ");
+        labelResumo.setFont( new Font( "Segoe UI", Font.PLAIN, 13 ) );
         labelResumo.setForeground(ThemeManager.getTextoSecundario());
-
-        botaoImportar =
-                criarBotaoPrincipal(
-                        "Importar Presenças"
-                );
-
+        botaoImportar = criarBotaoPrincipal( "Importar Presenças" );
         botaoImportar.setEnabled(false);
-
         botaoImportar.addActionListener(
-                e -> importarPresencas()
-        );
-
-        painel.add(
-                labelResumo,
-                BorderLayout.WEST
-        );
-
-        painel.add(
-                botaoImportar,
-                BorderLayout.EAST
-        );
-
+                e -> importarPresencas() );
+        painel.add( labelResumo, BorderLayout.WEST );
+        painel.add( botaoImportar, BorderLayout.EAST );
         return painel;
     }
 
-    // =====================================================
     // CARREGAR CONTEXTO
-    // =====================================================
 
     private void carregarContexto() {
-
         comboContexto.removeAllItems();
-
         if (modoAtividade) {
-
-            List<AtividadeOpcao> atividades =
-                    presencaService.listarAtividades();
-
+            List<AtividadeOpcao> atividades = presencaService.listarAtividades();
             for (
                     AtividadeOpcao atividade
                     : atividades
             ) {
-
-                comboContexto.addItem(
-                        atividade
-                );
+                comboContexto.addItem( atividade );
             }
-
         } else {
-
-            List<EventoOpcao> eventos =
-                    presencaService.listarEventos();
-
+            List<EventoOpcao> eventos = presencaService.listarEventos();
             for (
                     EventoOpcao evento
                     : eventos
             ) {
-
-                comboContexto.addItem(
-                        evento
-                );
+                comboContexto.addItem( evento );
             }
         }
     }
 
-    // =====================================================
     // ESCOLHER CSV
-    // =====================================================
 
     private void escolherArquivo() {
-
-        JFileChooser seletor =
-                new JFileChooser();
-
-        seletor.setDialogTitle(
-                "Selecione o CSV exportado do Google Sheets"
-        );
-
+        JFileChooser seletor = new JFileChooser();
+        seletor.setDialogTitle( "Selecione o CSV exportado do Google Sheets" );
         if (
                 seletor.showOpenDialog(this)
                         != JFileChooser.APPROVE_OPTION
         ) {
             return;
         }
-
-        File arquivo =
-                seletor.getSelectedFile();
-
+        File arquivo = seletor.getSelectedFile();
         if (!arquivo.getName()
                 .toLowerCase()
                 .endsWith(".csv")) {
-
-            mostrarAviso(
-                    "Selecione um arquivo com extensão .csv."
-            );
-
+            mostrarAviso( "Selecione um arquivo com extensão .csv." );
             return;
         }
-
-        labelArquivo.setText(
-                arquivo.getName()
-        );
-
+        labelArquivo.setText( arquivo.getName() );
         lerCsv(arquivo);
     }
 
-    // =====================================================
     // LER CSV
-    // =====================================================
 
     private void lerCsv(
             File arquivo
     ) {
-
         linhasCsv.clear();
         idEventoCsv = null;
-
         modeloTabela.setRowCount(0);
-
         try (
                 BufferedReader leitor =
                         new BufferedReader(
@@ -1020,130 +400,78 @@ public class ImportarPresencaCsvPage extends JPanel {
                                 )
                         )
         ) {
-
-            String cabecalho =
-                    leitor.readLine();
-
+            String cabecalho = leitor.readLine();
             if (cabecalho == null) {
-
-                mostrarErro(
-                        "O arquivo está vazio."
-                );
-
+                mostrarErro( "O arquivo está vazio." );
                 return;
             }
-
             cabecalho = removerBOM(cabecalho);
             char delimitador = detectarDelimitador(cabecalho);
             String[] colunas = dividirLinhaCsv(cabecalho, delimitador);
-
             int indiceRm = -1;
-
             int indiceNome = -1;
             int indiceStatus = -1;
             int indiceIdEvento = -1;
-
             for (
                     int i = 0;
                     i < colunas.length;
                     i++
             ) {
-
-                String coluna =
-                        limparCampo(
-                                colunas[i]
-                        ).toLowerCase();
-
+                String coluna = limparCampo( colunas[i] ).toLowerCase();
                 if (
                         coluna.equals("rm")
                                 || coluna.equals("r.m.")
                 ) {
-
                     indiceRm = i;
                 }
-
                 if (coluna.contains("nome")) {
                     indiceNome = i;
                 }
-
                 if (coluna.equals("status") || coluna.contains("presenca") || coluna.contains("presença")) {
                     indiceStatus = i;
                 }
-
-                String colunaNormalizada = coluna
-                        .replace("_", " ")
-                        .replace("-", " ")
-                        .replace("  ", " ")
-                        .trim();
-
+                String colunaNormalizada = coluna .replace("_", " ") .replace("-", " ") .replace("  ", " ") .trim();
                 if (colunaNormalizada.equals("id evento")
                         || colunaNormalizada.equals("codigo evento")
                         || colunaNormalizada.equals("código evento")) {
                     indiceIdEvento = i;
                 }
             }
-
             if (indiceRm == -1) {
-
-                mostrarAviso(
-                        "Não encontrei uma coluna chamada \"RM\" no CSV.\n\n"
-                                + "O cabeçalho precisa conter uma coluna chamada RM."
-                );
-
+                mostrarAviso( "Não encontrei uma coluna chamada \"RM\" no CSV.\n\n" + "O cabeçalho precisa conter uma coluna chamada RM." );
                 return;
             }
-
             String linha;
-
             while (
                     (linha = leitor.readLine())
                             != null
             ) {
-
                 if (linha.isBlank()) {
                     continue;
                 }
-
-                String[] valores =
-                        dividirLinhaCsv(linha, delimitador);
-
-                String rm =
-                        indiceRm < valores.length
-                                ? limparCampo(
-                                valores[indiceRm]
-                        )
-                                : "";
-
-                String nomeCsv =
-                        (indiceNome != -1 && indiceNome < valores.length)
-                                ? limparCampo(valores[indiceNome]) : "";
-
+                String[] valores = dividirLinhaCsv(linha, delimitador);
+                String rm = indiceRm < valores.length ? limparCampo( valores[indiceRm] ) : "";
+                String nomeCsv = (indiceNome != -1 && indiceNome < valores.length) ? limparCampo(valores[indiceNome]) : "";
                 if (!modoAtividade
                         && indiceIdEvento != -1
                         && indiceIdEvento < valores.length) {
-
                     String valorIdEvento = limparCampo(valores[indiceIdEvento]);
-
                     if (!valorIdEvento.isBlank()) {
                         try {
                             long idLido = Long.parseLong(valorIdEvento);
-
                             if (idEventoCsv == null) {
                                 idEventoCsv = idLido;
                             } else if (idEventoCsv != idLido) {
                                 mostrarErro(
                                         "O CSV contém mais de um ID de evento.\n\n"
-                                                + "Todas as respostas do mesmo arquivo devem pertencer ao mesmo evento."
-                                );
+                                                + "Todas as respostas do mesmo arquivo devem pertencer ao mesmo evento." );
                                 linhasCsv.clear();
                                 modeloTabela.setRowCount(0);
                                 botaoImportar.setEnabled(false);
                                 return;
                             }
                         } catch (NumberFormatException ex) {
-                            mostrarErro(
-                                    "ID de evento inválido no CSV: " + valorIdEvento
-                            );
+                            mostrarErro( "ID de evento inválido no CSV: " + valorIdEvento );
                             linhasCsv.clear();
                             modeloTabela.setRowCount(0);
                             botaoImportar.setEnabled(false);
@@ -1151,24 +479,17 @@ public class ImportarPresencaCsvPage extends JPanel {
                         }
                     }
                 }
-
                 String statusCsv;
-
                 if (modoAtividade) {
                     statusCsv =
-                            (indiceStatus != -1 && indiceStatus < valores.length)
-                                    ? normalizarStatus(limparCampo(valores[indiceStatus]))
-                                    : "PRESENTE";
+                            (indiceStatus != -1 && indiceStatus < valores.length) ? normalizarStatus(limparCampo(valores[indiceStatus])) : "PRESENTE";
                 } else {
-                    // Google Forms: se existe uma linha para o RM,
-                    // significa que o aluno respondeu e está presente.
+                    // Google Forms: se existe uma linha para o RM, significa que o aluno respondeu e está presente.
                     statusCsv = "PRESENTE";
                 }
-
                 if (rm.isBlank()) {
                     continue;
                 }
-
                 linhasCsv.add(
                         new String[]{
                                 rm,
@@ -1177,169 +498,103 @@ public class ImportarPresencaCsvPage extends JPanel {
                         }
                 );
             }
-
         } catch (IOException e) {
-
-            mostrarErro(
-                    "Não foi possível ler o arquivo:\n"
-                            + e.getMessage()
-            );
-
+            mostrarErro( "Não foi possível ler o arquivo:\n" + e.getMessage() );
             return;
         }
-
         if (!modoAtividade && idEventoCsv != null) {
             if (!selecionarEventoDoCsv(idEventoCsv)) {
-                mostrarErro(
-                        "O CSV informa o evento ID " + idEventoCsv
-                                + ", mas esse evento não foi encontrado no banco."
-                );
+                mostrarErro( "O CSV informa o evento ID " + idEventoCsv + ", mas esse evento não foi encontrado no banco." );
                 botaoImportar.setEnabled(false);
                 return;
             }
         }
-
         validarLinhas();
     }
 
     private boolean selecionarEventoDoCsv(long idEvento) {
-
         for (int i = 0; i < comboContexto.getItemCount(); i++) {
             Object item = comboContexto.getItemAt(i);
-
             if (item instanceof EventoOpcao evento
                     && evento.getId() == idEvento) {
                 comboContexto.setSelectedIndex(i);
                 return true;
             }
         }
-
         return false;
     }
 
-    // =====================================================
     // REMOVER BOM
-    // =====================================================
 
     private String removerBOM(
             String texto
     ) {
-
         if (
                 texto != null
                         && !texto.isEmpty()
                         && texto.charAt(0) == '\uFEFF'
         ) {
-
             return texto.substring(1);
         }
-
         return texto;
     }
 
-    // =====================================================
     // LIMPAR CAMPO
-    // =====================================================
 
     private String limparCampo(
             String valor
     ) {
-
         if (valor == null) {
             return "";
         }
-
-        valor =
-                valor.trim();
-
+        valor = valor.trim();
         if (
                 valor.length() >= 2
                         && valor.startsWith("\"")
                         && valor.endsWith("\"")
         ) {
-
-            valor =
-                    valor.substring(
-                            1,
-                            valor.length() - 1
-                    );
+            valor = valor.substring( 1, valor.length() - 1 );
         }
-
-        return valor
-                .replace(
-                        "\"\"",
-                        "\""
-                )
-                .trim();
+        return valor .replace( "\"\"", "\"" ) .trim();
     }
 
-    // =====================================================
     // DIVIDIR CSV
-    // =====================================================
 
     private String[] dividirLinhaCsv(
             String linha, char delimitador
     ) {
-
-        List<String> campos =
-                new ArrayList<>();
-
-        StringBuilder atual =
-                new StringBuilder();
-
+        List<String> campos = new ArrayList<>();
+        StringBuilder atual = new StringBuilder();
         boolean dentroAspas = false;
-
         for (
                 int i = 0;
                 i < linha.length();
                 i++
         ) {
-
-            char c =
-                    linha.charAt(i);
-
+            char c = linha.charAt(i);
             if (c == '"') {
-
                 if (
                         dentroAspas
                                 && i + 1 < linha.length()
                                 && linha.charAt(i + 1) == '"'
                 ) {
-
                     atual.append('"');
-
                     i++;
-
                 } else {
-
-                    dentroAspas =
-                            !dentroAspas;
+                    dentroAspas = !dentroAspas;
                 }
-
             } else if (
                     c == delimitador
                             && !dentroAspas
             ) {
-
-                campos.add(
-                        atual.toString()
-                );
-
+                campos.add( atual.toString() );
                 atual.setLength(0);
-
             } else {
-
                 atual.append(c);
             }
         }
-
-        campos.add(
-                atual.toString()
-        );
-
-        return campos.toArray(
-                new String[0]
-        );
+        campos.add( atual.toString() );
+        return campos.toArray( new String[0] );
     }
 
     private char detectarDelimitador(String linha) {
@@ -1374,72 +629,50 @@ public class ImportarPresencaCsvPage extends JPanel {
         return "PRESENTE";
     }
 
-    // =====================================================
     // VALIDAR
-    // =====================================================
 
     private void validarLinhas() {
-
         modeloTabela.setRowCount(0);
-
         int encontrados = 0;
         int naoEncontrados = 0;
         int foraDoPublico = 0;
         int naoInscritos = 0;
-
         EventoOpcao eventoSelecionado = null;
-
         if (!modoAtividade
                 && comboContexto.getSelectedItem() instanceof EventoOpcao evento) {
             eventoSelecionado = evento;
         }
-
         for (
                 String[] linha
                 : linhasCsv
         ) {
-
             String rm = linha[0];
             String nomeCsv = linha[1];
-
-            Aluno aluno =
-                    presencaService.buscarAlunoPorRm(
-                            rm
-                    );
-
+            Aluno aluno = presencaService.buscarAlunoPorRm( rm );
             String situacao;
-
             if (aluno == null) {
-
                 situacao = "RM não encontrado no cadastro";
                 naoEncontrados++;
-
             } else if (!modoAtividade
                     && eventoSelecionado != null
                     && !presencaService.alunoPertenceAoPublicoEvento(
                             aluno.getId(),
                             eventoSelecionado.getId()
                     )) {
-
                 situacao = "Aluno fora do público deste evento";
                 foraDoPublico++;
-
             } else if (!modoAtividade
                     && eventoSelecionado != null
                     && !presencaService.alunoInscritoNoEvento(
                             aluno.getId(),
                             eventoSelecionado.getId()
                     )) {
-
                 situacao = "Aluno não está inscrito neste evento";
                 naoInscritos++;
-
             } else {
-
                 situacao = "Encontrado: " + aluno.getNome();
                 encontrados++;
             }
-
             modeloTabela.addRow(
                     new Object[]{
                             rm,
@@ -1449,124 +682,58 @@ public class ImportarPresencaCsvPage extends JPanel {
                     }
             );
         }
-
-        String resumo =
-                linhasCsv.size()
-                        + " linha(s) lida(s)  •  "
-                        + encontrados
-                        + " válido(s)  •  "
-                        + naoEncontrados
-                        + " não encontrado(s)";
-
+        String resumo = linhasCsv.size() + " linha(s) lida(s)  •  " + encontrados + " válido(s)  •  " + naoEncontrados + " não encontrado(s)";
         if (!modoAtividade) {
-            resumo += "  •  "
-                    + foraDoPublico
-                    + " fora do público"
-                    + "  •  "
-                    + naoInscritos
-                    + " não inscrito(s)";
+            resumo += "  •  " + foraDoPublico + " fora do público" + "  •  " + naoInscritos + " não inscrito(s)";
         }
-
         labelResumo.setText(resumo);
-
-        botaoImportar.setEnabled(
-                encontrados > 0
-        );
+        botaoImportar.setEnabled( encontrados > 0 );
     }
 
-    // =====================================================
     // IMPORTAR
-    // =====================================================
 
     private void importarPresencas() {
-
         if (linhasCsv.isEmpty()) {
-
-            mostrarAviso(
-                    "Nenhum registro foi carregado."
-            );
-
+            mostrarAviso( "Nenhum registro foi carregado." );
             return;
         }
-
         if (modoAtividade) {
-
             importarParticipacaoAtividade();
-
         } else {
-
             importarPresencaEvento();
         }
     }
 
-    // =====================================================
     // IMPORTAR EVENTO
-    // =====================================================
 
     private void importarPresencaEvento() {
-
-        EventoOpcao evento =
-                (EventoOpcao)
-                        comboContexto.getSelectedItem();
-
+        EventoOpcao evento = (EventoOpcao) comboContexto.getSelectedItem();
         if (evento == null) {
-
-            mostrarAviso(
-                    "Selecione um evento."
-            );
-
+            mostrarAviso( "Selecione um evento." );
             return;
         }
-
         if (idEventoCsv != null && evento.getId() != idEventoCsv) {
             mostrarErro(
                     "O evento selecionado não corresponde ao evento informado no CSV.\n\n"
-                            + "CSV: ID " + idEventoCsv + "\n"
-                            + "Selecionado: ID " + evento.getId() + " - " + evento.getNome()
-            );
+                            + "CSV: ID " + idEventoCsv + "\n" + "Selecionado: ID " + evento.getId() + " - " + evento.getNome() );
             return;
         }
-
         LocalDate data;
-
         try {
-
-            data =
-                    LocalDate.parse(
-                            campoData
-                                    .getText()
-                                    .trim()
-                    );
-
+            data = LocalDate.parse( campoData .getText() .trim() );
         } catch (Exception ex) {
-
-            mostrarAviso(
-                    "Data inválida.\n\n"
-                            + "Use o formato AAAA-MM-DD."
-            );
-
+            mostrarAviso( "Data inválida.\n\n" + "Use o formato AAAA-MM-DD." );
             return;
         }
 
-        // =================================================
         // PERÍODO
-        // =================================================
 
         if (
                 evento.getDataInicio() != null
                         && evento.getDataFim() != null
         ) {
-
-            boolean foraDoPeriodo =
-                    data.isBefore(
-                            evento.getDataInicio()
-                    )
-                            || data.isAfter(
-                            evento.getDataFim()
-                    );
-
+            boolean foraDoPeriodo = data.isBefore( evento.getDataInicio() ) || data.isAfter( evento.getDataFim() );
             if (foraDoPeriodo) {
-
                 int continuar =
                         JOptionPane.showConfirmDialog(
                                 this,
@@ -1576,25 +743,17 @@ public class ImportarPresencaCsvPage extends JPanel {
                                         + " até "
                                         + evento.getDataFim()
                                         + "\n\n"
-                                        + "Deseja continuar?",
-                                "Data fora do período",
-                                JOptionPane.YES_NO_OPTION,
-                                JOptionPane.WARNING_MESSAGE
-                        );
-
+                                        + "Deseja continuar?", "Data fora do período", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE );
                 if (
                         continuar
                                 != JOptionPane.YES_OPTION
                 ) {
-
                     return;
                 }
             }
         }
 
-        // =================================================
         // CONFIRMAÇÃO
-        // =================================================
 
         int confirmacao =
                 JOptionPane.showConfirmDialog(
@@ -1605,49 +764,30 @@ public class ImportarPresencaCsvPage extends JPanel {
                                 + "Somente alunos já inscritos neste evento serão considerados.\n\n"
                                 + "Quem respondeu será PRESENTE.\n"
                                 + "Quem está inscrito e não respondeu será AUSENTE.\n\n"
-                                + evento
-                                + "\n"
-                                + "Data: "
-                                + data,
-                        "Confirmar importação",
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE
-                );
-
+                                + evento + "\n" + "Data: " + data, "Confirmar importação", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE );
         if (
                 confirmacao
                         != JOptionPane.YES_OPTION
         ) {
             return;
         }
-
         int presentesImportados = 0;
         int falhas = 0;
 
         // Evita processar duas vezes a mesma resposta/RM.
         Set<String> rmsPresentes = new HashSet<>();
-
         for (String[] linha : linhasCsv) {
-
-            String rmNormalizado =
-                    linha[0].trim().toUpperCase();
-
+            String rmNormalizado = linha[0].trim().toUpperCase();
             if (rmsPresentes.contains(rmNormalizado)) {
                 continue;
             }
-
-            Aluno aluno =
-                    presencaService.buscarAlunoPorRm(
-                            linha[0]
-                    );
-
+            Aluno aluno = presencaService.buscarAlunoPorRm( linha[0] );
             if (aluno == null) {
                 falhas++;
                 continue;
             }
 
-            // Um aluno de outro curso/série não pode ser inscrito nem
-            // receber presença apenas porque seu RM apareceu no CSV.
+            // Um aluno de outro curso/série não pode ser inscrito nem receber presença apenas porque seu RM apareceu no CSV.
             if (!presencaService.alunoPertenceAoPublicoEvento(
                     aluno.getId(),
                     evento.getId()
@@ -1656,8 +796,7 @@ public class ImportarPresencaCsvPage extends JPanel {
                 continue;
             }
 
-            // A presença não cria inscrição. O aluno precisa ter se
-            // inscrito previamente (manual ou por CSV/Formulário).
+            // A presença não cria inscrição. O aluno precisa ter se inscrito previamente (manual ou por CSV/Formulário).
             if (!presencaService.alunoInscritoNoEvento(
                     aluno.getId(),
                     evento.getId()
@@ -1668,15 +807,7 @@ public class ImportarPresencaCsvPage extends JPanel {
 
             // Quem respondeu o Forms e já está inscrito é PRESENTE.
             rmsPresentes.add(rmNormalizado);
-
-            boolean sucesso =
-                    presencaService.registrarPresencaEvento(
-                            aluno.getId(),
-                            evento.getId(),
-                            data,
-                            "PRESENTE"
-                    );
-
+            boolean sucesso = presencaService.registrarPresencaEvento( aluno.getId(), evento.getId(), data, "PRESENTE" );
             if (sucesso) {
                 presentesImportados++;
             } else {
@@ -1684,115 +815,61 @@ public class ImportarPresencaCsvPage extends JPanel {
             }
         }
 
-        // Depois de registrar quem respondeu, o sistema compara
-        // somente com as inscrições ativas que pertencem ao público
-        // configurado do evento. Quem não respondeu é AUSENTE.
-        int ausentesRegistrados =
-                presencaService.registrarAusenciasEvento(
-                        evento.getId(),
-                        data,
-                        rmsPresentes
-                );
-
-        mostrarResultadoEvento(
-                presentesImportados,
-                ausentesRegistrados,
-                falhas
-        );
+        // Depois de registrar quem respondeu, o sistema compara somente com as inscrições ativas que pertencem ao público configurado do evento. Quem não respondeu é AUSENTE.
+        int ausentesRegistrados = presencaService.registrarAusenciasEvento( evento.getId(), data, rmsPresentes );
+        mostrarResultadoEvento( presentesImportados, ausentesRegistrados, falhas );
     }
 
-    // =====================================================
     // IMPORTAR ATIVIDADE
-    // =====================================================
 
     private void importarParticipacaoAtividade() {
-
-        AtividadeOpcao atividade =
-                (AtividadeOpcao)
-                        comboContexto.getSelectedItem();
-
+        AtividadeOpcao atividade = (AtividadeOpcao) comboContexto.getSelectedItem();
         if (atividade == null) {
-
-            mostrarAviso(
-                    "Selecione uma atividade."
-            );
-
+            mostrarAviso( "Selecione uma atividade." );
             return;
         }
-
         int confirmacao =
                 JOptionPane.showConfirmDialog(
                         this,
                         "Deseja importar "
                                 + linhasCsv.size()
                                 + " linha(s) para a atividade?\n\n"
-                                + atividade,
-                        "Confirmar importação",
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE
-                );
-
+                                + atividade, "Confirmar importação", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE );
         if (
                 confirmacao
                         != JOptionPane.YES_OPTION
         ) {
             return;
         }
-
         int importados = 0;
-
         int falhas = 0;
-
         for (
                 String[] linha
                 : linhasCsv
         ) {
-
-            Aluno aluno =
-                    presencaService.buscarAlunoPorRm(
-                            linha[0]
-                    );
-
+            Aluno aluno = presencaService.buscarAlunoPorRm( linha[0] );
             if (aluno == null) {
-
                 falhas++;
-
                 continue;
             }
-
             boolean sucesso =
-                    presencaService.registrarParticipacaoAtividade(
-                            aluno.getId(),
-                            atividade.getId(),
-                            linha.length > 2 ? linha[2] : "PRESENTE"
-                    );
-
+                    presencaService.registrarParticipacaoAtividade( aluno.getId(), atividade.getId(), linha.length > 2 ? linha[2] : "PRESENTE" );
             if (sucesso) {
-
                 importados++;
-
             } else {
-
                 falhas++;
             }
         }
-
-        mostrarResultado(
-                importados,
-                falhas
-        );
+        mostrarResultado( importados, falhas );
     }
 
-    // =====================================================
     // RESULTADO DA IMPORTAÇÃO DO EVENTO
-    // =====================================================
 
     private void mostrarResultadoEvento(
             int presentes,
             int ausentes,
             int falhas
     ) {
-
         JOptionPane.showMessageDialog(
                 this,
                 "Importação concluída!\n\n"
@@ -1801,141 +878,72 @@ public class ImportarPresencaCsvPage extends JPanel {
                         + ausentes
                         + " ausente(s) — inscritos que não responderam\n"
                         + falhas
-                        + " ignorado(s) — RM inexistente, fora do público ou não inscrito",
-                "Importação concluída",
-                JOptionPane.INFORMATION_MESSAGE
-        );
+                        + " ignorado(s) — RM inexistente, fora do público ou não inscrito", "Importação concluída", JOptionPane.INFORMATION_MESSAGE );
     }
 
-
-    // =====================================================
     // RESULTADO
-    // =====================================================
 
     private void mostrarResultado(
             int importados,
             int falhas
     ) {
-
         JOptionPane.showMessageDialog(
                 this,
                 "Importação concluída!\n\n"
                         + importados
                         + " registro(s) gravado(s)\n"
-                        + falhas
-                        + " falha(s) / RM(s) não encontrado(s)",
-                "Importação concluída",
-                JOptionPane.INFORMATION_MESSAGE
-        );
+                        + falhas + " falha(s) / RM(s) não encontrado(s)", "Importação concluída", JOptionPane.INFORMATION_MESSAGE );
     }
 
-    // =====================================================
     // BOTÃO PRINCIPAL
-    // =====================================================
 
     private JButton criarBotaoPrincipal(
             String texto
     ) {
-
-        JButton botao =
-                new JButton(texto);
-
-        botao.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        13
-                )
-        );
-
+        JButton botao = new JButton(texto);
+        botao.setFont( new Font( "Segoe UI", Font.BOLD, 13 ) );
         botao.setForeground(Color.WHITE);
-
         botao.setBackground(AZUL);
-
         botao.setFocusPainted(false);
-
         botao.setBorderPainted(false);
-
-        botao.setCursor(
-                new Cursor(
-                        Cursor.HAND_CURSOR
-                )
-        );
-
-        botao.setBorder(
-                new EmptyBorder(
-                        10,
-                        16,
-                        10,
-                        16
-                )
-        );
-
+        botao.setCursor( new Cursor( Cursor.HAND_CURSOR ) );
+        botao.setBorder( new EmptyBorder( 10, 16, 10, 16 ) );
         return botao;
     }
 
-    // =====================================================
     // AVISO
-    // =====================================================
 
     private void mostrarAviso(
             String mensagem
     ) {
-
-        JOptionPane.showMessageDialog(
-                this,
-                mensagem,
-                "Aviso",
-                JOptionPane.WARNING_MESSAGE
-        );
+        JOptionPane.showMessageDialog( this, mensagem, "Aviso", JOptionPane.WARNING_MESSAGE );
     }
 
-    // =====================================================
     // ERRO
-    // =====================================================
 
     private void mostrarErro(
             String mensagem
     ) {
-
-        JOptionPane.showMessageDialog(
-                this,
-                mensagem,
-                "Erro",
-                JOptionPane.ERROR_MESSAGE
-        );
+        JOptionPane.showMessageDialog( this, mensagem, "Erro", JOptionPane.ERROR_MESSAGE );
     }
-// =====================================================
 // VOLTAR PARA RELATÓRIOS
-// =====================================================
 
     private void voltarParaRelatorios() {
-
         Container pai = getParent();
-
         while (pai != null) {
-
             if (pai instanceof ResumoRelatoriosPage) {
-
-                ResumoRelatoriosPage pagina =
-                        (ResumoRelatoriosPage) pai;
-
+                ResumoRelatoriosPage pagina = (ResumoRelatoriosPage) pai;
                 pagina.mostrarListaRelatorios();
-
                 return;
             }
-
             pai = pai.getParent();
         }
     }
 
-    // =====================================================
     // RENDERER
-    // =====================================================
 
     private static class SituacaoRenderer
             extends DefaultTableCellRenderer {
-
         @Override
         public Component getTableCellRendererComponent(
                 JTable table,
@@ -1945,47 +953,20 @@ public class ImportarPresencaCsvPage extends JPanel {
                 int row,
                 int column
         ) {
-
-            Component componente =
-                    super.getTableCellRendererComponent(
-                            table,
-                            value,
-                            isSelected,
-                            hasFocus,
-                            row,
-                            column
-                    );
-
-            setBorder(
-                    new EmptyBorder(
-                            0,
-                            8,
-                            0,
-                            8
-                    )
-            );
-
+            Component componente = super.getTableCellRendererComponent( table, value, isSelected, hasFocus, row, column );
+            setBorder( new EmptyBorder( 0, 8, 0, 8 ) );
             if (!isSelected) {
-
-                String texto =
-                        value == null
-                                ? ""
-                                : value.toString();
-
+                String texto = value == null ? "" : value.toString();
                 if (
                         texto.startsWith(
                                 "Encontrado:"
                         )
                 ) {
-
                     setForeground(VERDE);
-
                 } else {
-
                     setForeground(VERMELHO);
                 }
             }
-
             return componente;
         }
     }

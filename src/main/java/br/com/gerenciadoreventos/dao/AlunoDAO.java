@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AlunoDAO {
-
     public List<Aluno> listarAlunos() {
         return listarAlunosPorStatus(true);
     }
@@ -28,41 +27,33 @@ public class AlunoDAO {
                 )
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, TRUE)
                 """;
-
         try (Connection conn = Conexao.conectar()) {
             CursoSerieIds ids = resolverCursoSerie(conn, aluno.getCurso(), aluno.getSerie());
-
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setString(1, aluno.getRm());
                 stmt.setString(2, aluno.getNome());
-
                 if (aluno.getDataNascimento() != null && !aluno.getDataNascimento().isBlank()) {
                     stmt.setDate(3, Date.valueOf(aluno.getDataNascimento()));
                 } else {
                     stmt.setNull(3, Types.DATE);
                 }
-
                 if (ids.idCurso != null) {
                     stmt.setLong(4, ids.idCurso);
                 } else {
                     stmt.setNull(4, Types.BIGINT);
                 }
-
                 if (ids.idSerie != null) {
                     stmt.setLong(5, ids.idSerie);
                 } else {
                     stmt.setNull(5, Types.BIGINT);
                 }
-
                 if (aluno.getAnoConclusao() != null) {
                     stmt.setInt(6, aluno.getAnoConclusao());
                 } else {
                     stmt.setNull(6, Types.INTEGER);
                 }
-
                 stmt.setString(7, aluno.getEmail());
                 stmt.setString(8, aluno.getTelefone());
-
                 return stmt.executeUpdate() == 1;
             }
         } catch (SQLException e) {
@@ -77,7 +68,6 @@ public class AlunoDAO {
                 SET ativo = FALSE
                 WHERE id_aluno = ?
                 """;
-
         try (Connection conn = Conexao.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setLong(1, idAluno);
@@ -96,7 +86,6 @@ public class AlunoDAO {
                   AND ano_conclusao IS NOT NULL
                   AND ano_conclusao < ?
                 """;
-
         try (Connection conn = Conexao.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, anoReferencia);
@@ -125,11 +114,9 @@ public class AlunoDAO {
                 WHERE a.rm = ?
                 LIMIT 1
                 """;
-
         try (Connection conn = Conexao.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, rm);
-
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return mapearAluno(rs, false);
@@ -138,13 +125,11 @@ public class AlunoDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return null;
     }
 
     public List<Aluno> listarAlunosPorStatus(boolean ativo) {
         List<Aluno> alunos = new ArrayList<>();
-
         String sql = """
                 SELECT
                     a.id_aluno,
@@ -163,11 +148,9 @@ public class AlunoDAO {
                 WHERE a.ativo = ?
                 ORDER BY a.nome ASC
                 """;
-
         try (Connection conn = Conexao.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setBoolean(1, ativo);
-
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     alunos.add(mapearAluno(rs, true));
@@ -176,7 +159,6 @@ public class AlunoDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return alunos;
     }
 
@@ -189,31 +171,24 @@ public class AlunoDAO {
         aluno.setEmail(rs.getString("email"));
         aluno.setTelefone(rs.getString("telefone"));
         aluno.setAtivo(rs.getBoolean("ativo"));
-
         int serie = rs.getInt("serie");
         if (!rs.wasNull()) {
             aluno.setSerie(serie);
         }
-
         int anoConclusao = rs.getInt("ano_conclusao");
         if (!rs.wasNull()) {
             aluno.setAnoConclusao(anoConclusao);
         }
-
         if (incluiData) {
             Date data = rs.getDate("data_nascimento");
             if (data != null) {
                 aluno.setDataNascimento(data.toLocalDate().toString());
             }
         }
-
         return aluno;
     }
 
-    /**
-     * O banco guarda somente as chaves estrangeiras. O nome do curso e o número
-     * da série permanecem no model apenas como dados de apresentação.
-     */
+    // O banco guarda somente as chaves estrangeiras. O nome do curso e o número da série permanecem no model apenas como dados de apresentação.
     private CursoSerieIds resolverCursoSerie(
             Connection conn,
             String nomeCurso,
@@ -222,7 +197,6 @@ public class AlunoDAO {
         if (nomeCurso == null || nomeCurso.isBlank()) {
             return new CursoSerieIds(null, null);
         }
-
         String sql = """
                 SELECT
                     c.id_curso,
@@ -233,7 +207,6 @@ public class AlunoDAO {
                    AND (? IS NOT NULL AND s.numero = ?)
                 WHERE c.nome = ?
                 """;
-
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             if (numeroSerie == null) {
                 stmt.setNull(1, Types.INTEGER);
@@ -243,23 +216,18 @@ public class AlunoDAO {
                 stmt.setInt(2, numeroSerie);
             }
             stmt.setString(3, nomeCurso.trim());
-
             try (ResultSet rs = stmt.executeQuery()) {
                 if (!rs.next()) {
                     throw new SQLException("Curso não encontrado: " + nomeCurso);
                 }
-
                 Long idCurso = rs.getLong("id_curso");
                 Long idSerie = rs.getLong("id_serie");
                 if (rs.wasNull()) {
                     idSerie = null;
                 }
-
                 if (numeroSerie != null && idSerie == null) {
-                    throw new SQLException(
-                            "Série " + numeroSerie + " não encontrada para o curso " + nomeCurso);
+                    throw new SQLException( "Série " + numeroSerie + " não encontrada para o curso " + nomeCurso);
                 }
-
                 return new CursoSerieIds(idCurso, idSerie);
             }
         }
@@ -268,7 +236,6 @@ public class AlunoDAO {
     private static class CursoSerieIds {
         private final Long idCurso;
         private final Long idSerie;
-
         private CursoSerieIds(Long idCurso, Long idSerie) {
             this.idCurso = idCurso;
             this.idSerie = idSerie;
