@@ -1,40 +1,23 @@
-target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
-.kotlin
-
-### IntelliJ IDEA ###
+# Pastas da IntelliJ e ferramentas de desenvolvimento
 .idea/
-.idea/modules.xml
-.idea/jarRepositories.xml
-.idea/compiler.xml
-.idea/libraries/
-*.iws
+ALTERACOES_RELATORIO.txt
+ALTERACOES_CLEAN_CODE_RECUPERACAO.txt
+ALTERACOES_STATUS_COMISSAO.txt
+CONFIGURAR_RECUPERACAO_SENHA.txt
 *.iml
+*.iws
 *.ipr
-
-### Eclipse ###
-.apt_generated
 .classpath
-.factorypath
 .project
-.settings
-.springBeans
-.sts4-cache
+.settings/
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
+# Arquivos compilados (Java)
+*.class
+target/
 build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+out/
 
-### VS Code ###
-.vscode/
-
-### Mac OS ###
+# Arquivos do sistema operacional e logs
+*.log
 .DS_Store
+Thumbs.db
