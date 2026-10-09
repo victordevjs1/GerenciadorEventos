@@ -27,8 +27,12 @@ public class ComissaoDAO {
                         "WHEN e.data_fim IS NOT NULL AND NOW() >= e.data_fim THEN FALSE " +
                         "ELSE TRUE END " +
                         "WHERE c.ativo <> CASE " + "WHEN e.data_fim IS NOT NULL AND NOW() >= e.data_fim THEN FALSE " + "ELSE TRUE END";
+        Long usuarioAnterior = br.com.gerenciadoreventos.audit.ContextoAuditoria.getIdUsuario();
+        Conexao.definirUsuarioAuditoria(conexao, null);
         try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.executeUpdate();
+        } finally {
+            Conexao.definirUsuarioAuditoria(conexao, usuarioAnterior);
         }
     }
 

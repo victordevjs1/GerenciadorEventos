@@ -1,23 +1,39 @@
-# Pastas da IntelliJ e ferramentas de desenvolvimento
-.idea/
-ALTERACOES_RELATORIO.txt
-ALTERACOES_CLEAN_CODE_RECUPERACAO.txt
-ALTERACOES_STATUS_COMISSAO.txt
-CONFIGURAR_RECUPERACAO_SENHA.txt
-*.iml
-*.iws
-*.ipr
-.classpath
-.project
-.settings/
-
-# Arquivos compilados (Java)
-*.class
 target/
-build/
-out/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+.kotlin
 
-# Arquivos do sistema operacional e logs
-*.log
+### IntelliJ IDEA ###
+.idea/modules.xml
+.idea/jarRepositories.xml
+.idea/compiler.xml
+.idea/libraries/
+*.iws
+*.iml
+*.ipr
+
+### Eclipse ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+### Mac OS ###
 .DS_Store
-Thumbs.db

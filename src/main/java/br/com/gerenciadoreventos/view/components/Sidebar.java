@@ -2,7 +2,6 @@ package br.com.gerenciadoreventos.view.components;
 
 import br.com.gerenciadoreventos.model.Usuario;
 import br.com.gerenciadoreventos.view.Dashboard;
-import br.com.gerenciadoreventos.view.Login;
 import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.swing.FontIcon;
@@ -301,10 +300,7 @@ public class Sidebar extends JPanel {
         painel.setBackground(SIDEBAR);
         painel.setBorder( new EmptyBorder( 10, 14, 20, 14 ) );
         JButton sair = item( FontAwesomeSolid.SIGN_OUT_ALT, "Sair", false );
-        sair.addActionListener(e -> {
-            new Login().setVisible(true);
-            dashboard.dispose();
-        });
+        sair.addActionListener(e -> dashboard.sairParaLogin());
         painel.add(sair);
         return painel;
     }

@@ -1,6 +1,8 @@
 package br.com.gerenciadoreventos.view;
 
 import br.com.gerenciadoreventos.model.Usuario;
+import br.com.gerenciadoreventos.service.AuditoriaService;
+import br.com.gerenciadoreventos.session.SessaoUsuario;
 import br.com.gerenciadoreventos.theme.ThemeManager;
 import br.com.gerenciadoreventos.view.components.DashboardCards;
 import br.com.gerenciadoreventos.view.components.DashboardCenter;
@@ -11,11 +13,15 @@ import br.com.gerenciadoreventos.view.pages.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class Dashboard extends JFrame {
     private static final Color FUNDO = new Color(246, 248, 252);
 
     private final Usuario usuarioLogado;
+    private final AuditoriaService auditoriaService = new AuditoriaService();
+    private boolean sessaoEncerrada;
 
     private Sidebar sidebar;
 
@@ -42,7 +48,13 @@ public class Dashboard extends JFrame {
         setIconImage( icone.getImage() );
         setSize( 1200, 750 );
         setMinimumSize( new Dimension( 1000, 650 ) );
-        setDefaultCloseOperation( EXIT_ON_CLOSE );
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                encerrarAplicacao();
+            }
+        });
         setLocationRelativeTo(null);
     }
 
@@ -176,6 +188,28 @@ public class Dashboard extends JFrame {
         repaint();
     }
 
+
+    public void sairParaLogin() {
+        encerrarSessao();
+        new Login().setVisible(true);
+        dispose();
+    }
+
+    private void encerrarAplicacao() {
+        encerrarSessao();
+        dispose();
+        System.exit(0);
+    }
+
+    private void encerrarSessao() {
+        if (sessaoEncerrada) {
+            return;
+        }
+        sessaoEncerrada = true;
+        auditoriaService.registrarLogout(usuarioLogado);
+        SessaoUsuario.encerrar();
+    }
+
     // MAIN
 
     public static void main(String[] args) {
@@ -192,6 +226,7 @@ public class Dashboard extends JFrame {
             usuario.setEmail( "admin@etec.com.br" );
             usuario.setTipoUsuario( "ADMINISTRADOR" );
             usuario.setAtivo(true);
+            SessaoUsuario.iniciar(usuario);
             Dashboard dashboard = new Dashboard(usuario);
             dashboard.setVisible(true);
         });

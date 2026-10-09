@@ -1,0 +1,61 @@
+AUDITORIA COMPLETA E ÚLTIMA ALTERAÇÃO
+
+O que foi adicionado
+
+- Todas as 20 tabelas do banco agora recebem os campos alterado_em e alterado_por.
+- As 19 tabelas operacionais possuem triggers para registrar CADASTRO, ALTERACAO e EXCLUSAO.
+- A tabela auditoria também possui alterado_em e alterado_por, mas não audita a si própria para evitar recursão infinita.
+- LOGIN e LOGOUT são registrados pelo Java.
+- A sessão do usuário logado é enviada para o MySQL em @etask_usuario_id em cada conexão JDBC.
+- Alterações automáticas do sistema, como encerramento automático de comissão e desativação automática de alunos formados, são registradas como SISTEMA.
+- O fluxo de recuperação de senha não grava senha nem código de recuperação na auditoria.
+- A redefinição efetiva da senha, após código válido, é atribuída ao próprio usuário.
+
+Como aplicar no banco que já existe
+
+Execute UMA VEZ:
+
+src/main/java/br/com/gerenciadoreventos/util/migracao_auditoria_completa.sql
+
+Não precisa apagar nem recriar o banco.
+
+O projeto2.sql completo também já contém toda a estrutura nova caso o banco seja criado do zero.
+
+Como verificar
+
+1. Entre no sistema.
+2. Altere o nome, e-mail ou outro dado de um aluno, professor, evento, comissão etc.
+3. Consulte o registro alterado. Exemplo:
+
+SELECT
+    a.id_aluno,
+    a.nome,
+    a.alterado_em,
+    a.alterado_por,
+    u.nome AS alterado_por_nome
+FROM aluno a
+LEFT JOIN usuario u ON u.id_usuario = a.alterado_por
+WHERE a.id_aluno = 1;
+
+4. Consulte a auditoria:
+
+SELECT *
+FROM vw_auditoria
+ORDER BY data_hora DESC, id_auditoria DESC;
+
+A auditoria guarda:
+
+- usuário responsável;
+- ação: LOGIN, LOGOUT, CADASTRO, ALTERACAO ou EXCLUSAO;
+- tabela alterada;
+- chave do registro;
+- data/hora;
+- estado anterior do registro;
+- estado novo do registro.
+
+Observações
+
+- Senhas e codigo_hash de recuperação NÃO são armazenados nos snapshots da auditoria.
+- Registros antigos, existentes antes da migração, ficam com alterado_em/alterado_por NULL até serem modificados. Isso evita inventar um usuário ou horário de alteração que não existia no histórico.
+- Novos registros já recebem alterado_em/alterado_por no momento do cadastro.
+- Exclusões em cascata do próprio MySQL são representadas principalmente pelo registro da operação principal que iniciou a cascata.

@@ -1,7 +1,9 @@
 package br.com.gerenciadoreventos.view;
 
 import br.com.gerenciadoreventos.model.Usuario;
+import br.com.gerenciadoreventos.service.AuditoriaService;
 import br.com.gerenciadoreventos.service.UsuarioService;
+import br.com.gerenciadoreventos.session.SessaoUsuario;
 import br.com.gerenciadoreventos.theme.ThemeManager;
 
 import javax.swing.*;
@@ -18,6 +20,7 @@ public class Login extends JFrame {
     private static final Color VERMELHO = new Color(220, 60, 60);
 
     private final UsuarioService usuarioService = new UsuarioService();
+    private final AuditoriaService auditoriaService = new AuditoriaService();
     private JTextField campoEmail;
     private JPasswordField campoSenha;
     private JLabel mensagemErro;
@@ -167,6 +170,8 @@ public class Login extends JFrame {
             exibirErro("E-mail ou senha incorretos!", campoSenha);
             return;
         }
+        SessaoUsuario.iniciar(usuario);
+        auditoriaService.registrarLogin(usuario);
         new Dashboard(usuario).setVisible(true);
         dispose();
     }

@@ -58,8 +58,12 @@ public class EventoDetalhesDAO {
                     ELSE TRUE
                 END
                 """;
+        Long usuarioAnterior = br.com.gerenciadoreventos.audit.ContextoAuditoria.getIdUsuario();
+        Conexao.definirUsuarioAuditoria(c, null);
         try (PreparedStatement ps = c.prepareStatement(sql)) {
             ps.executeUpdate();
+        } finally {
+            Conexao.definirUsuarioAuditoria(c, usuarioAnterior);
         }
     }
 

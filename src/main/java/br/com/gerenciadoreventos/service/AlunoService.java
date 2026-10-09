@@ -1,5 +1,6 @@
 package br.com.gerenciadoreventos.service;
 
+import br.com.gerenciadoreventos.audit.ContextoAuditoria;
 import br.com.gerenciadoreventos.dao.AlunoDAO;
 import br.com.gerenciadoreventos.model.Aluno;
 
@@ -40,6 +41,6 @@ public class AlunoService {
 
     public int desativarAlunosFormados() {
         int anoAtual = Year.now().getValue();
-        return alunoDAO.desativarFormados(anoAtual);
+        return ContextoAuditoria.executarComoSistema(() -> alunoDAO.desativarFormados(anoAtual));
     }
 }

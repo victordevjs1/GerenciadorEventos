@@ -1,5 +1,6 @@
 package br.com.gerenciadoreventos.service;
 
+import br.com.gerenciadoreventos.audit.ContextoAuditoria;
 import br.com.gerenciadoreventos.dao.RecuperacaoSenhaDAO;
 import br.com.gerenciadoreventos.dao.UsuarioDAO;
 import br.com.gerenciadoreventos.model.Usuario;
@@ -21,7 +22,9 @@ public class RecuperacaoSenhaService {
         Usuario usuario = buscarUsuario(email);
         String codigo = String.format("%06d", RANDOM.nextInt(1_000_000));
         String hash = BCrypt.hashpw(codigo, BCrypt.gensalt(10));
-        long idRecuperacao = recuperacaoDAO.criar( usuario.getId(), hash, LocalDateTime.now().plusMinutes(MINUTOS_EXPIRACAO) );
+        long idRecuperacao = recuperacaoDAO.criar(
+                usuario.getId(), hash, LocalDateTime.now().plusMinutes(MINUTOS_EXPIRACAO)
+        );
         try {
             emailService.enviarCodigoRecuperacao(usuario.getEmail(), usuario.getNome(), codigo);
         } catch (RuntimeException e) {
@@ -39,7 +42,9 @@ public class RecuperacaoSenhaService {
         validarSenha(novaSenha, confirmacao);
         RecuperacaoSenhaDAO.CodigoRecuperacao recuperacao = validarCodigoInterno(usuario, codigo);
         String hash = BCrypt.hashpw(novaSenha, BCrypt.gensalt(10));
-        recuperacaoDAO.redefinirSenha(recuperacao.id(), usuario.getId(), hash);
+        ContextoAuditoria.executarComo(usuario.getId(), () ->
+                recuperacaoDAO.redefinirSenha(recuperacao.id(), usuario.getId(), hash)
+        );
     }
 
     private RecuperacaoSenhaDAO.CodigoRecuperacao validarCodigoInterno(Usuario usuario, String codigo) {

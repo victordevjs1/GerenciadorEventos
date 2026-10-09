@@ -1,0 +1,16 @@
+STATUS AUTOMÁTICO DAS COMISSÕES
+
+Regra aplicada:
+- Antes do início do evento: ATIVA.
+- Durante o evento: ATIVA.
+- Quando NOW() >= evento.data_fim: INATIVA.
+- Evento sem data_fim: ATIVA.
+
+Alterações:
+- ComissaoDAO sincroniza comissao.ativo com evento.data_fim ao listar/buscar.
+- Cadastro e edição ignoram status manual e calculam o status pelo evento.
+- EventoDetalhesDAO usa a mesma regra na aba interna de Eventos.
+- Checkbox manual "Comissão ativa" foi removido dos dois formulários.
+- As telas de comissões atualizam o status automaticamente a cada 30 segundos enquanto visíveis.
+
+Nenhuma alteração de estrutura no banco de dados foi necessária.
